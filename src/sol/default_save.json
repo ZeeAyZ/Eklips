@@ -29,7 +29,7 @@
   },
   
   "load": {
-   "splash": "default_save.json",
+   "splash": "",
    "noload": 0,
    "loadskip": 1,
    "showtips": 0,
