@@ -23,7 +23,7 @@ The menu tells you the error the game has encountered, If you see this menu, att
 ## FAQs
 
 # Q: What should I do if I get a "File Not Found" error?
-A: Most of the times, Sol will use fallback assets, but if you do get this issue, Try reinstalling the game or checking if the files are there.
+A: Most of the time, Sol will use fallback assets, but if you do get this issue, Try reinstalling the game or checking if the files are there.
 
 # Q: Can I customize the controls?
 A: Customization options vary by game. Usually, all controls are customizable if the dev provides a settings environment, If the dev doesn't provide one, You can [manually change these settings by following this guide.](guides/mcs.md).
