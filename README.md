@@ -1,0 +1,20 @@
+# ![Sol](img/icon.png) Sol Engine
+A game engine written in Python using Pygame.
+
+# Features
+For now, the features are:
+ - Pre-built UI elements
+ - Custom UI renderer (draw objects, inputs, frames...)
+ - Pre-built Loading
+ - Pre-built Sound System
+ - Pre-built Saving and Settings support
+ - Layering support
+ - Event support
+ - Pre-built console and command support
+ - Pre-built keybind support
+ - Superset programming language (.sol)
+
+# Documentation
+Documentations for Sol are:
+ - <a href=/userm.md>User Manual</a>
+ - <a href=/devm.md>Developer Manual</a>

@@ -1,0 +1,12 @@
+pygame==2.5.0
+requests
+os
+time
+json
+threading
+random
+pillow
+pyperclip
+zipfile
+shutil
+pyinstaller

@@ -1,0 +1,63 @@
+{
+ "Id": 1,
+ "Empty": 1,
+ "Account": {
+  "LoggedIn": 0,
+  "UUID": 0,
+  "Server": "solengine.com/servers/021",
+  "offline_achievements": {}
+ },
+ "Settings": {
+  "region": {
+   "server": "eu",
+   "language": "en_US"
+  },
+
+  "display": {
+   "res": "full",
+   "layering": 1,
+   "addbstd": 1,
+   "FUNMODE": 0
+  },
+  
+  "peformance": {
+   "quality": 1,
+   "prlx": 0,
+   "bg": 1,
+   "fx": 0,
+   "fps": 60
+  },
+  
+  "load": {
+   "splash": "default_save.json",
+   "noload": 0,
+   "loadskip": 1,
+   "showtips": 0,
+   "lddelay": 2
+  },
+  
+  "volume": {
+   "menuvolume": 100,
+   "mastervolume": 100,
+   "gamevolume": 100,
+   "musicvolume": 100
+  },
+  
+  "game": {
+   "zoom": 1,
+   "pacing": 1
+  },
+  
+  "keys": {
+   "keyup": "w",
+   "keydown": "s",
+   "keyleft": "a",
+   "keyright": "d",
+   "keycheats": "`",
+   "keypause": "escape",
+   "keyinteract": "e",
+   "keyplace": "p",
+   "keyscreenshot": "]"
+  }
+ }
+}
