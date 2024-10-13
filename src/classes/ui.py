@@ -500,6 +500,7 @@ class Interface:
 			self.blit(disp, dispd["Pos"])
 		
 		#Return Black Surface
+		print(f"bo={bo}")
 		if bo:
 			surfb=pg.Surface(surf.get_size())
 			surfb.fill("black")
@@ -518,6 +519,7 @@ class Interface:
 					"surf": surfb,
 					"Pos": pos,
 					"Layer": -1,
+					"DNR":bo,
 					"LayerID": f"o{lk}",
 					"Clip": clip,
 					"Disp": disp,
@@ -536,6 +538,7 @@ class Interface:
 			},
 			"hovering": hovering,
 			"distance": distance,
+			"DNR":bo,
 			"AvailabilityCheckIsDisplay": 1,
 			"surf": surf,
 			"Pos": pos,
@@ -556,7 +559,7 @@ class Interface:
 		for i in self.layerold:
 			if not i in self.layers:
 				layerdata=self.layerold[i]["data"]
-				pos,surfb,sprite=layerdata["Pos"],pg.Surface(layerdata["surf"].get_size()),layerdata["sprite"]
+				pos,surfb,sprite,dnr=layerdata["Pos"],pg.Surface(layerdata["surf"].get_size()),layerdata["sprite"],layerdata["DNR"]
 				surfb.fill("black")
 				self.layers[f"oo{i}"] = {
 					"data": {
@@ -576,10 +579,12 @@ class Interface:
 						"LayerID": f"oo{i}",
 						"Clip": 0,
 						"Disp": 0,
+						"DNR": dnr,
 						"SpecialFlags": 0
 					}
 				}
-				lopop.append(i)
+				if dnr:
+					lopop.append(i)
 		
 		for i in lopop:
 			self.layerold.pop(i)
