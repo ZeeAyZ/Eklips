@@ -1,2 +1,2 @@
-SolRedist
+Sol 0.21.1
 sol

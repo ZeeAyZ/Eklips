@@ -32,7 +32,7 @@ def setdisp(isSplash=0,SpSc="full"):
 		if SpSc=="full":
 			display = pg.display.set_mode(display_size, flags)
 		else:
-			display = pg.display.set_mode(SpSc, flags)
+			display = pg.display.set_mode(SpSc, 0)
 
 resfol=open("game.txt").read().splitlines()[1]
 
@@ -122,9 +122,6 @@ def servref(ip="", debug=0):
 	e=net.ServerList(ip)
 	return e.out
 
-pb_con=""
-pbcb=0
-pbcs=0.1
 servers={}
 
 ## Loader
@@ -297,14 +294,18 @@ while (running):
 						ldt = 1
 						print("game: Loading Complete!")
 		elif loadscr == 0.9:
-			ux.blit(resld.load(f"{resld.resfol}/{fsm.val('Settings/load/splash')}.png"), [0,0])
+			path = f"{resld.resfol}/{fsm.val('Settings/load/splash')}.png"
+			print(path)
+			ux.blit(resld.load(path), [0,0])
 			ldt -= delta * 2
 			if ldt < 0.1:
 				loadscr = 0
 				ldt = 0
 				ldts = 1
 				loadskp=1
-				setdisp(0)
+				resol=fsm.val("Settings/display/res","fullbreak")
+				print(resol)
+				setdisp(SpSc=resol)
 		elif loadscr == 0.5: #LoadingFadeOut
 			ux.blit(resld.load(f"{resld.resfol}/media/sol/sol.png"), [0,0], scale=2, anchor="cx cy", alpha=ldt)
 			ux.blit(resld.load(f"{resld.resfol}/media/sol/ring.png"), [0,0], rotation=fticks*100, scale=2, anchor="cx cy", alpha=ldt)
