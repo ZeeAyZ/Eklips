@@ -33,7 +33,7 @@ class Interface:
 		self.ticks = 0
 		self.clk = clk #ClickSound
 		self.iscl = {} #IsClicking
-		self.IncludeDebugOverlays = 1
+		self.IncludeDebugOverlays = 0
 		self.frames = {}
 		self.res = res
 		self.cmpm = 0 #CompatibleMobileButtons
@@ -41,7 +41,7 @@ class Interface:
 		self.layers = {}
 		self.sliders = {}
 	
-	def input(self, size, pos, AlwaysOn=0, anchor="", scale=1, alpha=1, special_flags=0, cache=False, rotation=0, disp="display", clip=0, flip=0, placeholder="", id=None, value="", event=None, frys=0):
+	def input(self, size, pos, AlwaysOn=0, anchor="", scale=1, color="white", alpha=1, special_flags=0, cache=False, rotation=0, disp="display", clip=0, flip=0, placeholder="", id=None, value="", event=None, frys=0):
 		if event == None:
 			event = pg.event.get()
 		
@@ -67,14 +67,14 @@ class Interface:
 		if self.inputs[cache_key]["blink"]:
 			blnk="_"
 		else:
-			blnk=" "
+			blnk="  "
 		if not self.inputs[cache_key]["selected"] or not AlwaysOn:
-			blnk=" "
+			blnk="  "
 		self.inputs[cache_key]["blink"] = not self.inputs[cache_key]["blink"]
 		
 		# Render input
 		if self.inputs[cache_key]["value"] != "":
-			f=self.res.render(self.inputs[cache_key]["value"]+blnk, color="black")
+			f=self.res.render(self.inputs[cache_key]["value"]+blnk, color=color)
 			surf = pg.Surface((f.get_width(), f.get_height()*2), pg.SRCALPHA)
 			surf.blit(f, [10,10])
 			
@@ -115,9 +115,9 @@ class Interface:
 		
 		return self.inputs[cache_key]["value"]
 	
-	def frame(self, size, pos, anchor="", sxs=1, scale=1, alpha=1, special_flags=0, cache=False, rotation=0, disp="display", clip=0, flip=0, scrollable=1, id=None, frys=0):
+	def frame(self, size, pos, anchor="", sxs=1, scale=1, alpha=1, special_flags=0, cache=False, rotation=0, color=(200,200,200), disp="display", clip=0, flip=0, scrollable=1, id=None, frys=0):
 		surf = pg.Surface(size)
-		surf.fill((200, 200, 200))
+		surf.fill(color)
 		dispd={}
 		
 		if disp=="display":
@@ -499,34 +499,6 @@ class Interface:
 		if "AvailabilityCheckIsDisplay" in dispd:
 			self.blit(disp, dispd["Pos"])
 		
-		#Return Black Surface
-		print(f"bo={bo}")
-		if bo:
-			surfb=pg.Surface(surf.get_size())
-			surfb.fill("black")
-			self.layers[f"o{lk}"] = {
-				"data": {
-					"sprite": sprite,
-					"click": {
-						0: clicking_cmp and click[0],
-						1: clicking_cmp and click[1],
-						2: clicking_cmp and click[2],
-						"*": 1 in click
-					},
-					"hovering": hovering,
-					"distance": distance,
-					"AvailabilityCheckIsDisplay": 1,
-					"surf": surfb,
-					"Pos": pos,
-					"Layer": -1,
-					"DNR":bo,
-					"LayerID": f"o{lk}",
-					"Clip": clip,
-					"Disp": disp,
-					"SpecialFlags": 0
-				}
-			}
-
 		# Return relevant information
 		data={
 			"sprite": sprite,
@@ -546,49 +518,54 @@ class Interface:
 			"LayerID": lk,
 			"Clip": clip,
 			"Disp": disp,
+			"SetBlack": bo,
 			"SpecialFlags": special_flags
 		}
 		self.layers[lk]["data"] = data
 		return data
 	
 	def render(self, fun=0):
-		if self.IncludeDebugOverlays:
+		if 0:
 			self.blit(self.font.render(f"RenderedObj: {len(self.layers)}", 0, "white"), [0,0], layer=200)
 		
+		"""
 		lopop=[]
 		for i in self.layerold:
 			if not i in self.layers:
 				layerdata=self.layerold[i]["data"]
+				setblack=layerdata["SetBlack"]
 				pos,surfb,sprite,dnr=layerdata["Pos"],pg.Surface(layerdata["surf"].get_size()),layerdata["sprite"],layerdata["DNR"]
-				surfb.fill("black")
-				self.layers[f"oo{i}"] = {
-					"data": {
-						"sprite": sprite,
-						"click": {
-							0: 0,
-							1: 0,
-							2: 0,
-							"*": 0
-						},
-						"hovering": 0,
-						"distance": 0,
-						"AvailabilityCheckIsDisplay": 1,
-						"surf": surfb,
-						"Pos": pos,
-						"Layer": -1,
-						"LayerID": f"oo{i}",
-						"Clip": 0,
-						"Disp": 0,
-						"DNR": dnr,
-						"SpecialFlags": 0
+				if setblack:
+					surfb.fill("black")
+					self.layers[f"oo{i}"] = {
+						"data": {
+							"sprite": sprite,
+							"click": {
+								0: 0,
+								1: 0,
+								2: 0,
+								"*": 0
+							},
+							"hovering": 0,
+							"SetBlack": 1,
+							"distance": 0,
+							"AvailabilityCheckIsDisplay": 1,
+							"surf": surfb,
+							"Pos": pos,
+							"Layer": -1,
+							"LayerID": f"oo{i}",
+							"Clip": 0,
+							"Disp": 0,
+							"DNR": dnr,
+							"SpecialFlags": 0
+						}
 					}
-				}
-				if dnr:
-					lopop.append(i)
+					if dnr:
+						lopop.append(i)
 		
 		for i in lopop:
 			self.layerold.pop(i)
-
+		"""
 		
 		layersorg = {}
 		for i, (key, e) in enumerate(sorted(self.layers.items(), key=lambda x: x[1]["data"].get("Layer", 0))):
@@ -597,8 +574,14 @@ class Interface:
 		for i in layersorg:
 			layerdata=layersorg[i]["data"]
 
-			disp,surf,pos,clip,special_flags=layerdata["Disp"],layerdata["surf"],layerdata["Pos"],layerdata["Clip"],layerdata["SpecialFlags"]
+			disp,surf,pos,clip,special_flags,sb=layerdata["Disp"],layerdata["surf"],layerdata["Pos"],layerdata["Clip"],layerdata["SpecialFlags"],layerdata["SetBlack"]
 
+			if sb:
+				surfold=surf
+				surf=pg.Surface(surfold.get_size())
+				surf.fill("black")
+				surf.blit(surfold,[0,0])
+			
 			if fun:
 				sizec=random.randint(1,surf.get_width()),random.randint(1,surf.get_height())
 				posc=random.randint(0,(surf.get_width()-sizec[0])),random.randint(0,(surf.get_height()-sizec[1]))

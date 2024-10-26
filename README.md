@@ -1,4 +1,4 @@
-# ![Sol](img/icon.png) Sol Engine
+# ![Eklips](img/icon.png) Eklips Engine
 A game engine written in Python using Pygame.
 
 # Features
@@ -15,6 +15,6 @@ For now, the features are:
  - Superset programming language (.sol)
 
 # Documentation
-Documentations for Sol are:
+Documentations for Eklips are:
  - <a href=/userm.md>User Manual</a>
  - <a href=/devm.md>Developer Manual</a>

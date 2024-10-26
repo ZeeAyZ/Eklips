@@ -15,7 +15,7 @@ class Console(_overlay.Overlay):
 		self.dt = 0.00001
 		self.d=0
 		self.cooldownsh = 0
-		self.text = "Sol Engine Console\n\n"
+		self.text = "Eklips Engine Console\n\n"
 	
 	def _show(self):
 		if self.cooldownsh == 0:
@@ -50,11 +50,17 @@ class Console(_overlay.Overlay):
 	
 	def draw(self, event=None):
 		if self.y > -self.cs:
-			frame = self.ux.frame((self.cw, self.cs), (0, self.y), id="ConsoleFr", alpha=.5)
+			frame = self.ux.frame((self.cw, self.cs), (0, self.y), id="ConsoleFr", color="black", alpha=1)
+			oldtext=self.text.split("\n")
+			if len(oldtext)+3 > (self.cs/27):
+				for i in range(round(len(oldtext)+3 - self.cs/27)):
+					oldtext.pop(0)
+			self.text="\n".join(oldtext)
+				
 			txt = self.res.render(self.text, color="white")
 			txts = self.res.render("e")
-			self.ux.blit(txt, [20,60], disp=frame, layer=2000000000)
-			self.ux.input((50, 50), [0,0], anchor="", id="ConsoleInp", event=event, AlwaysOn=1)
+			self.ux.blit(txt, [20,60], layer=2, bo=0)
+			self.ux.input((50, 50), [0,0], anchor="", id="ConsoleInp", event=event, color="white", AlwaysOn=1)
 			
 			if self.ux.inputs["ConsoleInp"]["return"]:
 				if len(self.ux.inputs["ConsoleInp"]["value"].split()) > 0:

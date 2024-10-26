@@ -1,5 +1,5 @@
-# ![Sol](img/icon.png) User manual for Sol
-Welcome to Sol! This guide will help you get started with playing games created using the Sol Engine. Sol games offer a variety of experiences, and this manual will ensure you know how to install, run, and enjoy them.
+# ![Eklips](img/icon.png) User manual for Eklips
+Welcome to Eklips! This guide will help you get started with playing games created using the Eklips Engine. Eklips games offer a variety of experiences, and this manual will ensure you know how to install, run, and enjoy them.
 
 ## Table of Contents
  1. [Installation](#installation)
@@ -8,7 +8,7 @@ Welcome to Sol! This guide will help you get started with playing games created 
  4. [FAQs](#faqs)
 
 ## Installation
-Sol games will be bundled as a ZIP file, unextract it to where you want, and open the executable, Tampering with files is not recommended.
+Eklips games will be bundled as a ZIP file, unextract it to where you want, and open the executable, Tampering with files is not recommended.
 
 ## System Requirements
 You must have:
@@ -16,8 +16,8 @@ You must have:
  - The game you have to install
 
 ## Errors
-When Sol crashses you will get this menu:<br><br>
-![Sol error handler](img/solhl.png)<br><br>
+When Eklips crashses you will get this menu:<br><br>
+![Eklips error handler](img/solhl.png)<br><br>
 The menu tells you the error the game has encountered, If you see this menu, attach a screenshot of the menu and go to the Issues tab of Sol and post it.
 
 ## FAQs

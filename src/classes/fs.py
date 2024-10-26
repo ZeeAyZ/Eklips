@@ -32,7 +32,7 @@ class Filesystem:
 	def __init__(self, NAME):
 		self.gm = NAME
 		"""Filesystem and Save Manager"""
-		self.zadir = f"{os.path.expanduser('~')}/Sol Engine"
+		self.zadir = f"{os.path.expanduser('~')}/Eklips Engine"
 		self.pbdir = f"{self.zadir}/{NAME[0]}"
 		self.savedir = f"{self.pbdir}/Saves"
 		
