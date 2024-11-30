@@ -134,5 +134,30 @@ The Eklips engine uses a superset (`.ekeng\superset.sol`) config that contains a
     - ### Eklips.UI
         This is the class that controls every draw call that makes this game engine a game engine. There is a whole bunch of functions. 
 
+        - #### Eklips.UI.input(size, pos, AlwaysOn...)
+            Displays an inputbox that allows the user to write on it
+            Returns the value of the inputbox.
+            
+            ```
+            size = The size of the inputbox (REQUIRED)
+            pos = The position of the inputbox (REQUIRED)
+            AlwaysOn = If the inputbox is always on
+            anchor = The postion anchor of the inputbox
+            scale = The size multiplier of the inputbox
+            color = The color of the inputbox
+            alpha = The opacity (0-1) of the inputbox
+            special_flags = The special rendering flags, See pygame wiki for more info.
+            cache = If the inputbox surface should be cached
+            rotation = Rotation angle of the inputbox (Integer)
+            disp = Surface to display this input
+            clip = A portion of the inputbox to draw.
+            flip = If the inputbox should be flipped
+            placeholder = The text that is displayed if nothing has been written yet
+            id = The ID of the input
+            value = The value of the input
+            event = A list of currently queued events
+            frys = If the position cannot be changed by the parent being a frame
+            ```
+
  - ### Sol 
    This is the same namespace as the Eklips namespace, but for backwards-compatibility as the Eklips engine used to be called Sol. We changed the name for people to not be confused to which Sol is our engine.
