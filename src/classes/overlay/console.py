@@ -14,6 +14,7 @@ class Console(_overlay.Overlay):
 		self.cmd = {}
 		self.dt = 0.00001
 		self.d=0
+		self.bgr=0
 		self.cooldownsh = 0
 		self.text = "Eklips Engine Console\n\n"
 	
@@ -23,6 +24,7 @@ class Console(_overlay.Overlay):
 			self.cooldownsh = 5
 		else:
 			self.cooldownsh -= 0.5
+		self.bgr=1
 	
 	def _hide(self):
 		if self.cooldownsh == 0:
@@ -30,6 +32,7 @@ class Console(_overlay.Overlay):
 			self.cooldownsh = 5
 		else:
 			self.cooldownsh -= 0.5
+		self.bgr=1
 		
 	def _cmd(self, txt):
 		self.printf(f"] {txt}")

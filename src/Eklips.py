@@ -359,6 +359,10 @@ while (running):
 
 			ticks += delta
 		
+		if solcons.bgr and not bgr:
+			bgr=solcons.bgr
+			solcons.bgr=0
+		
 		cmdpop = []
 		for i in solcons.cmd:
 			txtd=solcons.cmd[i]
