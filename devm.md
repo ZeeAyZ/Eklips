@@ -40,7 +40,8 @@ In this folder you can modify any of these files to your liking.
 The Eklips engine uses a superset (`.ekeng\superset.sol`) config that contains all of the libraries. It is recommend to use the superset as the naming scheme in the code is a nightmare. (Will be fixed soon)
 
  - ### Eklips 
-   This is a namespace that contains all libraries on the Eklips engine.
+    This is a namespace that contains all libraries on the Eklips engine.
+    Currently, In version 3.1.0-beta1, This namespace doesnt exist. Use the Sol namespace instead. This will be fixed in version 3.1.0-beta2.
 
     - #### Eklips.Console
         This is the class that contains code that shows the console, the console can only be invoked by a script. The `eklips` folder has code that invokes the console by pressing the `key_cheats` key (defaulted to `).
@@ -134,6 +135,54 @@ The Eklips engine uses a superset (`.ekeng\superset.sol`) config that contains a
     - ### Eklips.UI
         This is the class that controls every draw call that makes this game engine a game engine. There is a whole bunch of functions. 
 
+        - #### Eklips.UI.render(fun)
+            Render all blit calls from highest layer first to lowest layer last.
+
+            ```
+            fun = This was made for fun, If True. The renderer breaks
+            ```
+
+        - #### Eklips.UI.slider(x, y, min_value, max_value...)
+            Displays a slider that can be changed
+            Returns the value of the slider
+            
+            ```
+            x = The X position of the slider (REQUIRED)
+            y = The Y position of the slider (REQUIRED)
+            min_value = The minimum value of the slider
+            max_value = The maximum value of the slider
+            initial_value = The default value of the slider
+            out_type = The output type of the slider. (List object
+                                                       out_type[0] = If the output value is an integer or string. ("int" or "str")
+                                                       out_type[1] = A list of strings that can be picked in the slider interface. This is only if out_type[0] is "str")
+            disp = The surface to draw the slider on
+            width = The width of the slider. (Integer)
+            id = The ID of the slider. (If the ID is 0, a random one will be generated)
+            layer = The layer the slider should be drawn in.
+            ```
+        - #### Eklips.UI.blit(surf, pos, anchor...)
+            Displays a surface onto the display/another surface
+            Returns the data of the drawn Surface (hovering, clicking, etc).
+            
+            ```
+            surf = The surface to be drawn (REQUIRED)
+            pos = The position of the surface (REQUIRED)
+            anchor = The position anchor (right, bottom, cx, cy)
+            scale = The size multiplier of the surface
+            special_flags = The special rendering flags, See pygame wiki for more info.
+            cache = If the manipulated surface should be cached.
+            rotation = Rotation angle of the surface (Integer)
+            size = The size of the surface *(width, height)*
+            disp = The surface to draw this surface on.
+            clip = The area to be displayed of the surface.
+            flip = A tuple that contains if the X and Y should be flipped *(boolean X, boolean Y)*
+            clks = UNUSED
+            frys = If the position cannot be changed by the parent being a frame
+            layer = The layer that the surface should be drawn in
+            id = The ID of the surface. (If the ID is 0, a random one will be generated)
+            add_bg = If a black background should be displayed at Layer 0.
+            ```
+
         - #### Eklips.UI.input(size, pos, AlwaysOn...)
             Displays an inputbox that allows the user to write on it
             Returns the value of the inputbox.
@@ -153,7 +202,7 @@ The Eklips engine uses a superset (`.ekeng\superset.sol`) config that contains a
             clip = A portion of the inputbox to draw.
             flip = If the inputbox should be flipped
             placeholder = The text that is displayed if nothing has been written yet
-            id = The ID of the input
+            id = The ID of the input. (If the ID is 0, a random one will be generated)
             value = The value of the input
             event = A list of currently queued events
             frys = If the position cannot be changed by the parent being a frame
