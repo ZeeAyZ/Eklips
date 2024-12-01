@@ -17,4 +17,4 @@ For now, the features are:
 # Documentation
 Documentations for Eklips are:
  - <a href=/userm.md>User Manual</a>
- - <a href=/devm.md>Developer Manual</a>
+ - <a href=https://github.com/Za9-118/Eklips>Developer Manual</a>
