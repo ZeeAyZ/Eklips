@@ -1,5 +1,5 @@
 # ![Eklips](img/icon.png) Eklips Engine
-A game engine written in Python using Pygame.
+A game engine (more of a framework) written in Python using Pygame.
 
 # Features
 For now, the features are:
@@ -12,7 +12,7 @@ For now, the features are:
  - Event support
  - Pre-built console and command support
  - Pre-built keybind support
- - Superset programming language (.sol)
+ - Superset programming language (.sol) because coding with the naming scheme i made half a year ago is torture
 
 # Documentation
 Documentations for Eklips are:
