@@ -12,7 +12,7 @@ For now, the features are:
  - Event support
  - Pre-built console and command support
  - Pre-built keybind support
- - Superset programming language (.sol) because coding with the naming scheme i made half a year ago is torture
+ - Superset programming language (.sol) because coding with the naming scheme i made half a year ago is torture (Will be changed soon)
 
 # Documentation
 Documentations for Eklips are at the [Wiki](https://github.com/Za9-118/Eklips/wiki) tab of the Github repo
