@@ -15,6 +15,4 @@ For now, the features are:
  - Superset programming language (.sol) because coding with the naming scheme i made half a year ago is torture
 
 # Documentation
-Documentations for Eklips are:
- - <a href=/userm.md>User Manual</a>
- - <a href=https://github.com/Za9-118/Eklips/wiki>Developer Manual</a>
+Documentations for Eklips are at the [Wiki](https://github.com/Za9-118/Eklips/wiki) tab of the Github repo
