@@ -1,4 +1,4 @@
 @PrebuiltSceneProperties
 menu_anchor=
 logo=media/logo.png
-options=mng/MakeNewGame_mcg/CheckHasSave_mint/CheckHasInternet/tgs_mstg/GoOption/tgs_mexit/ExitGame/tgs_reset/r/tgs
+options=reset/r/exit_error/ShowCrashLog{e}/exit_back/goback/exit

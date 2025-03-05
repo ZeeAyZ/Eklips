@@ -14,10 +14,10 @@ class Achievement(_overlay.Overlay):
 	
 	def add(self, name):
 		self.fs.set(f"Account/offline_achievements/{name}", [1, time.strftime("%B %d, %Y at %I:%M:%S %p")])
-		self.apidraw(name)
+		self.apiblit(name)
 	
 	def rem(self, name):
 		self.fs.set(f"Account/offline_achievements/{name}", [0,0])
 	
-	def apidraw(self, name):
+	def apiblit(self, name):
 		ach.append(name)

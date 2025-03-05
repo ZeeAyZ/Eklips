@@ -3,21 +3,21 @@ from pygame.locals import *
 
 # Define gravitational constants
 gravity_factor = .5
-gravity = 9.8 * gravity_factor
+gravity        = 9.8 * gravity_factor
 
 class PhysicsBody:
 	def __init__(self, rect, color="white", bf=.1, wgt=1, vel=[0,0]):
 		self.rect                    = rect
-		self.bouncy              = 1
-		self.vel_x                  = vel[0]
-		self.vel_y                  = vel[1]
-		self.weight               = wgt
-		self.friction              = 0.1
-		self.touched            = 0
-		self.rel                       = [0,0]
-		self.bounce_count   = 0
-		self.bounce_factor  = bf
-		self.col                      = color
+		self.bouncy                  = 1
+		self.vel_x                   = vel[0]
+		self.vel_y                   = vel[1]
+		self.weight                  = wgt
+		self.friction                = 0.1
+		self.touched                 = 0
+		self.rel                     = [0,0]
+		self.bounce_count            = 0
+		self.bounce_factor           = bf
+		self.col                     = color
 	
 	def _updvel(self, dt):
 		self.vel_y += (gravity * self.weight * (dt * 20)) / 10
@@ -59,12 +59,12 @@ class PhysicsBody:
 	
 	def update(self, surface, dt):
 		self._updvel(dt)
-		self._updbnc(dt)
+		self._updbnc(surface, dt)
 		self._updevent(self._getevent())
 		self._updmove()
-		self._draw(surface)
+		self._blit(surface)
 	
-	def _updbnc(self, dt):
+	def _updbnc(self, surface, dt):
 		if self.rect.y < 1:
 			self.rect.y = 0
 			self.vel_y = abs(self.vel_y) / self.bouncy
@@ -85,5 +85,5 @@ class PhysicsBody:
 		else:
 			self.bouncy += self.bounce_factor * dt
 		
-	def _draw(self, surface):
+	def _blit(self, surface):
 		pg.draw.rect(surface, self.col, self.rect)

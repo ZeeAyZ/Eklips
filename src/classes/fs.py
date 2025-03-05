@@ -49,7 +49,7 @@ class Filesystem:
 		self.sfile = {}
 		self.load()
 	
-	def val(self, key, default=0):
+	def get(self, key, default=0):
 		value = {"self": self, "val": default}
 		newline="\n"
 		code = f"val = self.sfile{path_to_list(key)}"
@@ -60,7 +60,12 @@ class Filesystem:
 		return value["val"]
 	
 	def set(self, val, out):
-		exec(f"self.sfile{path_to_list(val)} = {out}", locals())
+		oute=out
+		if type(oute).__name__ == "str":
+			oute=f'"{out}"'
+		code=f"self.sfile{path_to_list(val)} = {oute}"
+		print(code)
+		exec(code, locals())
 	
 	def load(self):
 		try:

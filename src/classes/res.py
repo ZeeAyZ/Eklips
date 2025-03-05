@@ -1,6 +1,6 @@
 ## Import
 import pygame as pg
-import json, os, zipfile, time
+import json, os, zipfile, random, threading
 from classes import helper
 
 ## Init
@@ -21,9 +21,12 @@ class ResourceLoader:
 		self.fnsmul = .75
 	
 	def load(self, asset):
+		color=(random.randint(127,255),random.randint(127,255),random.randint(127,255))
+		asset=asset.replace("\\","/")
 		if asset in self.resc or os.path.isdir(asset):
 			pass
 		else:
+			print(f"Loading {asset} for first time..")
 			try:
 				file = open(asset).read()
 			except:
@@ -39,32 +42,38 @@ class ResourceLoader:
 			if ext == "json":
 				try:
 					result = json.loads(file)
+					print(f" |-> {asset} loaded successfully")
 				except:
-					print("Broken asset")
+					print(f" |-> {asset} loaded unsuccessfully")
 			elif ext in ["png", "jpg", "jpeg"]:
 				try:
-					result = pg.image.load(asset)
+					result = pg.image.load(asset).convert_alpha()
+					print(f" |-> {asset} loaded successfully")
 				except:
 					result = pg.Surface((200, 200))
 					result.fill((0, 0, 0))
-					pg.draw.rect(result, (255,0,255), (0,0,100,100))
-					pg.draw.rect(result, (255,0,255), (100,100,100,100))
-					print("Broken asset")
+					pg.draw.rect(result, color, (0,0,100,100))
+					pg.draw.rect(result, color, (100,100,100,100))
+					print(f" |-> {asset} loaded unsuccessfully")
 			elif ext == "sol":
 				if file:
 					result = file
+					print(f" |-> {asset} loaded successfully")
 				else:
 					result = "broken=1"
+					print(f" |-> {asset} loaded unsuccessfully")
 			elif ext in ["wav", "mp3", "ogg"]:
 				try:
 					result = pg.mixer.Sound(asset)
+					print(f" |-> {asset} loaded successfully")
 				except:
-					print("Broken asset")
+					print(f" |-> {asset} loaded unsuccessfully")
 			elif ext in ["zip", "pbd"]:
 				try:
 					result = zipfile.ZipFile(asset)
+					print(f" |-> {asset} loaded successfully")
 				except:
-					print("Broken asset")
+					print(f" |-> {asset} loaded unsuccessfully")
 			else:
 				result = file
 			
@@ -97,11 +106,11 @@ class ResourceLoader:
 		#print(jsf,imf)
 		return [self.load(jsf), self.load(imf)]
 		
-	def render(self, text, size=40, font="default", color=(255,255,255)):
+	def render(self, text, size=40, font="default", cache=1, color=(255,255,255)):
 		if font == "default":
 			size = round(size * self.fnsmul)
 		asset = f"RenderedFont-{size}{font}-{text}-{color}"
-		if asset in self.resc:
+		if asset in self.resc and cache:
 			pass
 		else:
 			if font == "default":
@@ -134,16 +143,19 @@ class ResourceLoader:
 		
 		return self.resc[asset]["contents"]
 	
-	def load_all(self, fol="defaultGame"):
+	def _load_all(self, fol="defaultGame"):
+		print("Running..")
 		self.ldone = 0
 		if fol == "defaultGame":
 			fol=self.resfol
-		#print(f"Loading all files in '{fol}'")
+		print(f"Loading all files in project '{fol}'")
 		self.files = helper.list_files(fol)
 		
 		for asset in self.files:
-			#print(f" |-> {asset}")
 			self.load(asset)
 		
-		#print("Done Loading.")
+		print("Done Loading.")
 		self.ldone = 1
+	def load_all(self, fol="defaultGame"):
+		t=threading.Thread(target=self._load_all,args=(fol,))
+		t.run()

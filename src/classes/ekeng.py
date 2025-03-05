@@ -1,7 +1,7 @@
 import json, os
 import threading as th
 
-Running = ""
+Running = {}
 
 class Engine:
 	# Sol tools
@@ -80,7 +80,7 @@ class Engine:
 		
 	def run(self,file,isf=1,gl=0,lc=0):
 		global Running
-		Running=file.replace("\\",".").replace("/",".")
+		id=file.replace("\\",".").replace("/",".")
 		if isf:
 			try:
 				code=open(file).read()
@@ -92,12 +92,14 @@ class Engine:
 			gl = globals()
 		if not lc:
 			lc = locals()
+		Running[id]=[gl,lc]
 		
 		superset=self.read(".ekeng/superset.sol")["info"]
 		for i in superset:
 			code=code.replace(i.rstrip(" "), superset[i].lstrip(" "))
 		
 		exec(code, gl, lc)
+		Running.pop(id)
 	
 	def read(self,file):
 		#Read Sol config files
