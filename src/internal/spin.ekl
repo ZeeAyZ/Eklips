@@ -14,6 +14,5 @@ def _process(empty):
         ekl = scene.get_node_from_path("","Eclipse")
         ekl.parameters["transform"]["alpha"] = myself.parameters["transform"]["alpha"]
 
-    if myself.parameters["transform"]["alpha"] < 0.005:
-        reload_engine("terre")
+    if myselfre.parameters["transform"]["alpha"] < 0.005:
         load_new_scene(Data.game_bdata["master-scene"])
