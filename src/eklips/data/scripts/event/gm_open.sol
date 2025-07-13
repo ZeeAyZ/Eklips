@@ -1,1 +1,0 @@
-; User open game (MakeNewGame/CheckHasSave)

@@ -1,1 +1,0 @@
-; Mp send string (soon)

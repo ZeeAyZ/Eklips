@@ -1,0 +1,19 @@
+# ver=4.0A / py=3.12 / has_onr=1 / has_proc=1
+
+def on_ready(empty):
+    myself.root_scene.loading_rotate = 0
+
+def _process(empty):
+    rs = 0.5
+    myself.root_scene.loading_rotate += rs
+    if myself.parameters.get("iwannarotate"):
+        myself.parameters["transform"]["rot"] += rs
+
+    if myself.root_scene.loading_rotate > 100:
+        myself.parameters["transform"]["alpha"] -= 0.005
+        ekl = scene.get_node_from_path("","Eclipse")
+        ekl.parameters["transform"]["alpha"] = myself.parameters["transform"]["alpha"]
+
+    if myself.parameters["transform"]["alpha"] < 0.005:
+        reload_engine("terre")
+        load_new_scene(Data.game_bdata["master-scene"])

@@ -1,18 +1,20 @@
 # ![Eklips](img/icon.png) Eklips Engine
-A game engine (more of a framework) written in Python using Pygame.
+A Node hierarchy-based game engine written in Python using Pyglet.
 
 # Features
 For now, the features are:
- - Pre-built UI elements
- - Custom UI renderer (draw objects, inputs, frames...)
+ - 16 different Nodes (Window, 2D, GUI, etc..)
+ - Resource object support (Yet to be able to be serialized)
+ - Embedding files into the program  support (Use `program:/` instead of `res:/`.)
  - Pre-built Loading
+ - Custom filesystem similar to Godot (`res:/`, `program:/`, `user:/`..)
  - Pre-built Sound System
  - Pre-built Saving and Settings support
  - Layering support
  - Event support
- - Pre-built console and command support
- - Pre-built keybind support
- - Superset programming language (.sol) because coding with the naming scheme i made half a year ago is torture (Will be changed soon)
+ - Pre-built console and command support // WIP
+ - Pre-built keybind support             // WIP
+ - Scripting using Python support
 
 # Documentation
-Documentations for Eklips are at the [Wiki](https://github.com/Za9-118/Eklips/wiki) tab of the Github repo
+Documentations for Eklips are at the [Wiki](https://github.com/Za9-118/Eklips/wiki) tab of the Github repository.

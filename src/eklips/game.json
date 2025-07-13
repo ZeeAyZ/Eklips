@@ -1,0 +1,57 @@
+{
+    "project-ver":   "1.0",                          
+    "eklips-ver":    "4.0A",                        
+                                                     
+    "master-scene":  "res:/data/master.scn",        
+    "loading-scene": "program:/internal/loading.scn",
+    "file_drops":    1,                                
+                                                      
+    "directory":     "eklips",    
+    "glbl_scripts":  [],
+                                                      
+    "datagenerated": {                                
+        "mediafiles": [
+            "media/*.*"
+        ],
+        "datafiles": [
+            "data/*.*"
+        ]
+    },
+
+    "keys": {
+        "cursorup": {
+            "keys": ["w","up"],
+            "holdable": 0
+        },
+        "moveup": {
+            "keys": ["w","up"],
+            "holdable": 1
+        },
+        "cursordown": {
+            "keys": ["s","down"],
+            "holdable": 0
+        },
+        "movedown": {
+            "keys": ["s","down"],
+            "holdable": 1
+        },
+        "cursorleft": {
+            "keys": ["a","left"],
+            "holdable": 0
+        },
+        "moveleft": {
+            "keys": ["a","left"],
+            "holdable": 1
+        },
+        "cursorright": {
+            "keys": ["d","right"],
+            "holdable": 0
+        },
+        "moveright": {
+            "keys": ["d","right"],
+            "holdable": 1
+        }
+    },
+                                                     
+    "viewport_resolution": [1280, 720]               
+}

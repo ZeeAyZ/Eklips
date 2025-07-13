@@ -5,7 +5,7 @@ a = Analysis(
     ['Eklips.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('Data.py', '.'), ('ErrorHandler.py','.'),('classes','classes'),('internal','internal'),('SpecialIsResourceDataLoadable.py','.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -21,7 +21,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='Sol',
+    name='Eklips',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -32,6 +32,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    hide_console='hide-early',
 )
 coll = COLLECT(
     exe,
@@ -40,5 +41,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='Sol',
+    name='Eklips',
 )

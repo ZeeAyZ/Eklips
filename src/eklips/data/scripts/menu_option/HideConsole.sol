@@ -1,1 +1,0 @@
-Sol.Console.Hide()
