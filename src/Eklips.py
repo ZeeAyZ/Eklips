@@ -8,15 +8,24 @@ print("### Eklips 4.0A")
 ver = "4.0A"
 ErrorHandler.ver = ver
 
-## Ouch
+## A mess
+keys_pressed, keys_nheld = [],[]
 savefile,signal_sys,resource_loader,display,batch,icon,interface,initialized,event,im_running,ticks,clock,scene_file,scene = 0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+## Functions
 def reload_engine(dir=0, name=0):
-    global savefile,signal_sys,resource_loader,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
-    
+    global savefile,signal_sys,resource_loader,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
+    """Reload/Load the engine variables."""
+
+    ## Modify what project is being loaded if specified
     if not dir: dir = Data.data_directory
     if not name: name = Data.game_name
 
     Data.mod_data(dir,name)
+
+    ## Empty this variable since.. uh.. yeah.
+    keys_pressed = []
+    keys_nheld   = []
 
     ## Load libraries
     print(" ~ Initializing savefile")
@@ -65,29 +74,42 @@ def reload_engine(dir=0, name=0):
     print(f" ~ Initializing loading scene {scene_file}")
     scene      = Nodes.Scene(scene_file, interface, resource_loader, Data=Data)
 
-## Actually load the engine
-reload_engine()
-
 def load_new_scene(file):
     global scene_file, scene
+    """Load a new scene from a file path."""
     print(f" ~ Initializing scene {scene_file}")
     scene_file  = file
     print(f" ~ Emptying scene {scene.file}")
     scene.file  = file
     scene.nodes = {}  
     print(f" ~ Loading scene {scene.file}")
-    scene.load()      
-
-## FPS Display
-fps_display = pg.window.FPSDisplay(display)
-
-## Ouch
+    scene.load()  
+   
 def suicide():
     global im_running, interface, savefile, i_have_died
+    """Put the engine out of it's misery"""
     interface.close()
     im_running  = 0
     i_have_died = 1
     savefile.save_data()
+
+def is_key_pressed(key_name):
+    """Get if a key is pressed from it's name. (Name; eg. 'moveup', 'movedown', etc...)"""
+    global keys_pressed, keys_nheld
+    for i in Data.game_bdata["keys"]:
+        key_data = Data.game_bdata["keys"][i]
+        for key in key_data["keys"]:
+            if ord(key) in keys_pressed and key_data["holdable"]:
+                return 1
+            if ord(key) in keys_nheld and not key_data["holdable"]:
+                return 1
+    return 0
+
+## Actually load the engine
+reload_engine() 
+
+## FPS Display
+fps_display = pg.window.FPSDisplay(display)
 
 ## .. and run it!
 while (im_running):
@@ -100,6 +122,7 @@ while (im_running):
         display.dispatch_events()
         events              = event.get_and_handle()
         mpos, mpressed      = event.get_mouse()
+        keys_nheld          = event.key_once_map
         keys_pressed_barren = event.key_map
         keys_pressed        = []
 
@@ -122,9 +145,10 @@ while (im_running):
 
         # flip the screen
         clock.tick()
-        if savefile.get("display/showfps"):
+        if savefile.get("display/showfps", 1):
             fps_display.draw()
         interface.flip()
+        event.key_once_map = []
     except (BaseException, Exception) as e:
         suicide()
         ErrorHandler.raise_error(e, "from_scene", scene_file)

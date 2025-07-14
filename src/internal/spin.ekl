@@ -4,15 +4,15 @@ def on_ready(empty):
     myself.root_scene.loading_rotate = 0
 
 def _process(empty):
-    rs = 0.5
+    rs = 0.55
     myself.root_scene.loading_rotate += rs
     if myself.parameters.get("iwannarotate"):
         myself.parameters["transform"]["rot"] += rs
 
-    if myself.root_scene.loading_rotate > 100:
+    if myself.root_scene.loading_rotate > 350:
         myself.parameters["transform"]["alpha"] -= 0.005
         ekl = scene.get_node_from_path("","Eclipse")
         ekl.parameters["transform"]["alpha"] = myself.parameters["transform"]["alpha"]
 
-    if myself.parameters["transform"]["alpha"] < 0.005:
+    if myself.parameters["transform"]["alpha"] < -2.5:
         load_new_scene(Data.game_bdata["master-scene"])

@@ -162,7 +162,6 @@ class Loader:
                     else:
                         asset = open(actual_path).read()
                         assetres = Script(asset, "str", actual_path)
-                assetres.serialize(actual_path+".tres")
                 
                 self.resource_tree[location] = assetres
                 return assetres

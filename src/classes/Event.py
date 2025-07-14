@@ -4,9 +4,10 @@ import pyglet as pg
 ## Event class
 class Event:
     def __init__(self, window):
-        self.screen  = window
-        self.key_map = {}
-        self.events  = []
+        self.screen       = window
+        self.key_map      = {}
+        self.key_once_map = []
+        self.events       = []
         window.push_handlers(self)
         self.mouse_pos = (0, 0)
         self.mouse_buttons = [0, 0, 0]  # Left, Middle, Right
@@ -56,6 +57,7 @@ class Event:
             elif i[0] == 'keydown':
                 code.append(1)
                 self.key_map[i[1]] = 1
+                self.key_once_map.append(i[1])
             elif i[0] == 'keyup':
                 code.append(2)
                 try:
