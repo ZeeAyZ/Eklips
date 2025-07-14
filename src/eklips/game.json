@@ -6,8 +6,9 @@
     "loading-scene": "program:/internal/loading.scn",
     "file_drops":    1,                                
                                                       
-    "directory":     "eklips",    
-    "glbl_scripts":  [],
+    "directory":        "eklips",    
+    "glbl_scripts":     [],
+    "can_fill_screen?": true,
                                                       
     "datagenerated": {                                
         "mediafiles": [

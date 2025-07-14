@@ -93,7 +93,8 @@ def suicide():
 while (im_running):
     # empty screen
     try:
-        #interface.fill()
+        if Data.game_bdata["can_fill_screen?"]:
+            interface.fill()
         
         # get events
         display.dispatch_events()
