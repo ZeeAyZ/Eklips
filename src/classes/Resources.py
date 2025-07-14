@@ -1,9 +1,11 @@
 ## Import all the libraries
-import pyglet as pg, json
+import pyglet as pg, gc, struct
 from SpecialIsResourceDataLoadable import is_it
 
+## Resources
 class Resource:
     def __init__(self, data="", type="str", path="test.png", parameters={}):
+        """Initalize the Resource object."""
         self.data = data
         self.para = parameters
         self.type = type
@@ -12,18 +14,29 @@ class Resource:
         print(f"    ~ Loading resource of type {type}")
     
     def get(self):
+        # Get the resource data (`Sprite`, `Image`, `Script`, etc..)
         return self.data
     
     def get_path(self):
+        # Get the resource path (`res:/test.png`, etc..)
         return self.path
     
     def on_ready(self):
         pass
 
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "wb") as f:
+            f.write(b"RSC")
+            f.write(struct.pack("<I", len(self.get_path())))
+            f.write(self.get_path().encode())
+
     def discard(self):
+        # Remove resource
         del self.data
         del self.path
         del self
+        gc.collect()
 
 class Image(Resource):
     def on_ready(self):
@@ -31,6 +44,14 @@ class Image(Resource):
         self.sprite = self.data
         self.width  = self.image.width
         self.height = self.image.height
+    
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "wb") as f:
+            f.write(b"IMG")
+            f.write(struct.pack("<II", self.width, self.height))
+            f.write(struct.pack("<I", len(self.get_path())))
+            f.write(self.get_path().encode())
 
 class SheetImage(Image):
     def on_ready(self):
@@ -47,9 +68,25 @@ class SheetImage(Image):
             cy = self.image.height - cy - ch
 
             self.image = self.image.get_region(cx, cy, cw, ch)
+    
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "wb") as f:
+            f.write(b"IMS")
+            try:
+                cx, cy, cw, ch = self.para["clip"]
+            except:
+                cx, cy, cw, ch = 0
+            f.write(struct.pack("<II", self.width, self.height))
+            f.write(struct.pack("<IIII", cx, cy, cw, ch))
+            f.write(struct.pack("<I", len(self.get_path())))
+            f.write(self.get_path().encode())
 
 class Media(Resource):
-    pass
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "wb") as f:
+            f.write(b"MED")
 
 def img_to_sheet(img, clip = 0):
     paran = img.para.copy()
@@ -64,12 +101,12 @@ class Script(Resource):
         self.contents = self.data
         self.language = self.contents.splitlines()[0]
     
-    def serialize(self):
-        dat = {
-            "con": self.contents,
-            "lan":     "Eklips 4.0A"
-        }
-        return dat
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "wb") as f:
+            f.write(b"SCR")
+            f.write(struct.pack("<I", len(self.get_path())))
+            f.write(self.get_path().encode())
     
 ## Loader class
 class Loader:
@@ -78,6 +115,7 @@ class Loader:
         self.resource_tree = {}
     
     def load(self, path, can_cache=1):
+        ## Load a resource. Specify path "`user:/..`", "`res:/..`" or "`program:/..`"
         asset       = 0
         type        = "mm"
         location    = path.lstrip("res:").lstrip("program:/")
@@ -117,6 +155,7 @@ class Loader:
                     else:
                         asset = open(actual_path).read()
                         assetres = Script(asset, "str", actual_path)
+                assetres.serialize(actual_path+".tres")
                 
                 self.resource_tree[location] = assetres
                 return assetres
