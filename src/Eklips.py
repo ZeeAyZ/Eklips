@@ -91,9 +91,9 @@ def suicide():
 
 ## .. and run it!
 while (im_running):
-    # empty screen
     try:
         if Data.game_bdata["can_fill_screen?"]:
+            # empty screen if allowed to
             interface.fill()
         
         # get events
@@ -103,12 +103,10 @@ while (im_running):
         keys_pressed_barren = event.key_map
         keys_pressed        = []
 
+        # add key presses from dictionary to a list that only shows currently pressed keys
         for i in keys_pressed_barren:
             if keys_pressed_barren[i]:
                 keys_pressed.append(i)
-
-        if ord('i') in keys_pressed:
-            load_new_scene(Data.game_bdata["loading-scene"])
         
         # handle scene and signals      
         try:
