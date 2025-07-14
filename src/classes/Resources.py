@@ -4,7 +4,8 @@ from SpecialIsResourceDataLoadable import is_it
 
 ## Resources
 class Resource:
-    def __init__(self, data="", type="str", path="test.png", parameters={}):
+    """The main Resource object. This stores nothing, but all other Resources uses this class as a base."""
+    def __init__(self, data="", type="str", path="nothing.txt", parameters={}):
         """Initalize the Resource object."""
         self.data = data
         self.para = parameters
@@ -39,6 +40,7 @@ class Resource:
         gc.collect()
 
 class Image(Resource):
+    """This resource stores a Sprite. you may get only the image by getting the `image` variable. Calling `get()` gives the sprite."""
     def on_ready(self):
         self.image  = self.data.image
         self.sprite = self.data
@@ -54,6 +56,7 @@ class Image(Resource):
             f.write(self.get_path().encode())
 
 class SheetImage(Image):
+    """A portion of a spritesheet image. Works just like a regular image resource, but saved differently."""
     def on_ready(self):
         self.image  = self.data.image
         self.sprite = self.data
@@ -83,20 +86,14 @@ class SheetImage(Image):
             f.write(self.get_path().encode())
 
 class Media(Resource):
+    """Mediafile resource. Can be video or audio."""
     def serialize(self, path):
         # Save the resource into a file
         with open(path, "wb") as f:
             f.write(b"MED")
 
-def img_to_sheet(img, clip = 0):
-    paran = img.para.copy()
-    paran["clip"] = clip
-    
-    ims = SheetImage(img.get(), img.type, img.path, paran)
-
-    return ims
-
 class Script(Resource):
+    """A Script file."""
     def on_ready(self):
         self.contents = self.data
         self.language = self.contents.splitlines()[0]
@@ -108,6 +105,16 @@ class Script(Resource):
             f.write(struct.pack("<I", len(self.get_path())))
             f.write(self.get_path().encode())
     
+## Functions
+def img_to_sheet(img, clip = 0):
+    """Convert a spritesheet image to only a part of it."""
+    paran = img.para.copy()
+    paran["clip"] = clip
+    
+    ims = SheetImage(img.get(), img.type, img.path, paran)
+
+    return ims
+
 ## Loader class
 class Loader:
     def __init__(self, Data):
