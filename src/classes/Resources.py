@@ -3,9 +3,9 @@ import pyglet as pg, json
 from SpecialIsResourceDataLoadable import is_it
 
 class Resource:
-    def __init__(self, data="", type="str", path="test.png"):
+    def __init__(self, data="", type="str", path="test.png", parameters={}):
         self.data = data
-        self.para = {}
+        self.para = parameters
         self.type = type
         self.path = path
         self.on_ready()
@@ -32,8 +32,32 @@ class Image(Resource):
         self.width  = self.image.width
         self.height = self.image.height
 
+class SheetImage(Image):
+    def on_ready(self):
+        self.image  = self.data.image
+        self.sprite = self.data
+        self.width  = self.image.width
+        self.height = self.image.height
+        self._clip()
+    
+    def _clip(self):
+        if self.para["clip"]:
+            ## Clipping
+            cx, cy, cw, ch = self.para["clip"]
+            cy = self.image.height - cy - ch
+
+            self.image = self.image.get_region(cx, cy, cw, ch)
+
 class Media(Resource):
     pass
+
+def img_to_sheet(img, clip = 0):
+    paran = img.para.copy()
+    paran["clip"] = clip
+    
+    ims = SheetImage(img.get(), img.type, img.path, paran)
+
+    return ims
 
 class Script(Resource):
     def on_ready(self):

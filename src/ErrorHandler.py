@@ -1,11 +1,11 @@
 from tkinter.messagebox import *
-import traceback, os
+import traceback, os, webbrowser
 
 class Preview(Exception): #Preview Error Class
     def __none__(self): return None
 
 def report(error):
-    pass
+    webbrowser.open_new_tab("https://github.com/Za9-118/Eklips/issues/new")
 
 ver = "?"
 
@@ -73,10 +73,6 @@ def raise_error(error, event="unknown", cause_of_event=None):
     )
     if should_i_report:
         report(info)
-        askokcancel(
-            "Eklips",
-            "Thank you for reporting~!"
-        )
 
 if __name__ == "__main__":
     raise_error(0)
