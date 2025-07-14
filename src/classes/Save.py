@@ -28,6 +28,7 @@ class Savefile:
         try:
             return reduce(operator.getitem, key.split('/'), self.savefile)
         except:
+            self.set(key, fallback)
             return fallback
 
     def set(self, key, value):

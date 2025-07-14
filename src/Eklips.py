@@ -120,13 +120,11 @@ while (im_running):
         if 0 in events:
             suicide()
             break
-        
-        # draw mouse 
-        # interface.blit(resource_loader.load("res:/media/cursor.png"), mpos, layer=50)
 
         # flip the screen
         clock.tick()
-        fps_display.draw()
+        if savefile.get("display/showfps"):
+            fps_display.draw()
         interface.flip()
     except (BaseException, Exception) as e:
         suicide()

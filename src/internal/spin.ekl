@@ -1,4 +1,4 @@
-# ver=4.0A / py=3.12 / has_onr=1 / has_proc=1
+# ver=4.0A / py=3.12 / has_onready=1 / has_process=1
 
 def on_ready(empty):
     myself.root_scene.loading_rotate = 0
@@ -14,5 +14,5 @@ def _process(empty):
         ekl = scene.get_node_from_path("","Eclipse")
         ekl.parameters["transform"]["alpha"] = myself.parameters["transform"]["alpha"]
 
-    if myselfre.parameters["transform"]["alpha"] < 0.005:
+    if myself.parameters["transform"]["alpha"] < 0.005:
         load_new_scene(Data.game_bdata["master-scene"])
