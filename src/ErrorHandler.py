@@ -1,13 +1,12 @@
 from tkinter.messagebox import *
 import traceback, os, webbrowser
+from classes.data_ekl import *
 
 class Preview(Exception): #Preview Error Class
     def __none__(self): return None
 
 def report(error):
     webbrowser.open_new_tab("https://github.com/Za9-118/Eklips/issues/new")
-
-ver = "?"
 
 def get_info(error, running):
     global ver

@@ -39,7 +39,7 @@
                     "scroll": [0,0]
                 },
                 "visible":1,
-                "sprite":"res:/media/eklips/eklips.png"
+                "sprite":"program:/internal/eklips/eklips.png"
             },
             "script_properties": {},
             "name":              "Eclipse",
@@ -50,7 +50,7 @@
         "aud": {
             "type":       "AudioPlayer",
             "properties": {
-                "media":     "res:/media/load.mp3",
+                "media":     "program:/internal/load.mp3",
                 "autostart": 1,
                 "loop":      0,
                 "where":     0
@@ -74,7 +74,7 @@
                     "scroll": [0,0]
                 },
                 "visible":1,
-                "sprite":       "res:/media/eklips/ring.png",
+                "sprite":       "program:/internal/eklips/ring.png",
                 "iwannarotate": 1
             },
             "script_properties": {},

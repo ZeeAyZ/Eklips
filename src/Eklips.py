@@ -3,11 +3,10 @@ import pyglet as pg
 import ErrorHandler, json, Data, gc, time
 from classes import UI, Save, Event, Signals, Nodes, Resources
 from classes.key_entries import key_entries
+from classes.data_ekl import *
 
 ## Print basic information and load version
 print("### Eklips 4.0A")
-ver = "4.0A"
-ErrorHandler.ver = ver
 
 ## A mess
 keys_pressed, keys_nheld = [],[]

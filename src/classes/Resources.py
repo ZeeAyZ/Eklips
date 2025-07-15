@@ -212,7 +212,5 @@ class Loader:
                         asset = open(actual_path).read()
                         assetres = Script(asset, "str", actual_path)
                 
-                assetres.serialize(actual_path+".import")
-                
                 self.resource_tree[location] = assetres
                 return assetres
