@@ -2,6 +2,7 @@
 import pyglet as pg
 import ErrorHandler, json, Data, gc
 from classes import UI, Save, Event, Signals, Nodes, Resources
+from classes.key_entries import key_entries
 
 ## Print basic information and load version
 print("### Eklips 4.0A")
@@ -87,7 +88,7 @@ def load_new_scene(file):
    
 def suicide():
     global im_running, interface, savefile, i_have_died
-    """Put the engine out of it's misery"""
+    """Put the engine out of its misery"""
     interface.close()
     im_running  = 0
     i_have_died = 1
@@ -97,12 +98,16 @@ def is_key_pressed(key_name):
     """Get if a key is pressed from it's name. (Name; eg. 'moveup', 'movedown', etc...)"""
     global keys_pressed, keys_nheld
     for i in Data.game_bdata["keys"]:
-        key_data = Data.game_bdata["keys"][i]
-        for key in key_data["keys"]:
-            if ord(key) in keys_pressed and key_data["holdable"]:
-                return 1
-            if ord(key) in keys_nheld and not key_data["holdable"]:
-                return 1
+        if i == key_name:
+            key_data = Data.game_bdata["keys"][i]
+            for key in key_data["keys"]:
+                keyd = key_entries[key.upper()]
+                if keyd in keys_pressed and key_data["holdable"]:
+                    print(" ~ ~ YesHeld")
+                    return 1
+                if keyd in keys_nheld and not key_data["holdable"]:
+                    print(" ~ ~ YesNoHeld")
+                    return 1
     return 0
 
 ## Actually load the engine
