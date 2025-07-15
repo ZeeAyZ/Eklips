@@ -1,6 +1,6 @@
 ## Import all the libraries
 import pyglet as pg
-import ErrorHandler, json, Data, gc
+import ErrorHandler, json, Data, gc, time
 from classes import UI, Save, Event, Signals, Nodes, Resources
 from classes.key_entries import key_entries
 
@@ -114,6 +114,9 @@ reload_engine()
 ## FPS Display
 fps_display = pg.window.FPSDisplay(display)
 
+## Delta time
+last_dt = time.time()
+
 ## .. and run it!
 while (im_running):
     try:
@@ -121,6 +124,11 @@ while (im_running):
             # empty screen if allowed to
             interface.fill()
         
+        # calculate delta time
+        current_dt = time.time()
+        delta = current_dt - last_dt # <- Delta time variable (0.1....)
+        last_dt = current_dt
+
         # get events
         display.dispatch_events()
         events              = event.get_and_handle()
