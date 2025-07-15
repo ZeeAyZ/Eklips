@@ -127,7 +127,6 @@ while (im_running):
         # calculate delta time
         current_dt = time.time()
         delta = current_dt - last_dt # <- Delta time variable (0.1....)
-        print(delta)
         last_dt = current_dt
 
         # get events
