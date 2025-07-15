@@ -103,10 +103,8 @@ def is_key_pressed(key_name):
             for key in key_data["keys"]:
                 keyd = key_entries[key.upper()]
                 if keyd in keys_pressed and key_data["holdable"]:
-                    print(" ~ ~ YesHeld")
                     return 1
                 if keyd in keys_nheld and not key_data["holdable"]:
-                    print(" ~ ~ YesNoHeld")
                     return 1
     return 0
 
