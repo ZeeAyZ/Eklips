@@ -640,7 +640,7 @@ class AnimatedSprite2D(Sprite2D):
     def true_init(self):
         self.parameters["sprite"] = ["res:/media/bg.png"]
         self.images               = []
-        self.sprite_used          = 0
+        self.sprite_used          = 0 
         self.editor_icon          = "Sprite2D"
 
     def on_ready(self):                     

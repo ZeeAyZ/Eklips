@@ -19,8 +19,8 @@ class Signal:
         data[self.nid]["data"]  = args
     
     def discard(self):
-        """Die"""
-        del data[self.nid]
+        """Kills the signal."""
+        data.pop(self.nid)
         del self.id
         del self.nid
         del self

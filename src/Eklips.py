@@ -34,7 +34,7 @@ def reload_engine(dir=0, name=0):
     print(" ~ Initializing signals")
     signal_sys      = Signals.SignalHandler()
     print(" ~ Initializing ResourceMan")
-    resource_loader = Resources.Loader(Data)
+    resource_loader = Resources.Loader(Data, savefile)
 
     ## .. and then display
     print(" ~ Initializing display")
