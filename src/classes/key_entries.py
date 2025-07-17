@@ -1,5 +1,7 @@
 from pyglet.window.key import *
 from pyglet.window import key
+
+## Don't touch this code
 key_entries_l = [
     BACKSPACE,
     TAB,

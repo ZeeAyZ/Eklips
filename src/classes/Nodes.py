@@ -1,12 +1,15 @@
 ## Import all the libraries
 import pyglet as pg
-import json,  time, types, tkinter as tk
+import json, time, types, tkinter as tk
 from tkinter.messagebox import *
 from classes import Event, UI, Resources
 from pyglet import gl
 from pyglet.text import Label as PygletLabel
 from anytree import NodeMixin
 from PIL import Image, ImageTk
+
+## Global stuff between all Nodes and Scenes
+player_global = pg.media.Player()
 
 ## Scene class
 camera_pos = [0,0]
@@ -313,17 +316,23 @@ class AudioPlayer(Node):
     Self-explanatory.
     """
     def true_init(self):
-        self.player = pg.media.Player()
+        self.player       = None
         self.parameters   = {
-            "media":     "res:/media/load.mp3",
-            "loop":      0,
-            "where":     0,
-            "autostart": 0
+            "media":       "res:/media/load.mp3",
+            "loop":        False,
+            "where":       0,
+            "autostart":   False,
+            "play_global": False
         }
         self.editor_icon  = "AudioPlayer"
         self.name         = "AudioPlayer"
         self.audio_data   = 0
-        self.as_playedyet = 0
+        self.is_playedyet = 0
+    
+    def on_ready(self):
+        global player_global
+        if self.parameters["play_global"]: self.player = player_global
+        else:                              self.player = pg.media.Player()
     
     def play(self, volume=1):
         what = self.audio_data
@@ -338,9 +347,9 @@ class AudioPlayer(Node):
     
     def update(self):
         global camera_pos
-        if not self.as_playedyet:
+        if not self.is_playedyet and self.parameters["autostart"]:
             self.play()
-            self.as_playedyet = 0
+            self.is_playedyet = 0
         self.get_fired()
         self.run_script()
         self.true_update()
@@ -535,7 +544,7 @@ class ColorRect(CanvasItem):
         r, g, b = self.parameters["color"]
         # RGB for each pixel, repeated for all pixels
         raw_data = bytes([r, g, b] * self.parameters["transform"]["size"][0] * self.parameters["transform"]["size"][1])
-        self.image = Resources.Resource(
+        self.image = Resources.Image(
             data = pg.sprite.Sprite(
                 pg.image.ImageData(
                     self.parameters["transform"]["size"][0],
@@ -556,50 +565,60 @@ class Treeview(CanvasItem):
         self.treechildren = {}
         self.visible      = []
     
-    def on_ready(self):
+    def true_update(self):
+        # TBA
         self.treechildren = self.parameters["children"]
         
         if self.parameters["visible"]:
-            pos = self.get_relative_pos()
-
-            pos       = [0, 0]
+            pos       = self.parameters["transform"]["pos"].copy()
+            id        = 0
             for i in self.treechildren:
-                prop      = {
-                            "transform": {
-                                "scale":  [1,1],
-                                "pos":    pos,
-                                "rot":    0,
-                                "anchor": "",
-                                "layer":  10,
-                                "alpha":  1,
-                                "size":   [200,50],
-                                "scroll": [0,0]
-                            },
-                            "color":    [255,255,255],
-                            "fontsize": 16,
-                            "visible":  1,
-                            "text":     i
-                }
                 node_p = f"{self.node_path_da}/{self.name}"
-                nm     = f"Label{(pos[1]+1)/30}"
-                label  =  self.root_scene.add_node(
-                    "Label",
-                    node_p,
-                    parameters=prop,
-                    script=None,
-                    node_data={
-                        "properties":        prop,
-                        "script_properties": {},
-                        "name":              nm,
-                        "script":            None,
-                        "path":              node_p,
-                        "runtimedata":       0
-                    },
-                    name=nm
+                nm     = f"Label{id}"
+                self.screen.render(
+                    text    = i,
+                    pos     = pos,
+
+                    anchor  = "",
+                    layer   = 10+id,
+                    blit_in = self.window_id
                 )
+                id     += 1
                 pos[1] += 30
 
 ## Every other 2D node
+class CollisionBox2D(Node2D):
+    def _check_overlap(self, rect1, rect2):
+        # Use AABB
+        return (
+            rect1.parameters["transform"]["pos"][0] < rect2.parameters["transform"]["pos"][0] + rect2.parameters["transform"]["size"][0] and
+            rect1.parameters["transform"]["pos"][0] + rect1.parameters["transform"]["size"][0] > rect2.x and
+            rect1.parameters["transform"]["pos"][1] < rect2.parameters["transform"]["pos"][1] + rect2.parameters["transform"]["size"][1] and
+            rect1.parameters["transform"]["pos"][1] + rect1.parameters["transform"]["size"][1] > rect2.parameters["transform"]["pos"][1]
+        )
+
+    def true_init(self):
+        self.name               = "CollisionBox2D"                    
+        self.editor_icon        = "CollisionBox2D"                    
+        self.x,     self.y      = self.parameters["transform"]["pos"] 
+        self.width, self.height = self.parameters["transform"]["size"]
+        self.w,     self.h      = self.width, self.height             
+    
+    def colliderect(self, rect): return self._check_overlap(self, rect)
+
+    def collidelist(self, rect_list):
+        id = 0
+        for i in rect_list:
+            if self._check_overlap(self, i): return id
+            else: id+=1
+        return -1
+
+    def collidelistall(self, rect_list):
+        il = []
+        for i in rect_list:
+            if self._check_overlap(self, i): il.append(i)
+        return il
+
 class Camera2D(Node2D):
     """
     ## A 2D Node to control the Camera in the 2D world.

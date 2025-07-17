@@ -50,10 +50,11 @@
         "aud": {
             "type":       "AudioPlayer",
             "properties": {
-                "media":     "program:/internal/load.mp3",
-                "autostart": 1,
-                "loop":      0,
-                "where":     0
+                "media":       "program:/internal/load.mp3",
+                "autostart":   true,
+                "loop":        false,
+                "where":       0,
+                "play_global": true
             },
             "script_properties": {},
             "name":              "AudioPlayer",

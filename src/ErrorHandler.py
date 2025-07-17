@@ -5,11 +5,15 @@ from classes.data_ekl import *
 class Preview(Exception): #Preview Error Class
     def __none__(self): return None
 
+error  = None
+reason = None
 def report(error):
     webbrowser.open_new_tab("https://github.com/Za9-118/Eklips/issues/new")
 
 def get_info(error, running):
     global ver
+    fn=f"dumps/error-{ver}-{len(os.listdir('dumps'))+1}.log.md"
+    os.mkdir("dumps",exist_ok=1)
     if error:
         ErrorObject=traceback.TracebackException.from_exception(error)
         ErrorInfo=f"""Error Type: {ErrorObject.exc_type_str}
@@ -38,11 +42,6 @@ FrameSummary #{fsid}:
 """
         except:
             pass
-        try:
-            os.mkdir("dumps")
-        except:
-            pass
-        fn=f"dumps/error-{ver}-{len(os.listdir('dumps'))+1}.log.md"
     
         QuickFix = "N/A (Not Available)"
         if ErrorObject.exc_type_str == "Preview":
@@ -54,7 +53,6 @@ FrameSummary #{fsid}:
         elif ErrorObject.exc_type_str == "KeyboardInterrupt":
             QuickFix = "You pressed Ctrl+C/Delete. Don't do that next time okay?"
     else:
-        fn=f"dumps/error-{ver}-{len(os.listdir('dumps'))+1}.log.md"
         QuickFix="N/A (Not Available)"
         ErrorInfo=f"The Traceback data could not be found. Attached value: {error}"
     with open(fn, "w") as f:
@@ -68,7 +66,7 @@ def raise_error(error, event="unknown", cause_of_event=None):
     info, QuickFix = get_info(error, running=cause_of_event)
     should_i_report = askyesno(
         "Eklips",
-        f"Eklips has crashed!\n\n{info}\n\nWould you like to report the error to the developers?\n{QuickFix}"
+        f"Eklips has crashed!\n\n{info}\n\nFix (if available): {QuickFix}\nAlleged suspect: {event}\nCause of suspect: {cause_of_event}"
     )
     if should_i_report:
         report(info)

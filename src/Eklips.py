@@ -5,12 +5,27 @@ from classes import UI, Save, Event, Signals, Nodes, Resources
 from classes.key_entries import key_entries
 from classes.data_ekl import *
 
-## Print basic information and load version
-print("### Eklips 4.0A")
+## Print basic information
+print(f"### Eklips {ver} / {Data.game_name} {Data.game_bdata['project-ver']}")
 
 ## A mess
 keys_pressed, keys_nheld = [],[]
-savefile,signal_sys,resource_loader,display,batch,icon,interface,initialized,event,im_running,ticks,clock,scene_file,scene = 0,0,0,0,0,0,0,0,0,0,0,0,0,0
+savefile        : Save.Savefile         = 0
+signal_sys      : Signals.SignalHandler = 0
+resource_loader : Resources.Loader      = 0
+display         : Unknown               = 0 # Pylance is being a bitch, and,
+                                            # to be honest, why use this variable when the interface
+                                            # variable exists?
+batch           : pg.graphics.Batch     = 0
+icon            : pg.image.BufferImage  = 0
+interface       : UI.Interface          = 0
+initialized     : bool                  = False
+event           : Event.Event           = 0
+im_running      : bool                  = True
+ticks           : int                   = 0
+clock           : pg.clock.Clock        = 0
+scene_file      : str                   = ""
+scene           : Nodes.Scene           = 0
 
 ## Functions
 def reload_engine(dir=0, name=0):
@@ -23,7 +38,7 @@ def reload_engine(dir=0, name=0):
 
     Data.mod_data(dir,name)
 
-    ## Empty this variable since.. uh.. yeah.
+    ## Empty this variable since.. uh.. yes.
     keys_pressed = []
     keys_nheld   = []
 
@@ -46,32 +61,27 @@ def reload_engine(dir=0, name=0):
             file_drops = Data.game_bdata["file_drops"],
             resizable  = True
         )
-        batch = pg.graphics.Batch()
-        icon = pg.image.load(f"{Data.data_directory}/media/icon.png")
+        batch    = pg.graphics.Batch()
+        icon     = pg.image.load(f"{Data.data_directory}/media/icon.png")
         display.set_icon(icon)
         interface = UI.Interface(display, batch)
     else:
         display.set_size(savefile.get("display/resolution")[0], savefile.get("display/resolution")[1])
         display.set_caption(Data.game_name)
-        icon = pg.image.load(f"{Data.data_directory}/media/icon.png")
+        icon      = pg.image.load(f"{Data.data_directory}/media/icon.png")
         display.set_icon(icon)
         interface = UI.Interface(display, batch)
 
-    initialized = 1
+    initialized = True
 
     ## .. more libraries
     print(" ~ Initializing events")
-    event           = Event.Event(display)
-
-    ## .. and make a bunch of variables!
-    print(" ~ Adding values")
-    im_running = 1
-    ticks      = 0
-    clock      = pg.clock.Clock()
+    event = Event.Event(display)
+    clock = pg.clock.Clock()
 
     ## Scene data
+    print(f" ~ Initializing loading scene")
     scene_file = Data.game_bdata["loading-scene"]
-    print(f" ~ Initializing loading scene {scene_file}")
     scene      = Nodes.Scene(scene_file, interface, resource_loader, Data=Data)
 
 def load_new_scene(file):
@@ -87,14 +97,14 @@ def load_new_scene(file):
    
 def suicide():
     global im_running, interface, savefile, i_have_died
-    """Put the engine out of its misery"""
+    """Kill the engine"""
     interface.close()
     im_running  = 0
     i_have_died = 1
     savefile.save_data()
 
 def is_key_pressed(key_name):
-    """Get if a key is pressed from it's name. (Name; eg. 'moveup', 'movedown', etc...)"""
+    """Get if a key is pressed from its name entry. (Name; eg. 'moveup', 'movedown', etc...)"""
     global keys_pressed, keys_nheld
     for i in Data.game_bdata["keys"]:
         if i == key_name:
@@ -102,10 +112,10 @@ def is_key_pressed(key_name):
             for key in key_data["keys"]:
                 keyd = key_entries[key.upper()]
                 if keyd in keys_pressed and key_data["holdable"]:
-                    return 1
+                    return True
                 if keyd in keys_nheld and not key_data["holdable"]:
-                    return 1
-    return 0
+                    return True
+    return False
 
 ## Actually load the engine
 reload_engine() 
@@ -133,24 +143,26 @@ while (im_running):
         events              = event.get_and_handle()
         mpos, mpressed      = event.get_mouse()
         keys_nheld          = event.key_once_map
-        keys_pressed_barren = event.key_map
+        keys_pressed_dict   = event.key_map
         keys_pressed        = []
 
         # add key presses from dictionary to a list that only shows currently pressed keys
-        for i in keys_pressed_barren:
-            if keys_pressed_barren[i]:
+        for i in keys_pressed_dict:
+            if keys_pressed_dict[i]:
                 keys_pressed.append(i)
         
         # handle scene and signals      
         try:
             scene.update(Signals, globals())
-        except (BaseException, Exception) as e:
-            ErrorHandler.raise_error(e, "from_scene", scene_file)
-            events.append(0)
+        except (BaseException, Exception) as error:
+            ErrorHandler.error  = error
+            ErrorHandler.reason = "from_scene"
+            events.append(premature_death)
         
-        # handle events
-        if 0 in events:
+        # handle events (most of them)
+        if soft_quit in events:
             suicide()
+            savefile.save_data()
             break
 
         # flip the screen
@@ -159,7 +171,13 @@ while (im_running):
             fps_display.draw()
         interface.flip()
         event.key_once_map = []
-    except (BaseException, Exception) as e:
+    except (BaseException, Exception) as error:
+        ErrorHandler.error  = error
+        ErrorHandler.reason = "from_engine"
+        events.append(premature_death)
+    
+    # handle crashes
+    if premature_death in events:
         suicide()
-        ErrorHandler.raise_error(e, "from_scene", scene_file)
+        ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, scene_file)
         break

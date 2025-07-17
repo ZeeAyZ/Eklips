@@ -3,7 +3,5 @@
         "instanced":     false,
         "instancedWith": ""
     },
-    "Nodes":      {
-
-    }
+    "Nodes":      {}
 }

@@ -1,5 +1,6 @@
 ## Import all the libraries
 import pyglet as pg
+from classes.data_ekl import *
 
 ## Event class
 class Event:
@@ -39,9 +40,8 @@ class Event:
         if button == 2: self.mouse_buttons[1] = 0
         if button == 4: self.mouse_buttons[2] = 0
     
-    # Get that bitch
     def get(self):
-        # Return and clear the queue like pygame.event.get()
+        # Return and clear the queue
         events_copy = self.events[:]
         self.events.clear()
         return events_copy
@@ -53,13 +53,13 @@ class Event:
         code = []
         for i in events:
             if i[0] == 'quit':
-                code.append(0)
+                code.append(soft_quit)
             elif i[0] == 'keydown':
-                code.append(1)
+                code.append(keydown)
                 self.key_map[i[1]] = 1
                 self.key_once_map.append(i[1])
             elif i[0] == 'keyup':
-                code.append(2)
+                code.append(keyup)
                 try:
                     self.key_map.pop(i[1])
                 except:
