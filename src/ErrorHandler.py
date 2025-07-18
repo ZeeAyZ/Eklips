@@ -1,19 +1,36 @@
 from tkinter.messagebox import *
-import traceback, os, webbrowser
+import traceback, os, webbrowser, requests
 from classes.data_ekl import *
+from github import Github
+from github import Auth
 
 class Preview(Exception): #Preview Error Class
     def __none__(self): return None
 
 error  = None
 reason = None
-def report(error):
-    webbrowser.open_new_tab("https://github.com/Za9-118/Eklips/issues/new")
+
+def report(errorinfo, errorobj):
+    auth   = Auth.Token(open("../../../../t").read()) # Token.. i'm not putting this in the repo, silly
+    g      = Github(auth=auth)
+    repo   = g.get_repo("Za9-118/Eklips")
+    issuel = 0
+    issues = repo.get_issues(state="open")
+    for issue in issues:
+        if not issue.pull_request:
+            issuel += 1
+    answer = repo.create_issue(title=f"Automated Issue #{issuel}: {errorobj.exc_type_str}", body=f"{errorinfo}") 
+
+    print(answer)
+    g.close()
+
+    return answer
 
 def get_info(error, running):
     global ver
-    fn=f"dumps/error-{ver}-{len(os.listdir('dumps'))+1}.log.md"
-    os.mkdir("dumps",exist_ok=1)
+    try:    os.mkdir("dumps")
+    except: None
+    fn = f"dumps/error-{ver}-{len(os.listdir('dumps'))+1}.log.md"
     if error:
         ErrorObject=traceback.TracebackException.from_exception(error)
         ErrorInfo=f"""Error Type: {ErrorObject.exc_type_str}
@@ -60,16 +77,13 @@ FrameSummary #{fsid}:
         f.write(f"Quick Fix for users: {QuickFix}\nCause of error: {running}\n\n")
         f.write(ErrorInfo)
         f.write("\n\nPlease send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. \nYour feedback is important!")
-    return ErrorInfo, QuickFix
+    return ErrorInfo, QuickFix, ErrorObject
 
 def raise_error(error, event="unknown", cause_of_event=None):
-    info, QuickFix = get_info(error, running=cause_of_event)
+    info, QuickFix, errorobj = get_info(error, running=cause_of_event)
     should_i_report = askyesno(
         "Eklips",
         f"Eklips has crashed!\n\n{info}\n\nFix (if available): {QuickFix}\nAlleged suspect: {event}\nCause of suspect: {cause_of_event}"
     )
     if should_i_report:
-        report(info)
-
-if __name__ == "__main__":
-    raise_error(0)
+        report(info, errorobj)

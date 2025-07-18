@@ -8,24 +8,26 @@ from classes.data_ekl import *
 ## Print basic information
 print(f"### Eklips {ver} / {Data.game_name} {Data.game_bdata['project-ver']}")
 
+## Basic garbage collection
+gc.enable()
+
 ## A mess
 keys_pressed, keys_nheld = [],[]
-savefile        : Save.Savefile         = 0
-signal_sys      : Signals.SignalHandler = 0
-resource_loader : Resources.Loader      = 0
-display         : Unknown               = 0 # Pylance is being a bitch, and,
-                                            # to be honest, why use this variable when the interface
-                                            # variable exists?
-batch           : pg.graphics.Batch     = 0
-icon            : pg.image.BufferImage  = 0
-interface       : UI.Interface          = 0
+savefile        : Save.Savefile         = 0    
+signal_sys      : Signals.SignalHandler = 0    
+resource_loader : Resources.Loader      = 0    
+display         : Unknown               = 0 # Pylance is being a bitch, and, to be honest,
+                                            # why use this variable when the interface variable exists?
+batch           : pg.graphics.Batch     = 0    
+icon            : pg.image.BufferImage  = 0    
+interface       : UI.Interface          = 0    
 initialized     : bool                  = False
-event           : Event.Event           = 0
-im_running      : bool                  = True
-ticks           : int                   = 0
-clock           : pg.clock.Clock        = 0
-scene_file      : str                   = ""
-scene           : Nodes.Scene           = 0
+event           : Event.Event           = 0    
+im_running      : bool                  = True 
+ticks           : int                   = 0    
+clock           : pg.clock.Clock        = 0    
+scene_file      : str                   = ""   
+scene           : Nodes.Scene           = 0    
 
 ## Functions
 def reload_engine(dir=0, name=0):
