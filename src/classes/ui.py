@@ -107,12 +107,13 @@ class Interface:
         else:
             self.draw_queue[id] = pg.sprite.Sprite(img, x=new_pos[0], y=new_pos[1], z=layer, batch=batch, group=self.layers[layer%15])
             self.draw_queue[id].scale_x, self.draw_queue[id].scale_y = scale
+            self.draw_queue[id].rotation =  rot
             if rot:
-                self.draw_queue[id].rotation =  rot            
-                self.draw_queue[id].x        += img.width      
-                self.draw_queue[id].y        += img.height     
-                self.draw_queue[id].anchor_x =  img.width  // 2
-                self.draw_queue[id].anchor_y =  img.height // 2
+                pass
+                #self.draw_queue[id].x        += img.width      
+                #self.draw_queue[id].y        += img.height     
+                #self.draw_queue[id].anchor_x =  img.width  // 2
+                #self.draw_queue[id].anchor_y =  img.height // 2
             self.draw_queue[id].opacity  = new_opacity
     
     def render(self, text, pos, blit_in="main", layer=5, anchor=""):
