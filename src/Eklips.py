@@ -93,7 +93,7 @@ def load_new_scene(file):
     scene_file  = file
     print(f" ~ Emptying scene {scene.file}")
     scene.file  = file
-    scene.nodes = {}  
+    scene.empty()
     print(f" ~ Loading scene {scene.file}")
     scene.load()  
    

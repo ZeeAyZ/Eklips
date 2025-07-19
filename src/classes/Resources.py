@@ -3,20 +3,30 @@ import pyglet as pg, gc, struct
 from SpecialIsResourceDataLoadable import is_it
 
 ## Resources
+global_res_len = 0
 class Resource:
     """The main Resource object. This stores nothing, but all other Resources uses this class as a base."""
     def __init__(self, data="", type="str", path="nothing.txt", parameters={}):
         """Initalize the Resource object."""
+        global global_res_len
+
         self.data = data
         self.para = parameters
         self.type = type
         self.path = path
+        self.id   = global_res_len
+
         self.on_ready()
         print(f"    ~ Loading resource of type {type}")
+        global_res_len += 1
     
     def get(self):
         # Get the resource data (`Sprite`, `Image`, `Script`, etc..)
         return self.data
+    
+    def get_id(self):
+        # Get the Resource ID
+        return self.id
     
     def get_path(self):
         # Get the resource path (`res:/test.png`, etc..)
@@ -40,10 +50,9 @@ class Resource:
         gc.collect()
 
 class Image(Resource):
-    """This resource stores a Sprite. you may get only the image by getting the `image` variable. Calling `get()` gives the sprite."""
+    """This resource stores an Image. you may get only the image by getting the `image` variable."""
     def on_ready(self):
-        self.image  = self.data.image
-        self.sprite = self.data
+        self.image  = self.data
         self.width  = self.image.width
         self.height = self.image.height
     
@@ -58,8 +67,7 @@ class Image(Resource):
 class SheetImage(Image):
     """A portion of a spritesheet image. Works just like a regular image resource, but saved differently."""
     def on_ready(self):
-        self.image  = self.data.image
-        self.sprite = self.data
+        self.image  = self.data
         self.width  = self.image.width
         self.height = self.image.height
         self._clip()
@@ -181,7 +189,7 @@ class Loader:
                 if path.startswith("program:"):
                     actual_path = path.lstrip("program:/")
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp"):
-                        asset = pg.sprite.Sprite(pg.resource.image(actual_path))
+                        asset = pg.resource.image(actual_path)
                         assetres = Image(asset, "sprite", path)
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","avi","mpeg"):
                         asset = pg.resource.media(actual_path)
@@ -200,7 +208,7 @@ class Loader:
                     else:
                         actual_path = path
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp","dds"):
-                        asset = pg.sprite.Sprite(pg.image.load(actual_path))
+                        asset = pg.image.load(actual_path)
                         assetres = Image(asset, "sprite", actual_path)
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","avi","mpeg"):
                         asset = pg.media.load(actual_path)

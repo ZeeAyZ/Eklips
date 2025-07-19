@@ -4,29 +4,39 @@ import json, time, types, tkinter as tk
 from tkinter.messagebox import *
 from classes import Event, UI, Resources
 from pyglet import gl
+from pyglet.graphics.shader import Shader, ShaderProgram
 from pyglet.text import Label as PygletLabel
 from anytree import NodeMixin
 from PIL import Image, ImageTk
 
 ## Global stuff between all Nodes and Scenes
-player_global = pg.media.Player()
+player_global   = pg.media.Player()
+nodes_collision = {}
 
 ## Scene class
 camera_pos = [0,0]
 interface  = 0
 class Scene:
     def __init__(self, file, screen, resourceman, Data):
-        global camera_pos, interface
+        global camera_pos, interface, nodes_collision
         self.file        = file
         self.eng_globals = {}
         self.nodes       = {}
         self.Data        = Data
         self.killing     = 0
         self.properties  = {}
+        nodes_collision  = {}
         self.screen      = screen
         interface        = self.screen
         self.resourceman = resourceman # Resource manager
         self.load() 
+    
+    def empty(self):
+        global nodes_collision
+        nodes_collision = {}
+        for i in self.nodes:
+            self.nodes[i]["object"].discard()
+        self.nodes      = {}
     
     def add_node(self, who, where, parameters={}, script=None, node_data={}, name="Node?"):
         id = len(self.nodes)
@@ -114,8 +124,9 @@ class Scene:
                     if "signals" in node.demand_for:
                         node.signal_data = signalclass.data
                     node.demand_for = []
-        except Exception as e:
-            print(f" Scene({self.file}) had an error updating; {e}")
+        except Exception as error:
+            print(f" Scene({self.file}) had an error updating; {error}")
+            raise error
     
     def get_node_from_name(self, name):
         # All names must be unique for this to work.
@@ -150,7 +161,7 @@ class Node(NodeMixin):
     You can make a script have an `on_ready(empty)` function. This will only run when a Node is fully loaded.
     You can make a script have an `_process(empty)` function. This will run every frame after `on_ready(empty)`.
 
-    There is nothing to do with it. The only useful thing to do with it is run a script with it.
+    There is nothing to do with it. The only useful thing to do with it is run a script with it, and no more.
     """
     def __init__(self, parameters, parent):
         self.parameters   = {}
@@ -166,15 +177,16 @@ class Node(NodeMixin):
         self.signal_data  = {}
         self.window_id    = "main"
         self.camera_pos   = [0,0]
+        self.dead         = 0
         self.resourceman  = 0
         self.editor_icon  = "Node"
-        self.initialized  = 0
+        self.initialized  = False
         self.engine_glb   = {}
         self.scriptobj    = 0
         self.true_init()
         for i in self.added_param:
             self.parameters[i] = self.added_param[i]
-        self.initialized  = 1
+        self.initialized  = True
     
     def true_init(self):
         # Empty
@@ -209,9 +221,24 @@ class Node(NodeMixin):
                 self.call_deferred("_process")
 
     def update(self):
-        self.get_fired()
-        self.run_script()
-        self.true_update()
+        if not self.dead:
+            self.get_fired()
+            self.run_script()
+            self.true_update()
+        else:
+            self._discard()
+    
+    def _discard(self):
+        del self.parameters
+        del self.name
+        del self.runtime_data
+        del self.scriptobj
+        del self.script
+        self.initialized = False
+        del self
+    
+    def discard(self):
+        self.dead = 1
     
     def get_fired(self):
         self.demand_for.append("signals")
@@ -245,15 +272,18 @@ class Window(Node):
         self.event     = Event.Event(self.my_window)
 
     def update(self):
-        self.my_window.dispatch_events()
-        events               = self.event.get_and_handle()
-        mpos, mpressed       = self.event.get_mouse()
-        keys_pressed         = self.event.key_map
+        if not self.dead:
+            self.my_window.dispatch_events()
+            events               = self.event.get_and_handle()
+            mpos, mpressed       = self.event.get_mouse()
+            keys_pressed         = self.event.key_map
 
-        self.my_window.clear()
-        self.get_fired()
-        self.run_script()
-        self.true_update()
+            self.my_window.clear()
+            self.get_fired()
+            self.run_script()
+            self.true_update()
+        else:
+            self._discard()
 
 class TkWindow(Node):
     """
@@ -347,12 +377,15 @@ class AudioPlayer(Node):
     
     def update(self):
         global camera_pos
-        if not self.is_playedyet and self.parameters["autostart"]:
-            self.play()
-            self.is_playedyet = 0
-        self.get_fired()
-        self.run_script()
-        self.true_update()
+        if not self.dead:
+            if not self.is_playedyet and self.parameters["autostart"]:
+                self.play()
+                self.is_playedyet = 0
+            self.get_fired()
+            self.run_script()
+            self.true_update()
+        else:
+            self._discard()
 
 class VideoPlayer(AudioPlayer):
     """
@@ -429,6 +462,7 @@ class CanvasItem(Node):
             "scroll": [0, 0],
             "rot":    0
         }
+        self.sprid                       = 0
         self.parameters["visible"]       = 1
         self.name                        = "CanvasItem"
         self.anchor                      = self.parameters["transform"]["anchor"]
@@ -454,9 +488,19 @@ class CanvasItem(Node):
             return self.parent.parameters["transform"]["anchor"]
         return self.parameters["transform"]["anchor"]
     
+    def _discard(self):
+        # self.screen.rem_from_pool(self.sprid)
+        del self.parameters
+        del self.name
+        del self.runtime_data
+        del self.scriptobj
+        del self.script
+        self.initialized = False
+        del self
+    
     def load_render(self):
         if self.image and self.parameters["visible"]:
-            self.screen.blit(
+            self.sprid = self.screen.blit(
                 self.image,                                   
                 self.get_relative_pos(),             
                 anchor  = self.parameters["transform"]["anchor"],
@@ -469,11 +513,14 @@ class CanvasItem(Node):
     
     def update(self):
         global camera_pos
-        self.get_fired()
-        self.run_script()
-        self.anchor                      = self.parameters["transform"]["anchor"]
-        self.runtime_data["rendererpos"] = self.parameters["transform"]["pos"]
-        self.true_update()
+        if not self.dead:
+            self.get_fired()
+            self.run_script()
+            self.anchor                      = self.parameters["transform"]["anchor"]
+            self.runtime_data["rendererpos"] = self.parameters["transform"]["pos"]
+            self.true_update()
+        else:
+            self._discard()
 
 class Node2D(CanvasItem):
     """
@@ -489,13 +536,16 @@ class Node2D(CanvasItem):
     
     def update(self):
         global camera_pos
-        self.get_fired()
-        self.run_script()
-        self.runtime_data["rendererpos"] = [
-            self.parameters["transform"]["pos"][0] + camera_pos[0],
-            self.parameters["transform"]["pos"][1] + camera_pos[1]
-        ]
-        self.true_update()
+        if not self.dead:
+            self.get_fired()
+            self.run_script()
+            self.runtime_data["rendererpos"] = [
+                self.parameters["transform"]["pos"][0] + camera_pos[0],
+                self.parameters["transform"]["pos"][1] + camera_pos[1]
+            ]
+            self.true_update()
+        else:
+            self._discard()
 
 ## Every canvas node
 class Label(CanvasItem):
@@ -545,16 +595,11 @@ class ColorRect(CanvasItem):
         # RGB for each pixel, repeated for all pixels
         raw_data = bytes([r, g, b] * self.parameters["transform"]["size"][0] * self.parameters["transform"]["size"][1])
         self.image = Resources.Image(
-            data = pg.sprite.Sprite(
-                pg.image.ImageData(
-                    self.parameters["transform"]["size"][0],
-                    self.parameters["transform"]["size"][1],
-                    'RGB',
-                    raw_data
-                ),
-                x=100,
-                y=100,
-                z=-15
+            data = pg.image.ImageData(
+                self.parameters["transform"]["size"][0],
+                self.parameters["transform"]["size"][1],
+                'RGB',
+                raw_data
             ),
             type = "sprite",
             path = f"{r+g+b/3}{self.parameters["transform"]["size"]}.mm"
@@ -598,11 +643,13 @@ class CollisionBox2D(Node2D):
         )
 
     def true_init(self):
-        self.name               = "CollisionBox2D"                    
-        self.editor_icon        = "CollisionBox2D"                    
-        self.x,     self.y      = self.parameters["transform"]["pos"] 
-        self.width, self.height = self.parameters["transform"]["size"]
-        self.w,     self.h      = self.width, self.height             
+        self.name                = "CollisionBox2D"                                 
+        self.editor_icon         = "CollisionBox2D"                                 
+        self.x,     self.y       = self.parameters["transform"]["pos"]              
+        self.width, self.height  = self.parameters["transform"]["size"]             
+        self.w,     self.h       = self.width, self.height                          
+        self.id                  = f"{self.path}/{self.name}NodeColA{self.w*self.h}"
+        nodes_collision[self.id] = self                                             
     
     def colliderect(self, rect): return self._check_overlap(self, rect)
 
@@ -618,6 +665,26 @@ class CollisionBox2D(Node2D):
         for i in rect_list:
             if self._check_overlap(self, i): il.append(i)
         return il
+    
+    def get_all_rects_nearby(self, rang=500):
+        il = []
+        for i in nodes_collision:
+            node = nodes_collision[i]
+            # rang = The range in pixels that this rectangle can be in to count
+            if abs(node.x - node.x) < rang:
+                if abs(node.y - node.y) < rang:
+                    il.append(node)
+        return il
+
+    def _discard(self):
+        del self.parameters
+        del self.name
+        del self.runtime_data
+        del self.scriptobj
+        del self.script
+        self.initialized = False
+        nodes_collision.pop(self.id)
+        del self
 
 class Camera2D(Node2D):
     """

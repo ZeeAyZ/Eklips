@@ -1,9 +1,5 @@
 ## Import all the libraries
 import pyglet as pg
-import math   as meth
-import random
-from PIL import Image
-import io
 
 ## UI Class.
 class Interface:
@@ -68,10 +64,9 @@ class Interface:
         # the origin for the position is topleft. surface is a sprite.
         new_pos     = pos[:]
         path        = surface.get_path()
-        new_surface = surface.get()
+        img         = surface.get()
         new_opacity = int(opacity * 255)
-        new_surface.scale_x, new_surface.scale_y = scale
-        new_clip    = clip
+        img.scale_x, img.scale_y = scale
 
         if clip:
             ## Clipping
@@ -81,10 +76,10 @@ class Interface:
             if can_cache:
                 id = f"{path}{cx}{cy}{cw}{ch}"
                 if not id in self.area_cache:
-                    new_surface = surface.image.get_region(cx, cy, cw, ch)
-                    self.area_cache[id] = new_surface
+                    img = img.get_region(cx, cy, cw, ch)
+                    self.area_cache[id] = img
                 else:
-                    new_surface = self.area_cache[id]
+                    img = self.area_cache[id]
         
         ## Anchoring
         if blit_in  == "main":
@@ -95,11 +90,10 @@ class Interface:
         batch  = self.surfaces[blit_in]["batch"]
         
         win_w, win_h = screen.get_size()
-        new_pos      = self.get_anchor(pos,win_w,win_h,anchor,new_surface.width,new_surface.height,1)
+        new_pos      = self.get_anchor(pos,win_w,win_h,anchor,img.width,img.height,1)
         
         ## Detect if i'm even visible and change position
         id  = len(self.draw_queue)
-        img = new_surface.image
         if scroll != [0, 0]:
             img = img.get_region(
                 scroll[0] % img.width, 
@@ -108,11 +102,7 @@ class Interface:
                 img.height             
             )
         
-        if rot:
-            img.anchor_x = img.width  // 2 
-            img.anchor_y = img.height // 2 # (img.height)
-        
-        if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -new_surface.width or new_pos[1] < -new_surface.height:
+        if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -img.width or new_pos[1] < -img.height:
             pass
         else:
             if layer > 15:
@@ -120,9 +110,11 @@ class Interface:
             self.draw_queue[id] = pg.sprite.Sprite(img, x=new_pos[0], y=new_pos[1], z=layer, batch=batch, group=self.layers[layer])
             self.draw_queue[id].scale_x, self.draw_queue[id].scale_y = scale
             if rot:
-                self.draw_queue[id].rotation =  rot        
-                self.draw_queue[id].x        += img.width 
-                self.draw_queue[id].y        += img.height
+                self.draw_queue[id].rotation =  rot            
+                self.draw_queue[id].x        += img.width      
+                self.draw_queue[id].y        += img.height     
+                self.draw_queue[id].anchor_x =  img.width  // 2
+                self.draw_queue[id].anchor_y =  img.height // 2
             if new_opacity > 0:
                 self.draw_queue[id].opacity  = new_opacity
             else:
