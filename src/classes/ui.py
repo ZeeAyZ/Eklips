@@ -105,9 +105,7 @@ class Interface:
         if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -img.width or new_pos[1] < -img.height:
             pass
         else:
-            if layer > 15:
-                layer = 15
-            self.draw_queue[id] = pg.sprite.Sprite(img, x=new_pos[0], y=new_pos[1], z=layer, batch=batch, group=self.layers[layer])
+            self.draw_queue[id] = pg.sprite.Sprite(img, x=new_pos[0], y=new_pos[1], z=layer, batch=batch, group=self.layers[layer%15])
             self.draw_queue[id].scale_x, self.draw_queue[id].scale_y = scale
             if rot:
                 self.draw_queue[id].rotation =  rot            
@@ -115,10 +113,7 @@ class Interface:
                 self.draw_queue[id].y        += img.height     
                 self.draw_queue[id].anchor_x =  img.width  // 2
                 self.draw_queue[id].anchor_y =  img.height // 2
-            if new_opacity > 0:
-                self.draw_queue[id].opacity  = new_opacity
-            else:
-                self.draw_queue[id].opacity  = 0
+            self.draw_queue[id].opacity  = new_opacity
     
     def render(self, text, pos, blit_in="main", layer=5, anchor=""):
         if blit_in == "main":
