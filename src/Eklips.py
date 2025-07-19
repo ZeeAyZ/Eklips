@@ -130,6 +130,7 @@ last_dt = time.time()
 
 ## .. and run it!
 while (im_running):
+    events = []
     try:
         if Data.game_bdata["can_fill_screen?"]:
             # empty screen if allowed to
@@ -158,7 +159,7 @@ while (im_running):
             scene.update(Signals, globals())
         except (BaseException, Exception) as error:
             ErrorHandler.error  = error
-            ErrorHandler.reason = "from_scene"
+            ErrorHandler.reason = scene_file
             events.append(premature_death)
         
         # handle events (most of them)
@@ -175,11 +176,11 @@ while (im_running):
         event.key_once_map = []
     except (BaseException, Exception) as error:
         ErrorHandler.error  = error
-        ErrorHandler.reason = "from_engine"
+        ErrorHandler.reason = "death_from_engine"
         events.append(premature_death)
     
     # handle crashes
     if premature_death in events:
         suicide()
-        ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, scene_file)
+        ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, "bad coding skillz")
         break

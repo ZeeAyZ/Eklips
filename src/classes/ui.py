@@ -1,5 +1,9 @@
 ## Import all the libraries
 import pyglet as pg
+import math   as meth
+import random
+from PIL import Image
+import io
 
 ## UI Class.
 class Interface:
@@ -50,11 +54,15 @@ class Interface:
                     new_pos[1] = pos[1]
                 if "centerX" in anchor:
                     new_pos[0] = (win_w/2 - surf_w/2) + pos[0]
+                    new_pos[0] += surf_w/2
                 if "centerY" in anchor:
                     new_pos[1] = (win_h/2 - surf_h/2) + pos[1]
+                    new_pos[1] += surf_h/2
                 if "center" in anchor:
                     new_pos[0] = (win_w/2 - surf_w/2) + pos[0]
                     new_pos[1] = (win_h/2 - surf_h/2) + pos[1]
+                    new_pos[0] += surf_w/2
+                    new_pos[1] += surf_h/2
                 self.anchors[anchor_id]=new_pos
             else:
                 new_pos = self.anchors[anchor_id]
@@ -67,6 +75,7 @@ class Interface:
         img         = surface.get()
         new_opacity = int(opacity * 255)
         img.scale_x, img.scale_y = scale
+        new_clip    = clip
 
         if clip:
             ## Clipping
@@ -102,25 +111,21 @@ class Interface:
                 img.height             
             )
         
+        img.anchor_x = img.width  // 2 
+        img.anchor_y = img.height // 2 # (img.height)
+        
         if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -img.width or new_pos[1] < -img.height:
-            return
+            pass
         else:
-            self.draw_queue[id]                                      = pg.sprite.Sprite(
-                img,
-                x=new_pos[0],
-                y=new_pos[1],
-                z=layer,
-                batch=batch,
-                group=self.layers[layer%15]
-            )
+            if layer > 15:
+                layer = 15
+            self.draw_queue[id]                                      = pg.sprite.Sprite(img, x=new_pos[0], y=new_pos[1], z=layer, batch=batch, group=self.layers[layer])
             self.draw_queue[id].scale_x, self.draw_queue[id].scale_y = scale
             self.draw_queue[id].rotation                             = rot
-            if rot:
-                self.draw_queue[id].x        += img.width      
-                self.draw_queue[id].y        += img.height     
-                self.draw_queue[id].anchor_x =  img.width  / 2
-                self.draw_queue[id].anchor_y =  img.height / 2
-            self.draw_queue[id].opacity  = new_opacity
+            if new_opacity > 0:
+                self.draw_queue[id].opacity  = new_opacity
+            else:
+                self.draw_queue[id].opacity  = 0
     
     def render(self, text, pos, blit_in="main", layer=5, anchor=""):
         if blit_in == "main":
