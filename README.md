@@ -7,7 +7,7 @@ A Node hierarchy-based game engine written in Python using Pyglet.
 # Features
 For now, the features are:
  - 16 different Nodes (Window, 2D, GUI, etc..)
- - Resource object support (Yet to be able to be serialized)
+ - Resource object support
  - Embedding files into the program support (Use `program:/` instead of `res:/`.)
  - Pre-built Loading
  - Custom filesystem similar to Godot (`res:/`, `program:/`, `user:/`..)
