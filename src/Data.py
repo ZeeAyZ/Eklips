@@ -1,7 +1,6 @@
 import json
 
 data_directory = "eklips"
-data_directory = "../../../../terre"
 game_name      = "Eklips 4"
 game_bdata     = json.loads(open(f"{data_directory}/game.json").read())
 
