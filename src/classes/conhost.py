@@ -19,6 +19,7 @@ class ConHost:
     def __init__(self, ui: UI.Interface):
         global shared_console_text
         self.console_text = shared_console_text
+        self.shown        = False
         self.ui           = ui
         self.h            = self.ui.screen.height / 2
         self.w            = self.ui.screen.width
@@ -37,13 +38,13 @@ class ConHost:
     
     def toggle(self):
         """Toggle the console visibility."""
-        print(self.y)
-        if self.y == 0:
-            self.hiding  = True 
-            self.showing = False
-        if self.y == -self.h:
-            self.showing = True 
-            self.hiding  = False
+        if not (self.showing or self.hiding):
+            self.shown = not self.shown
+
+            if self.shown:
+                self.show()
+            else:
+                self.hide()
     
     def show(self):
         """Show the console."""
@@ -59,13 +60,14 @@ class ConHost:
             self.y = 0
         elif self.y < -self.h:
             self.y = -self.h
+        
         if self.showing:
             if self.y < 0:
                 self.y += self.ui.delta * self.speed
             else:
                 self.showing = False
         elif self.hiding:
-            if self.y < -self.h:
+            if self.y > -self.h:
                 self.y -= self.ui.delta * self.speed
             else:
                 self.hiding = False
