@@ -209,10 +209,14 @@ key_entries_l = [
     Z,
     BRACELEFT,
     BAR,
+    QUOTELEFT,
     BRACERIGHT,
     ASCIITILDE
 ]
-key_entries = {}
+key_entries = {
+    "`": QUOTELEFT,
+    "~": ASCIITILDE,
+}
 
 for i in key_entries_l:
     key_entries[key.symbol_string(i)] = i

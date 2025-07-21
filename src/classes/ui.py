@@ -15,6 +15,7 @@ class Interface:
     def __init__(self, screen, batch):
         self.screen          = screen
         self.batch           = batch
+        self.delta           = 0
         self.surfaces        = {}
         self.making_surface  = 0
         self.main_surf_id    = self.add_screen(screen, batch)
@@ -198,7 +199,8 @@ class Interface:
             label_obj                = self.labels[i]
             label_obj.x, label_obj.y = -500,-500
     
-    def fill(self, color="black"):
+    def fill(self, delta, color="black"):
+        self.delta = delta
         for i in self.surfaces:
             screen = self.surfaces[i]["screen"]
             screen.clear()

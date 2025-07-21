@@ -2,11 +2,13 @@
 import pyglet as pg
 import ErrorHandler, json, Data, gc, time
 from classes import UI, Save, Event, Signals, Nodes, Resources
+from classes import conhost
+from classes.conhost import printf
 from classes.key_entries import key_entries
 from classes.data_ekl import *
 
 ## Print basic information
-print(f"### Eklips {VER} / {Data.game_name} {Data.game_bdata['project-ver']}")
+printf(f"### Eklips {VER} / {Data.game_name} {Data.game_bdata['project-ver']}")
 
 ## Basic garbage collection
 gc.enable()
@@ -28,10 +30,11 @@ ticks           : int                   = 0
 clock           : pg.clock.Clock        = 0    
 scene_file      : str                   = ""   
 scene           : Nodes.Scene           = 0    
+console         : conhost.ConHost       = 0
 
 ## Functions
 def reload_engine(dir=0, name=0):
-    global savefile,signal_sys,resource_loader,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
+    global savefile,signal_sys,resource_loader,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
     """Reload/Load the engine variables."""
 
     ## Modify what project is being loaded if specified
@@ -45,16 +48,16 @@ def reload_engine(dir=0, name=0):
     keys_nheld   = []
 
     ## Load libraries
-    print(" ~ Initializing savefile")
+    printf(" ~ Initializing savefile")
     savefile        = Save.Savefile(Data)
-    print(" ~ Initializing signals")
+    printf(" ~ Initializing signals")
     signal_sys      = Signals.SignalHandler()
-    print(" ~ Initializing ResourceMan")
+    printf(" ~ Initializing ResourceMan")
     resource_loader = Resources.Loader(Data, savefile)
 
     ## .. and then display
-    print(" ~ Initializing display")
     if not initialized:
+        printf(" ~ Initializing display")
         display   = pg.window.Window(
             savefile.get("display/resolution")[0], savefile.get("display/resolution")[1],
             caption    = Data.game_name,
@@ -73,28 +76,36 @@ def reload_engine(dir=0, name=0):
         icon      = pg.image.load(f"{Data.data_directory}/media/icon.png")
         display.set_icon(icon)
         interface = UI.Interface(display, batch)
-
-    initialized = True
+    
+    console     = conhost.ConHost(interface)
 
     ## .. more libraries
-    print(" ~ Initializing events")
+    printf(" ~ Initializing events")
     event = Event.Event(display)
     clock = pg.clock.Clock()
 
     ## Scene data
-    print(f" ~ Initializing loading scene")
+    printf(f" ~ Initializing loading scene")
     scene_file = Data.game_bdata["loading-scene"]
     scene      = Nodes.Scene(scene_file, interface, resource_loader, Data=Data)
+    
+    ## Hacking!
+    Data.game_bdata["keys"]["eng_cheats"] = {
+        "keys": ["`","~"],
+        "holdable": False
+    }
+    
+    initialized = True
 
 def load_new_scene(file):
     global scene_file, scene
     """Load a new scene from a file path."""
-    print(f" ~ Initializing scene {scene_file}")
+    printf(f" ~ Initializing scene {scene_file}")
     scene_file  = file
-    print(f" ~ Emptying scene {scene.file}")
+    printf(f" ~ Emptying scene {scene.file}")
     scene.file  = file
     scene.empty()
-    print(f" ~ Loading scene {scene.file}")
+    printf(f" ~ Loading scene {scene.file}")
     scene.load()  
    
 def suicide():
@@ -132,14 +143,15 @@ last_dt = time.time()
 while (im_running):
     events = []
     try:
-        if Data.game_bdata["can_fill_screen?"]:
-            # empty screen if allowed to
-            interface.fill()
-        
         # calculate delta time
         current_dt = time.time()
         delta = current_dt - last_dt # <- Delta time variable (0.1....)
         last_dt = current_dt
+
+        # fill the interface if allowed
+        if Data.game_bdata["can_fill_screen?"]:
+            # empty screen if allowed to
+            interface.fill(delta)
 
         # get events
         display.dispatch_events()
@@ -167,11 +179,16 @@ while (im_running):
             suicide()
             savefile.save_data()
             break
+        
+        # handle console
+        if is_key_pressed("eng_cheats"):
+            console.toggle()
 
         # flip the screen
         clock.tick()
         if savefile.get("display/showfps", 1):
             fps_display.draw()
+        console.update()
         interface.flip()
         event.key_once_map = []
     except (BaseException, Exception) as error:
