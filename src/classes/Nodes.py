@@ -632,7 +632,39 @@ class Treeview(CanvasItem):
                 pos[1] += 30
 
 ## Every other 2D node
-class CollisionBox2D(Node2D):
+class PhysicsBody2D(Node2D):
+    def _phys_init(self):
+        self._onf   = False
+        self._onw   = False
+        self.motion = [0, 0]
+
+    def if_on_floor(self): return self._onf 
+    def if_on_wall(self):  return self._onw
+    def _physics_update(self, nearby, collided):
+        # Most basic of basic physics.
+        self._onf = False
+        self._onw = False
+
+        for i in collided:
+            if i == -1: continue
+            node = nearby[i]
+            if self.colliderect(node):
+                # You clumsy little cunt-loving cretin
+                if self.parameters["transform"]["pos"][1] + self.parameters["transform"]["size"][1] <= node.parameters["transform"]["pos"][1]:
+                    self._onf = True
+                    # Ah, eat my ass
+                    self.motion[1] = 0
+                elif (self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] >= node.parameters["transform"]["pos"][0] and
+                      self.parameters["transform"]["pos"][0] <= node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
+                    self._onw = True
+                    # Oh fuck you
+                    self.motion[0] = 0
+            
+            self.parameters["transform"]["pos"] += self.motion
+            self.motion = [0,0]
+        
+
+class CollisionBox2D(Node2D, PhysicsBody2D):
     def _check_overlap(self, rect1, rect2):
         # Use AABB
         return (
@@ -643,13 +675,11 @@ class CollisionBox2D(Node2D):
         )
 
     def true_init(self):
-        self.name                = "CollisionBox2D"                                 
-        self.editor_icon         = "CollisionBox2D"                                 
-        self.x,     self.y       = self.parameters["transform"]["pos"]              
-        self.width, self.height  = self.parameters["transform"]["size"]             
-        self.w,     self.h       = self.width, self.height                          
-        self.id                  = f"{self.path}/{self.name}NodeColA{self.w*self.h}"
-        nodes_collision[self.id] = self                                             
+        self._phys_init()
+        self.name        = "CollisionBox2D"                                 
+        self.editor_icon = "CollisionBox2D"                                 
+        self.id          = f"{self.path}/{self.name}NodeColA{self.w*self.h}"
+        nodes_collision[self.id] = self                                     
     
     def colliderect(self, rect): return self._check_overlap(self, rect)
 
@@ -675,6 +705,12 @@ class CollisionBox2D(Node2D):
                 if abs(node.y - node.y) < rang:
                     il.append(node)
         return il
+    
+    def true_update(self):
+        global camera_pos
+        nearby   = self.get_all_rects_nearby()
+        collided = self.collidelistall(nearby)
+        self._physics_update(nearby, collided)  # Update physics based on nearby rectangles and collided ones
 
     def _discard(self):
         del self.parameters
