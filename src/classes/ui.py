@@ -1,9 +1,5 @@
 ## Import all the libraries
 import pyglet as pg
-import math   as meth
-import random
-from PIL import Image
-import io
 
 ## UI Class.
 class Interface:
