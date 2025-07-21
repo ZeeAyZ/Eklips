@@ -636,11 +636,12 @@ class PhysicsBody2D(Node2D):
     def _phys_init(self):
         self._onf   = False
         self._onw   = False
+        self.weight = 1
         self.motion = [0, 0]
 
     def if_on_floor(self): return self._onf 
     def if_on_wall(self):  return self._onw
-    def _physics_update(self, nearby, collided):
+    def _physics_update(self, nearby, collided, bounce_mode = False):
         # Most basic of basic physics.
         self._onf = False
         self._onw = False
@@ -653,15 +654,24 @@ class PhysicsBody2D(Node2D):
                 if self.parameters["transform"]["pos"][1] + self.parameters["transform"]["size"][1] <= node.parameters["transform"]["pos"][1]:
                     self._onf = True
                     # Ah, eat my ass
-                    self.motion[1] = 0
+                    if bounce_mode:
+                        self.motion[1] = -self.motion[1] / self.weight
+                    else:
+                        self.motion[1] = 0
                 elif (self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] >= node.parameters["transform"]["pos"][0] and
                       self.parameters["transform"]["pos"][0] <= node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
                     self._onw = True
                     # Oh fuck you
-                    self.motion[0] = 0
+                    if bounce_mode:
+                        self.motion[0] = -self.motion[0] / self.weight
+                    else:
+                        self.motion[0] = 0
             
             self.parameters["transform"]["pos"] += self.motion
-            self.motion = [0,0]
+            if bounce_mode:
+                self.motion[1] = -self.motion[1]
+            else:
+                self.motion = [0,0]
         
 
 class CollisionBox2D(Node2D, PhysicsBody2D):
