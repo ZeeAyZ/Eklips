@@ -26,6 +26,7 @@ class ConHost:
         self.y            = -self.h
         self.showing      = False
         self.hiding       = False
+        self.blink_timer  = 0
         self.speed        = 275.5
         self.con_panel    = pg.shapes.Rectangle(
             x=0,
@@ -75,13 +76,31 @@ class ConHost:
         if self.y > -self.h:
             self.con_panel.y = self.ui.screen.get_size()[1] - self.h - self.y
             self.con_panel.draw()
-
-            if True:
+            
+            if len(self.console_text) > (self.h/35)-1:
+                self.console_text.pop(0)
+        
+            con_y = self.y
+            for i in self.console_text:
                 self.ui.render(
-                    "".join(self.console_text),
-                    [10,self.y],
+                    i,
+                    [10,con_y],
                     "main",
                     15,
                     ""
                 )
+                con_y += 35
+            
+            blk_g = " "
+            if self.blink_timer > 1:
+                blk_g = "_"
+            if self.blink_timer > 2:
+                self.blink_timer = 0
+            self.blink_timer += self.ui.delta * 5
+
+            self.ui.render(f"] {None}{blk_g}", [5,self.y+self.h-35], "main", 15)
         
+    def input(self, text):
+        """Input text to the console."""
+        if text:
+            self.console_text.append(text)

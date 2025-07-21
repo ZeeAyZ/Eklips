@@ -183,6 +183,7 @@ while (im_running):
         # handle console
         if is_key_pressed("eng_cheats"):
             console.toggle()
+            printf("Console toggle")
 
         # flip the screen
         clock.tick()
