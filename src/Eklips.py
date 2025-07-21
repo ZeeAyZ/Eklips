@@ -6,7 +6,7 @@ from classes.key_entries import key_entries
 from classes.data_ekl import *
 
 ## Print basic information
-print(f"### Eklips {ver} / {Data.game_name} {Data.game_bdata['project-ver']}")
+print(f"### Eklips {VER} / {Data.game_name} {Data.game_bdata['project-ver']}")
 
 ## Basic garbage collection
 gc.enable()
@@ -160,10 +160,10 @@ while (im_running):
         except (BaseException, Exception) as error:
             ErrorHandler.error  = error
             ErrorHandler.reason = scene_file
-            events.append(premature_death)
+            events.append(PREMATURE_DEATH)
         
         # handle events (most of them)
-        if soft_quit in events:
+        if SOFT_QUIT in events:
             suicide()
             savefile.save_data()
             break
@@ -177,10 +177,10 @@ while (im_running):
     except (BaseException, Exception) as error:
         ErrorHandler.error  = error
         ErrorHandler.reason = "death_from_engine"
-        events.append(premature_death)
+        events.append(PREMATURE_DEATH)
     
     # handle crashes
-    if premature_death in events:
+    if PREMATURE_DEATH in events:
         suicide()
         ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, "bad coding skillz")
         break

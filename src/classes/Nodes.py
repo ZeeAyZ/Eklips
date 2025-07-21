@@ -674,7 +674,7 @@ class PhysicsBody2D(Node2D):
                 self.motion = [0,0]
         
 
-class CollisionBox2D(Node2D, PhysicsBody2D):
+class CollisionBox2D(PhysicsBody2D):
     def _check_overlap(self, rect1, rect2):
         # Use AABB
         return (

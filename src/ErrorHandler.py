@@ -27,10 +27,10 @@ def report(errorinfo, errorobj):
     return answer
 
 def get_info(error, running):
-    global ver
+    global VER
     try:    os.mkdir("dumps")
     except: None
-    fn = f"dumps/error-{ver}-{len(os.listdir('dumps'))+1}.log.md"
+    fn = f"dumps/error-{VER}-{len(os.listdir('dumps'))+1}.log.md"
     if error:
         ErrorObject=traceback.TracebackException.from_exception(error)
         ErrorInfo=f"""Error Type: {ErrorObject.exc_type_str}

@@ -53,13 +53,13 @@ class Event:
         code = []
         for i in events:
             if i[0] == 'quit':
-                code.append(soft_quit)
+                code.append(SOFT_QUIT)
             elif i[0] == 'keydown':
-                code.append(keydown)
+                code.append(KEYDOWN)
                 self.key_map[i[1]] = 1
                 self.key_once_map.append(i[1])
             elif i[0] == 'keyup':
-                code.append(keyup)
+                code.append(KEYUP)
                 try:
                     self.key_map.pop(i[1])
                 except:
