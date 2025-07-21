@@ -26,7 +26,7 @@ class ConHost:
         self.y            = -self.h
         self.showing      = False
         self.hiding       = False
-        self.speed        = 275
+        self.speed        = 275.5
         self.con_panel    = pg.shapes.Rectangle(
             x=0,
             y=self.y,
