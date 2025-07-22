@@ -132,6 +132,7 @@ class Interface:
     
     def flip(self):
         ## === 1. Process label queue ===
+        ## TODO: optimize this
         for key, lab_dat in self.label_queue.items():  # Proper iteration over dict
             text    = lab_dat[0]
             pos     = lab_dat[1]

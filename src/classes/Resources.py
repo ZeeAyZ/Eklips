@@ -1,6 +1,6 @@
 ## Import all the libraries
 import pyglet as pg, gc, struct
-from SpecialIsResourceDataLoadable import is_it
+from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
 
 ## Resources
 global_res_len = 0
@@ -184,7 +184,7 @@ class Loader:
                 return asset
             else:
                 print(f"  ~ Loading file {path}")
-                if path.startswith("program:") and not is_it:
+                if path.startswith("program:") and not IS_EXECUTABLE:
                     path = path.lstrip("program:/")
                 if path.startswith("program:"):
                     actual_path = path.lstrip("program:/")
