@@ -14,7 +14,7 @@ printf(f"### Eklips {VER} / {Data.game_name} {Data.game_bdata['project-ver']}")
 gc.enable()
 
 ## A mess
-keys_pressed, keys_nheld = [],[]
+keys_pressed, keys_nheld = [],[]               
 savefile        : Save.Savefile         = 0    
 signal_sys      : Signals.SignalHandler = 0    
 resource_loader : Resources.Loader      = 0    
@@ -30,8 +30,8 @@ ticks           : int                   = 0
 clock           : pg.clock.Clock        = 0    
 scene_file      : str                   = ""   
 scene           : Nodes.Scene           = 0    
-console         : conhost.ConHost       = 0
-cvars           : CV.CvarCollection     = 0
+console         : conhost.ConHost       = 0    
+cvars           : CV.CvarCollection     = 0    
 
 ## Functions
 def reload_engine(dir=0, name=0):
