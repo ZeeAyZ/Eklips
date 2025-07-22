@@ -60,14 +60,7 @@ class Scene:
         classobj = globals().get(who)
         object = classobj.__new__(classobj)
         object.project_data = self.Data
-        object.__init__(parameters, parent)
-        object.script = script
-        object.screen = self.screen
-        object.resourceman = self.resourceman
-        object.root_scene = self
-        object.node_path_da = where
-        object.name = name
-        object.engine_glb = self.eng_globals
+        object.__init__(parameters, parent, self.Data, script, self.screen, self.resourceman, self, where, name, self.eng_globals)
         object.on_ready()
 
         # Store in flat dictionary
@@ -108,10 +101,10 @@ class Scene:
 
     def load(self):
         self.nodes = {}
-        file = json.loads(self.resourceman.load(self.file).get())
-        self.properties = file["Properties"]
-        for node in file["Nodes"]:
-            node_data = file["Nodes"][node]
+        scene_obj  = json.loads(self.resourceman.load(self.file).get())
+        self.properties = scene_obj["Properties"]
+        for node in scene_obj["Nodes"]:
+            node_data = scene_obj["Nodes"][node]
             self.add_node(node_data["type"], node_data["path"], node_data["properties"], node_data["script"], node_data, node_data["name"])
 
     def update(self, signalclass, glob):
@@ -163,25 +156,27 @@ class Node(NodeMixin):
 
     There is nothing to do with it. The only useful thing to do with it is run a script with it, and no more.
     """
-    def __init__(self, parameters, parent):
+    def __init__(self, parameters, parent, data, script, screen, resourceman, scene_obj, where, name, eng_global):
+        self.screen       = screen
         self.parameters   = {}
+        self.project_data = data
         self.added_param  = parameters
         self.runtime_data = {}
-        self.node_path_da = 0
-        self.name         = "Node"
+        self.node_path_da = where
+        self.name         = name
         self.parent       = parent
         self.signal_data  = {}
         self.demand_for   = []
-        self.root_scene   = 0
-        self.script       = None
+        self.root_scene   = scene_obj
+        self.script       = script
         self.signal_data  = {}
         self.window_id    = "main"
         self.camera_pos   = [0,0]
         self.dead         = 0
-        self.resourceman  = 0
+        self.resourceman  = resourceman
         self.editor_icon  = "Node"
         self.initialized  = False
-        self.engine_glb   = {}
+        self.engine_glb   = eng_global
         self.scriptobj    = 0
         self.true_init()
         for i in self.added_param:
