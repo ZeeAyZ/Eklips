@@ -596,6 +596,7 @@ class ColorRect(CanvasItem):
         )
 
 class Treeview(CanvasItem):
+    # TODO: MAKE THIS LESS ASS
     def true_init(self):
         self.treechildren = {}
         self.visible      = []
