@@ -9,34 +9,28 @@ from pyglet.text import Label as PygletLabel
 from anytree import NodeMixin
 from PIL import Image, ImageTk
 
-## Global stuff between all Nodes and Scenes
-player_global   = pg.media.Player()
-nodes_collision = {}
-
 ## Scene class
-camera_pos = [0,0]
-interface  = 0
 class Scene:
     def __init__(self, file, screen, resourceman, Data):
-        global camera_pos, interface, nodes_collision
-        self.file        = file
-        self.eng_globals = {}
-        self.nodes       = {}
-        self.Data        = Data
-        self.killing     = 0
-        self.properties  = {}
-        nodes_collision  = {}
-        self.screen      = screen
-        interface        = self.screen
-        self.resourceman = resourceman # Resource manager
+        self.file            = file
+        self.eng_globals     = {}
+        self.player_global   = pg.media.Player()
+        self.nodes           = {}
+        self.cam_pos         = [0, 0]
+        self.Data            = Data
+        self.killing         = 0
+        self.nodes_collision = {}
+        self.properties      = {}
+        self.screen          = screen
+        self.resourceman     = resourceman # Resource manager
         self.load() 
     
     def empty(self):
-        global nodes_collision
-        nodes_collision = {}
+        self.nodes_collision = {}
+        self.cam_pos         = [0, 0]
         for i in self.nodes:
             self.nodes[i]["object"].discard()
-        self.nodes      = {}
+        self.nodes           = {}
     
     def add_node(self, who, where, parameters={}, script=None, node_data={}, name="Node?"):
         id = len(self.nodes)
@@ -100,7 +94,9 @@ class Scene:
             f.write(json.dumps(serialized, indent=4))
 
     def load(self):
-        self.nodes = {}
+        self.nodes           = {}
+        self.cam_pos         = [0, 0]
+        self.nodes_collision = {}
         scene_obj  = json.loads(self.resourceman.load(self.file).get())
         self.properties = scene_obj["Properties"]
         for node in scene_obj["Nodes"]:
@@ -263,7 +259,7 @@ class Window(Node):
             file_drops = self.project_data.game_bdata["file_drops"]
         )
         self.my_batch  = pg.graphics.Batch()
-        self.window_id = interface.add_screen(self.my_window, self.my_batch)
+        self.window_id = self.screen.add_screen(self.my_window, self.my_batch)
         self.event     = Event.Event(self.my_window)
 
     def update(self):
@@ -356,7 +352,7 @@ class AudioPlayer(Node):
     
     def on_ready(self):
         global player_global
-        if self.parameters["play_global"]: self.player = player_global
+        if self.parameters["play_global"]: self.player = self.root_scene.player_global
         else:                              self.player = pg.media.Player()
     
     def play(self, volume=1):
@@ -389,7 +385,7 @@ class VideoPlayer(AudioPlayer):
     Self-explanatory.
     """
     def true_init(self):
-        self.player = pg.media.Player()
+        self.player       = None
         self.parameters   = {
             "media":     "res:/media/load.mp3",
             "loop":      0,
@@ -530,13 +526,12 @@ class Node2D(CanvasItem):
         self.editor_icon  = "Node2D"
     
     def update(self):
-        global camera_pos
         if not self.dead:
             self.get_fired()
             self.run_script()
             self.runtime_data["rendererpos"] = [
-                self.parameters["transform"]["pos"][0] + camera_pos[0],
-                self.parameters["transform"]["pos"][1] + camera_pos[1]
+                self.parameters["transform"]["pos"][0] + self.root_scene.cam_pos[0],
+                self.parameters["transform"]["pos"][1] + self.root_scene.cam_pos[1]
             ]
             self.true_update()
         else:
@@ -681,10 +676,10 @@ class CollisionBox2D(PhysicsBody2D):
 
     def true_init(self):
         self._phys_init()
-        self.name        = "CollisionBox2D"                                 
-        self.editor_icon = "CollisionBox2D"                                 
-        self.id          = f"{self.path}/{self.name}NodeColA{self.w*self.h}"
-        nodes_collision[self.id] = self                                     
+        self.name                                = "CollisionBox2D"                                 
+        self.editor_icon                         = "CollisionBox2D"                                 
+        self.id                                  = f"{self.path}/{self.name}NodeColA{self.w*self.h}"
+        self.root_scene.nodes_collision[self.id] = self                                     
     
     def colliderect(self, rect): return self._check_overlap(self, rect)
 
@@ -703,8 +698,8 @@ class CollisionBox2D(PhysicsBody2D):
     
     def get_all_rects_nearby(self, rang=500):
         il = []
-        for i in nodes_collision:
-            node = nodes_collision[i]
+        for i in self.root_scene.nodes_collision:
+            node = self.root_scene.nodes_collision[i]
             # rang = The range in pixels that this rectangle can be in to count
             if abs(node.x - node.x) < rang:
                 if abs(node.y - node.y) < rang:
@@ -724,7 +719,7 @@ class CollisionBox2D(PhysicsBody2D):
         del self.scriptobj
         del self.script
         self.initialized = False
-        nodes_collision.pop(self.id)
+        self.root_scene.nodes_collision.pop(self.id)
         del self
 
 class Camera2D(Node2D):
@@ -737,8 +732,7 @@ class Camera2D(Node2D):
         self.editor_icon = "Camera2D"
     
     def true_update(self):
-        global camera_pos
-        camera_pos = self.parameters["transform"]["pos"]
+        self.root_scene.cam_pos = self.parameters["transform"]["pos"]
 
 class Sprite2D(Node2D):
     """
