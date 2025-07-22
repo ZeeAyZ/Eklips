@@ -1,7 +1,7 @@
 ## Import all the libraries
 import pyglet as pg
 import ErrorHandler, json, Data, gc, time
-from classes import UI, Save, Event, Signals, Nodes, Resources
+from classes import UI, Save, Event, Signals, Nodes, Resources, CV
 from classes import conhost
 from classes.conhost import printf
 from classes.key_entries import key_entries
@@ -31,10 +31,11 @@ clock           : pg.clock.Clock        = 0
 scene_file      : str                   = ""   
 scene           : Nodes.Scene           = 0    
 console         : conhost.ConHost       = 0
+cvars           : CV.CvarCollection     = 0
 
 ## Functions
 def reload_engine(dir=0, name=0):
-    global savefile,signal_sys,resource_loader,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
+    global savefile,signal_sys,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
     """Reload/Load the engine variables."""
 
     ## Modify what project is being loaded if specified
@@ -77,12 +78,13 @@ def reload_engine(dir=0, name=0):
         display.set_icon(icon)
         interface = UI.Interface(display, batch)
     
-    console     = conhost.ConHost(interface)
 
     ## .. more libraries
     printf(" ~ Initializing events")
-    event = Event.Event(display)
-    clock = pg.clock.Clock()
+    event   = Event.Event(display)
+    clock   = pg.clock.Clock()
+    cvars   = CV.CvarCollection()
+    console = conhost.ConHost(interface, cvars)
 
     ## Scene data
     printf(f" ~ Initializing loading scene")
@@ -183,13 +185,12 @@ while (im_running):
         # handle console
         if is_key_pressed("eng_cheats"):
             console.toggle()
-            printf("Console toggle")
 
         # flip the screen
         clock.tick()
         if savefile.get("display/showfps", 1):
             fps_display.draw()
-        console.update()
+        console.update(keys_nheld, keys_pressed)
         interface.flip()
         event.key_once_map = []
     except (BaseException, Exception) as error:
