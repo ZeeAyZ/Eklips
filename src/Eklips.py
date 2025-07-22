@@ -77,7 +77,6 @@ def reload_engine(dir=0, name=0):
         icon      = pg.image.load(f"{Data.data_directory}/media/icon.png")
         display.set_icon(icon)
         interface = UI.Interface(display, batch)
-    
 
     ## .. more libraries
     printf(" ~ Initializing events")
