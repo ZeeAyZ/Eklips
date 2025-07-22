@@ -645,10 +645,10 @@ class PhysicsBody2D(Node2D):
             if i == -1: continue
             node = nearby[i]
             if self.colliderect(node):
-                # You clumsy little cunt-loving cretin
+                # You little shit
                 if self.parameters["transform"]["pos"][1] + self.parameters["transform"]["size"][1] <= node.parameters["transform"]["pos"][1]:
                     self._onf = True
-                    # Ah, eat my ass
+                    # Ow
                     if bounce_mode:
                         self.motion[1] = -self.motion[1] / self.weight
                     else:
@@ -656,7 +656,7 @@ class PhysicsBody2D(Node2D):
                 elif (self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] >= node.parameters["transform"]["pos"][0] and
                       self.parameters["transform"]["pos"][0] <= node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
                     self._onw = True
-                    # Oh fuck you
+                    # Ow
                     if bounce_mode:
                         self.motion[0] = -self.motion[0] / self.weight
                     else:
