@@ -125,8 +125,8 @@ def img_to_sheet(img, clip = 0):
 
 ## Loader class
 class Loader:
-    def __init__(self, Data, save):
-        self.game_data     = Data
+    def __init__(self, cvars, save):
+        self.game_data     = cvars
         self.save          = save
         self.resource_tree = {}
     
@@ -204,7 +204,7 @@ class Loader:
                     if path.startswith("user:"):
                         actual_path = self.save + path.lstrip("user:")
                     elif path.startswith("res:"):
-                        actual_path = self.game_data.data_directory + path.lstrip("res:")
+                        actual_path = self.game_data.get("directory") + path.lstrip("res:")
                     else:
                         actual_path = path
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp","dds"):

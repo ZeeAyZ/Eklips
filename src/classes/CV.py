@@ -3,9 +3,33 @@ class CvarCollection:
         self.cvars = {}
     
     def get(self, name, fallback=None):
-        """Get a cvar by its name."""
-        return self.cvars.get(name, fallback)
+        """Get a cvar's data by its name."""
+        return self.cvars.get(name, {"data":fallback})["data"]
 
-    def set(self, name, data):
+    def get_description(self, name, fallback=None):
+        """Get a cvar's description by its name."""
+        return self.cvars.get(name, {"description":fallback})["description"]
+
+    def set(self, name, data, default=None, description=None):
         """Set a cvar by its name."""
-        self.cvars[name] = data
+        old_default = self.cvars.get(name, {"default":default})["default"]
+        self.cvars[name] = {
+            "type": type(data).__name__,
+            "default": old_default,
+            "data": data,
+            "description": description
+        }
+    
+    def init_from(self, config):
+        """
+        Data: {
+            "??": {
+                "type": "bool",
+                "default": false,
+                "description": "??"
+            }
+        }
+        """
+        for entry in config:
+            ent_data = config[entry]
+            self.set(entry, ent_data["default"], ent_data["default"], ent_data.get("description", None))

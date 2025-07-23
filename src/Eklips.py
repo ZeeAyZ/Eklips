@@ -34,15 +34,13 @@ console         : conhost.ConHost       = 0
 cvars           : CV.CvarCollection     = 0    
 
 ## Functions
-def reload_engine(dir=0, name=0):
+def reload_engine():
     global savefile,signal_sys,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
     """Reload/Load the engine variables."""
 
-    ## Modify what project is being loaded if specified
-    if not dir: dir = Data.data_directory
-    if not name: name = Data.game_name
-
-    Data.mod_data(dir,name)
+    ## Reload data and load cvars
+    print(" ~ Initializing CVARs")
+    cvars = Data._init()
 
     ## Empty this variable since.. uh.. yes.
     keys_pressed = []
@@ -54,7 +52,7 @@ def reload_engine(dir=0, name=0):
     printf(" ~ Initializing signals")
     signal_sys      = Signals.SignalHandler()
     printf(" ~ Initializing ResourceMan")
-    resource_loader = Resources.Loader(Data, savefile)
+    resource_loader = Resources.Loader(cvars, savefile)
 
     ## .. and then display
     if not initialized:
@@ -64,30 +62,29 @@ def reload_engine(dir=0, name=0):
             caption    = Data.game_name,
             fullscreen = savefile.get("display/fullscreen"),
             vsync      = savefile.get("display/vsync"),
-            file_drops = Data.game_bdata["file_drops"],
+            file_drops = cvars.get("file_drops"),
             resizable  = True
         )
         batch    = pg.graphics.Batch()
         icon     = pg.image.load(f"{Data.data_directory}/media/icon.png")
         display.set_icon(icon)
-        interface = UI.Interface(display, batch)
+        interface = UI.Interface(display, batch, cvars)
     else:
         display.set_size(savefile.get("display/resolution")[0], savefile.get("display/resolution")[1])
         display.set_caption(Data.game_name)
         icon      = pg.image.load(f"{Data.data_directory}/media/icon.png")
         display.set_icon(icon)
-        interface = UI.Interface(display, batch)
+        interface = UI.Interface(display, batch, cvars)
 
     ## .. more libraries
     printf(" ~ Initializing events")
     event   = Event.Event(display)
     clock   = pg.clock.Clock()
-    cvars   = CV.CvarCollection()
     console = conhost.ConHost(interface, cvars)
 
     ## Scene data
     printf(f" ~ Initializing loading scene")
-    scene_file = Data.game_bdata["loading-scene"]
+    scene_file = cvars.get("loading-scene")
     scene      = Nodes.Scene(scene_file, interface, resource_loader, Data=Data)
     
     ## Hacking!
@@ -150,7 +147,7 @@ while (im_running):
         last_dt = current_dt
 
         # fill the interface if allowed
-        if Data.game_bdata["can_fill_screen?"]:
+        if cvars.get("can_fill_screen?"):
             # empty screen if allowed to
             interface.fill(delta)
 
@@ -189,7 +186,7 @@ while (im_running):
         clock.tick()
         if savefile.get("display/showfps", 1):
             fps_display.draw()
-        console.update(keys_nheld, keys_pressed)
+        console.update(keys_nheld, keys_pressed, globals())
         interface.flip()
         event.key_once_map = []
     except (BaseException, Exception) as error:

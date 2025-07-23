@@ -29,10 +29,13 @@ class ConHost:
         self.showing      = False
         self.hiding       = False
         self.blink_timer  = 0
+        self.eng_gl       = {}
         self.is_upper     = False
         self.hold_timer   = 0
         self.klp          = None
-        self.speed        = 450
+        self.speed        = cvars.get("con_speed")
+        self.bl_rate      = cvars.get("con_rate")
+        self.shifted      = False
         self.con_panel    = pg.shapes.Rectangle(
             x=0,
             y=self.y,
@@ -60,7 +63,8 @@ class ConHost:
         """Hide the console."""
         self.hiding  = True
     
-    def update(self, keys_nheld, keys_pressed):
+    def update(self, keys_nheld, keys_pressed, eng_gl):
+        self.eng_gl = eng_gl
         """Update the console."""
         if self.y > 0:
             self.y = 0
@@ -82,7 +86,7 @@ class ConHost:
             self.con_panel.y = self.ui.screen.get_size()[1] - self.h - self.y
             self.con_panel.draw()
             
-            if len(self.console_text) > (self.h/35)-1:
+            if len(self.console_text) > (self.h/25)-1:
                 self.console_text.pop(0)
         
             con_y = self.y
@@ -94,14 +98,14 @@ class ConHost:
                     15,
                     ""
                 )
-                con_y += 35
+                con_y += 25
             
             blk_g = " "
             if self.blink_timer > 1:
                 blk_g = "_"
             if self.blink_timer > 2:
                 self.blink_timer = 0
-            self.blink_timer += self.ui.delta * 5
+            self.blink_timer += self.ui.delta * self.bl_rate
 
             if self.hold_timer > 0.6 and self.klp and self.klp in keys_pressed:
                 self._prockey(self.klp)
@@ -123,6 +127,8 @@ class ConHost:
         """Process a key input."""
         if key == pg.window.key.CAPSLOCK:
             self.is_upper = not self.is_upper
+        if key in [pg.window.key.LSHIFT, pg.window.key.RSHIFT]:
+            self.shifted = True
         
         if key == pg.window.key.BACKSPACE:
             self.input_text = self.input_text[:-1]
@@ -131,12 +137,22 @@ class ConHost:
         elif key in key_entries:
             self.input_text += key_entries[key]
         else:
-            
-            if key in [pg.window.key.LSHIFT, pg.window.key.RSHIFT] or self.is_upper:
+            if self.shifted: # or self.is_upper:
+                nk = convenience._shift_k(chr(key))
+                self.input_text += nk if 0 <= key < 256 else ""
+                if not key in [pg.window.key.LSHIFT, pg.window.key.RSHIFT]:
+                    self.shifted = False
+            elif self.is_upper:
                 self.input_text += chr(key).upper() if 0 <= key < 256 else ""
             else:
                 self.input_text += chr(key) if 0 <= key < 256 else ""
         self.klp = key
+    
+    def list_cvar(self, name):
+        """List a cvar's data."""
+        data = self.cvars.get(name, "Undefined")
+        desc = self.cvars.get_description(name, "No description")
+        printf(f"{name} = {data} :: {desc}")
     
     def _proccmd(self, text):
         """Process a command input."""
@@ -146,16 +162,32 @@ class ConHost:
         opc          = data[0].lower()
         try: args    = data[1:]
         except: args = [None]
-        if opc.startswith("sv-"):
-            cvar = opc.lstrip("sv-")
-            if len(args) > 0:
-                self.cvars.set(cvar, convenience._turntypeatfirstglance(args[0]))
-            printf(f"{cvar} = {self.cvars.get(cvar, 'Undefined')}")
+        if opc.startswith("sv_"):
+            cvar = opc.lstrip("sv_")
+            if cvar == "list":
+                for cvar_name in self.cvars.cvars:
+                    self.list_cvar(cvar_name)
+            else:
+                if len(args) > 0:
+                    self.cvars.set(cvar, convenience._turntypeatfirstglance(args[0]))
+                self.list_cvar(cvar)
+        elif opc == "con_clear":
+            self.console_text.clear()
+        elif opc == "eng_chproj":
+            exec(f"Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)
+            exec(f"Data.directory = '{args[0]}'", self.eng_gl, self.eng_gl)
+        elif opc == "eng_reload":
+            exec("reload_engine()", self.eng_gl, self.eng_gl)
+        else:
+            try:
+                printf(opc)
+            except:
+                printf(f"Illegal command: {opc}")
     
     def input(self, text):
         """Input text to the console."""
         if text:
-            self.console_text.append(f"] {text}")
+            printf(f"] {text}")
             self.input_text = ""
             self.klp        = None
             self.hold_timer = 0

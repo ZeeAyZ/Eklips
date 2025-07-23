@@ -12,7 +12,8 @@ class Interface:
         }
         return id
 
-    def __init__(self, screen, batch):
+    def __init__(self, screen, batch, cvars):
+        self.cvars           = cvars
         self.screen          = screen
         self.batch           = batch
         self.delta           = 0
@@ -157,7 +158,7 @@ class Interface:
                 new_label = pg.text.Label(
                     text,
                     font_name=base.font_name,
-                    font_size=25,
+                    font_size=15,
                     z=layer,
                     color=base.color,
                     batch=batch,

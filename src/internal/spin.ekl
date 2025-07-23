@@ -15,4 +15,4 @@ def _process(empty):
         ekl.parameters["transform"]["alpha"] = myself.parameters["transform"]["alpha"]
 
     if myself.parameters["transform"]["alpha"] < 0:
-        load_new_scene(Data.game_bdata["master-scene"])
+        load_new_scene(cvars.get("master-scene"))

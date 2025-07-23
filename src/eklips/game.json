@@ -1,15 +1,9 @@
 {
-    "project-ver":   "1.0",                          
-    "eklips-ver":    "4.0A",                        
-                                                     
-    "master-scene":  "res:/data/master.scn",        
-    "loading-scene": "program:/internal/loading.scn",
-    "file_drops":    1,                                
-                                                      
-    "directory":        "eklips",    
-    "glbl_scripts":     [],
-    "can_fill_screen?": true,
-                                                      
+    "project-ver":   "1.0",
+    "eklips-ver":    "4.0A",
+
+    "game_name":     "Eklips 4",
+
     "datagenerated": {                                
         "mediafiles": [
             "media/*.*"
@@ -54,5 +48,58 @@
         }
     },
                                                      
-    "viewport_resolution": [1280, 720]               
+    "viewport_resolution": [1280, 720],
+
+    "cvars": {
+        "file_drops": {
+            "type": "bool",
+            "default": false,
+            "description": "Enable file drops."
+        },
+        "cheats": {
+            "type": "bool",
+            "default": false,
+            "description": "Cheater!"
+        },
+        "can_fill_screen?": {
+            "type": "bool",
+            "default": true,
+            "description": "Allow the game to empty the screen."
+        },
+        "glbl_scripts": {
+            "type": "list",
+            "default": [],
+            "description": "Global scripts to be loaded at the start of the game."
+        },
+        "directory": {
+            "type": "string",
+            "default": "eklips",
+            "description": "Directory for the game files."
+        },
+        "loading-scene": {
+            "type": "string",
+            "default": "program:/internal/loading.scn",
+            "description": "Scene to be used for loading."
+        },
+        "master-scene": {
+            "type": "string",
+            "default": "res:/data/master.scn",
+            "description": "Master scene to be loaded at the start of the game."
+        },
+        "con": {
+            "type": "bool",
+            "default": false,
+            "description": "Enable the console host."
+        },
+        "con_speed": {
+            "type": "int",
+            "default": 450,
+            "description": "Speed of the console host."
+        },
+        "con_rate": {
+            "type": "int",
+            "default": 5,
+            "description": "Blink rate of the console host cursor in milliseconds."
+        }
+    }
 }

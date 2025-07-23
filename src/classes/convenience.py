@@ -12,3 +12,29 @@ def _turntypeatfirstglance(text):
                 return False
             else:
                 return text
+
+# wtf
+def _shift_k(key):
+    nk = key.upper()
+    if nk == "1": nk = "!"
+    if nk == "2": nk = "@"
+    if nk == "3": nk = "#"
+    if nk == "4": nk = "$"
+    if nk == "5": nk = "%"
+    if nk == "6": nk = "^"
+    if nk == "7": nk = "&"
+    if nk == "8": nk = "*"
+    if nk == "9": nk = "("
+    if nk == "0": nk = ")"
+    if nk == "-": nk = "_"
+    if nk == "=": nk = "+"
+    if nk == "/": nk = "?"
+    if nk == "\\": nk = "|"
+    if nk == "]": nk = "}"
+    if nk == "[": nk = "{"
+    if nk == "'": nk = "\""
+    if nk == ".": nk = ">"
+    if nk == ",": nk = "<"
+    if nk == "`": nk = "~"
+    if nk == ";": nk = ":"
+    return nk
