@@ -37,7 +37,7 @@ class Interface:
         self.layers          = {}
         self.layer_amount    = cvars.get("ui_layers") # -X ... X
 
-        for i in range(-self.layer_amount,0,self.layer_amount):
+        for i in range(-self.layer_amount,self.layer_amount):
             self.layers[i] = pg.graphics.Group(order=i)
     
     def get_anchor(self,pos,win_w,win_h,anchor,surf_w,surf_h,can_cache):
