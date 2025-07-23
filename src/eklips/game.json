@@ -100,6 +100,11 @@
             "type": "int",
             "default": 5,
             "description": "Blink rate of the console host cursor in milliseconds."
+        },
+        "ui_layers": {
+            "type": "int",
+            "default": 35,
+            "description": "The layers the UI module has access to (negative and positive)"
         }
     }
 }

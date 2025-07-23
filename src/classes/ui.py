@@ -35,8 +35,9 @@ class Interface:
         self.used_labels     = {}
         self.label_queue     = {}
         self.layers          = {}
+        self.layer_amount    = cvars.get("ui_layers") # -X ... X
 
-        for i in range(-16,16):
+        for i in range(-self.layer_amount,0,self.layer_amount):
             self.layers[i] = pg.graphics.Group(order=i)
     
     def get_anchor(self,pos,win_w,win_h,anchor,surf_w,surf_h,can_cache):
@@ -115,8 +116,7 @@ class Interface:
         if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -img.width or new_pos[1] < -img.height:
             pass
         else:
-            if layer > 15:
-                layer = 15
+            if not layer in self.layers: layer = 0
             self.draw_queue[id]                                      = pg.sprite.Sprite(img, x=new_pos[0], y=new_pos[1], z=layer, batch=batch, group=self.layers[layer])
             self.draw_queue[id].scale_x, self.draw_queue[id].scale_y = scale
             self.draw_queue[id].rotation                             = rot
