@@ -111,7 +111,10 @@ class Scene:
                     node.engine_glb = glob
                     node.update()
                     if "signals" in node.demand_for:
-                        node.signal_data = signalclass.data
+                        node.signal_data = {
+                            "data": signalclass.get(),
+                            "clss": signalclass
+                        }
                     node.demand_for = []
         except Exception as error:
             print(f" Scene({self.file}) had an error updating; {error}")
@@ -165,7 +168,6 @@ class Node(NodeMixin):
         self.demand_for   = []
         self.root_scene   = scene_obj
         self.script       = script
-        self.signal_data  = {}
         self.window_id    = "main"
         self.camera_pos   = [0,0]
         self.dead         = 0
@@ -247,7 +249,7 @@ class Window(Node):
         self.parameters["caption"]    = "Window.Pyglet"
         self.parameters["icon"]       = "res:/media/icon.png"
         self.parameters["fullscreen"] = 0
-        self.editor_icon              = ".eklips/node_ico/Window.png"
+        self.editor_icon              = "program:/internal/eklips/Window.png"
         self.window_id                = 0
         
     def on_ready(self):
@@ -317,6 +319,9 @@ class OptionDialog(TkWindow):
         self.parameters["optionindex"] = 4
         self.parameters["custom_opts"] = []
         self.fate                      = 0
+    
+    def on_ready(self):
+        return
     
     def popup(self):
         if self.parameters["optionindex"] == 1:
@@ -502,6 +507,16 @@ class CanvasItem(Node):
                 scroll  = self.parameters["transform"]["scroll"]
             )
     
+    def get_if_mouse_hovering(self):
+        mpos = self.screen.mpos
+        is_it = (
+            mpos[0] < self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] and
+            mpos[0] + 20 > self.parameters["transform"]["pos"][0]                                      and
+            mpos[1] < self.parameters["transform"]["pos"][1] + self.parameters["transform"]["size"][1] and
+            mpos[1] + 20 > self.parameters["transform"]["pos"][1]
+        )
+        return is_it
+    
     def update(self):
         global camera_pos
         if not self.dead:
@@ -558,6 +573,7 @@ class Label(CanvasItem):
     
     def true_update(self):
         self.load_render()
+        
 
 class RichLabel(Label):
     """
@@ -595,32 +611,65 @@ class ColorRect(CanvasItem):
             path = f"{r+g+b/3}{self.parameters["transform"]["size"]}.mm"
         )
 
+class Button(ColorRect):
+    def true_init(self):
+        self.parameters["color"] = [128,128,128]
+        self.clicked             = False
+        self.image               = 0
+    
+    def true_update(self):
+        hovering = self.get_if_mouse_hovering()
+        clicked  = self.screen.mclk[0]            
+
+        self.clicked = (hovering and clicked)
+        
+        if not self.clicked:
+            self.load_render()
+        self.screen.render(
+            self.parameters["text"],
+            self.screen.get_anchor(
+                self.parameters["transform"]["pos"],   
+                self.screen.screen.get_size()[0],      
+                self.screen.screen.get_size()[1],      
+                self.parameters["transform"]["anchor"],
+                self.image.get().width,                
+                self.image.get().height,               
+                True                                   
+            )
+        )
+
 class Treeview(CanvasItem):
-    # TODO: MAKE THIS LESS ASS
+    # TODO: Make visually pleasing
     def true_init(self):
         self.treechildren = {}
-        self.visible      = []
+        self.revealed     = []
     
+    def _rlayer(self, data, pos=[0,0], layer = 0):
+        id        = 0
+        _pos      = pos.copy()
+        for i in data:
+            node_p    = f"{self.node_path_da}/{self.name}"
+            nm        = f"Label{id}"
+            _have_kid = "v " if len(data[i]) else ""
+            self.screen.render(
+                text    = f"{'| '*layer}{_have_kid}{i}",
+                pos     = _pos,
+                anchor  = "",
+                layer   = 10+id,
+                blit_in = self.window_id
+            )
+            id      += 1
+            _pos[1] += 25
+            _pos     = self._rlayer(data[i], _pos, layer+1)
+        return _pos
+
     def true_update(self):
         # TBA
         self.treechildren = self.parameters["children"]
+        self.revealed     = []
         
         if self.parameters["visible"]:
-            pos       = self.parameters["transform"]["pos"].copy()
-            id        = 0
-            for i in self.treechildren:
-                node_p = f"{self.node_path_da}/{self.name}"
-                nm     = f"Label{id}"
-                self.screen.render(
-                    text    = i,
-                    pos     = pos,
-
-                    anchor  = "",
-                    layer   = 10+id,
-                    blit_in = self.window_id
-                )
-                id     += 1
-                pos[1] += 30
+            self._rlayer(self.treechildren, self.parameters["transform"]["pos"].copy())
 
 ## Every other 2D node
 class PhysicsBody2D(Node2D):

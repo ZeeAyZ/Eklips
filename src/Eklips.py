@@ -1,8 +1,8 @@
 ## Import all the libraries
 import pyglet as pg
 import ErrorHandler, json, Data, gc, time
-from classes import UI, Save, Event, Signals, Nodes, Resources, CV
-from classes import conhost
+import requests
+from classes import UI, Save, Event, Signals, Nodes, Resources, CV, conhost
 from classes.conhost import printf
 from classes.key_entries import key_entries
 from classes.data_ekl import *
@@ -34,13 +34,16 @@ console         : conhost.ConHost       = 0
 cvars           : CV.CvarCollection     = 0    
 
 ## Functions
-def reload_engine():
+def reload_engine(dir=None):
     global savefile,signal_sys,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
     """Reload/Load the engine variables."""
 
     ## Reload data and load cvars
     print(" ~ Initializing CVARs")
     cvars = Data._init()
+    if dir:
+        Data.data_directory = dir
+        cvars.set("directory", dir, dir, "dir_test")
 
     ## Empty this variable since.. uh.. yes.
     keys_pressed = []
@@ -80,7 +83,7 @@ def reload_engine():
     printf(" ~ Initializing events")
     event   = Event.Event(display)
     clock   = pg.clock.Clock()
-    console = conhost.ConHost(interface, cvars)
+    console = conhost.ConHost(interface, cvars, Data)
 
     ## Scene data
     printf(f" ~ Initializing loading scene")
@@ -164,15 +167,17 @@ while (im_running):
             if keys_pressed_dict[i]:
                 keys_pressed.append(i)
         
-        # handle scene and signals      
+        # handle scene and signals                                                        
+        interface.mpos = mpos
+        interface.mclk = mpressed
         try:
-            scene.update(Signals, globals())
+            scene.update(signal_sys, globals())
         except (BaseException, Exception) as error:
             ErrorHandler.error  = error
             ErrorHandler.reason = scene_file
             events.append(PREMATURE_DEATH)
         
-        # handle events (most of them)
+        # handle events (most of them)                                                    
         if SOFT_QUIT in events:
             suicide()
             savefile.save_data()

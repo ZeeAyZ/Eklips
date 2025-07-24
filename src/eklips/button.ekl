@@ -1,0 +1,8 @@
+def on_ready(empty):
+    myself.balls = 1
+
+def _process(empty):
+    if myself.clicked and myself.balls:
+        node_p = scene.get_node_from_path("", "BackD")
+        node_p.popup()
+        myself.balls = 0

@@ -8,31 +8,28 @@ class Interface:
         self.making_surface = 1
         self.surfaces[id]   = {
             "screen": screen,
-            "batch":  batch
+            "batch":  batch,
+            "tbatch": pg.graphics.Batch()
         }
+        self.making_surface = 0
         return id
 
     def __init__(self, screen, batch, cvars):
+        self.mpos            = [0,0]
+        self.mclk            = [0,0,0]
         self.cvars           = cvars
         self.screen          = screen
         self.batch           = batch
         self.delta           = 0
         self.surfaces        = {}
-        self.making_surface  = 0
+        self.making_surface  = False
         self.main_surf_id    = self.add_screen(screen, batch)
-        self.is_doublebuffer = 1
+        self.is_doublebuffer = True
         self.area_cache      = {}
+        self.label_pool      = {}
+        self.label_used      = []
         self.draw_queue      = {}
         self.anchors         = {}
-        self.base_label      = pg.text.Label(
-            text  = "",
-            x     = 0,
-            y     = 0,
-            z     = 0,
-            batch = self.batch
-        )
-        self.labels          = {}
-        self.used_labels     = {}
         self.label_queue     = {}
         self.layers          = {}
         self.layer_amount    = cvars.get("ui_layers") # -X ... X
@@ -92,7 +89,6 @@ class Interface:
         ## Anchoring
         if blit_in  == "main":
             blit_in =  self.main_surf_id
-        anchor = anchor.split(" ")
         
         screen = self.surfaces[blit_in]["screen"]
         batch  = self.surfaces[blit_in]["batch"]
@@ -110,8 +106,9 @@ class Interface:
                 img.height             
             )
         
-        img.anchor_x = img.width  // 2 
-        img.anchor_y = img.height // 2 # (img.height)
+        if rot:
+            img.anchor_x = img.width  // 2 
+            img.anchor_y = img.height // 2 # (img.height)
         
         if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -img.width or new_pos[1] < -img.height:
             pass
@@ -126,86 +123,86 @@ class Interface:
                 self.draw_queue[id].opacity  = 0
     
     def render(self, text, pos, blit_in="main", layer=5, anchor=""):
-        if blit_in == "main":
+        # Todo: make good3
+        id           = len(self.label_queue)
+        if blit_in  == "main":
             blit_in =  self.main_surf_id
-        id                   = len(self.label_queue)
-        self.label_queue[id] = [text, pos, blit_in, layer, anchor]
+        
+        screen       = self.surfaces[blit_in]["screen"]
+        batch        = self.surfaces[blit_in]["tbatch"]
+        win_w, win_h = screen.get_size()
+        lbl_id       = -1
+        for i in self.label_pool:
+            if not i in self.label_used:
+                lbl      = self.label_pool[i]
+                lbl_id   = i                 
+                id       = i                 
+                break
+        if lbl_id == -1:
+            lbl = pg.text.Label(
+                text,
+                font_size=15,
+                z=layer,
+                batch=batch
+            )
+            self.label_pool[id] = lbl
+            lbl_id              = id
+        new_pos = self.get_anchor(
+            pos,
+            win_w,
+            win_h,
+            anchor,
+            lbl.content_width,
+            lbl.content_height,
+            True
+        )
+
+        if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -lbl.content_width or new_pos[1] < -lbl.content_height:
+            self.label_pool[id].visible = False
+            return
+
+        if not lbl.z    == layer:
+            if not layer in self.layers: layer = 0
+            lbl.z       = layer
+            lbl.group   = self.layers[layer]
+        if not lbl.text == text:
+            lbl.text = text
+        if not lbl.x == new_pos[0]:
+            lbl.x = new_pos[0]
+        if not lbl.y == new_pos[1]:
+            lbl.y = new_pos[1]
+
+        self.label_pool[id].visible = True
+        self.label_used.append(id)
+        self.label_queue[id] = lbl
     
     def flip(self):
-        ## === 1. Process label queue ===
-        ## TODO: optimize this
-        for key, lab_dat in self.label_queue.items():  # Proper iteration over dict
-            text    = lab_dat[0]
-            pos     = lab_dat[1]
-            blit_in = lab_dat[2]
-            layer   = lab_dat[3]
-            anchor  = lab_dat[4]
-            screen  = self.surfaces[blit_in]["screen"]
-            batch   = self.surfaces[blit_in]["batch"]
-
-            # Reuse an unused label or create a new one
-            label_id = -1
-            for i, label in enumerate(self.labels):
-                if i not in self.used_labels:
-                    label_id = i
-                    self.used_labels[i] = i
-                    break
-
-            if label_id == -1:
-                label_id = len(self.labels)
-                # Create a new label based on self.base_label
-                base = self.base_label
-                new_label = pg.text.Label(
-                    text,
-                    font_name=base.font_name,
-                    font_size=15,
-                    z=layer,
-                    color=base.color,
-                    batch=batch,
-                    anchor_x=base.anchor_x,
-                    anchor_y=base.anchor_y,
-                    group=self.layers[layer]
-                )
-                new_pos                  = self.get_anchor(pos, screen.get_size()[0], screen.get_size()[1], anchor.split(" "), new_label.content_width, new_label.content_height, 1)
-                new_label.x, new_label.y = new_pos
-                self.labels[len(self.labels)] = new_label
-            else:
-                # Reuse existing label
-                label_obj                = self.labels[label_id]
-                new_pos                  = self.get_anchor(pos, screen.get_size()[0], screen.get_size()[1], anchor.split(" "), label_obj.content_width, label_obj.content_height, 1)
-                label_obj.x, label_obj.y = new_pos
-                label_obj.text           = text
-                label_obj.z              = layer
-                label_obj.group          = self.layers[layer]
-
-        # Clear queues for next frame
-        self.label_queue.clear()
-        self.used_labels.clear()
-
-        ## === 2. Draw batches ===
+        ## === 1. Draw batches ===
         if not self.making_surface:
             for surf in self.surfaces.values():
-                surf["batch"].draw()
-            self.draw_queue.clear()
+                surf["batch"].draw() 
+                surf["tbatch"].draw()
+            self.draw_queue.clear() 
+            self.label_queue.clear()
+        self.making_surface = False
 
-        self.making_surface = 0
-
-        ## === 3. Flip/update window ===
+        ## === 2. Flip/update window ===
         for i in self.surfaces:
             screen = self.surfaces[i]["screen"]
             if self.is_doublebuffer:
                 self.screen.flip()
             else:
                 self.screen.update()
-        for i in self.labels:
-            label_obj                = self.labels[i]
-            label_obj.x, label_obj.y = -500,-500
     
     def fill(self, delta, color="black"):
         self.delta = delta
         for i in self.surfaces:
             screen = self.surfaces[i]["screen"]
             screen.clear()
+        for lbl in self.label_used:
+            self.label_pool[lbl].visible = False
+        self.label_used.clear()
+        self.label_queue.clear()
     
     def close(self):
         for i in self.surfaces:

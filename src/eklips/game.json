@@ -2,7 +2,7 @@
     "project-ver":   "1.0",
     "eklips-ver":    "4.0A",
 
-    "game_name":     "Eklips 4",
+    "game_name":     "Eklips Test App",
 
     "datagenerated": {                                
         "mediafiles": [
@@ -106,5 +106,7 @@
             "default": 35,
             "description": "The layers the UI module has access to (negative and positive)"
         }
-    }
+    },
+
+    "cmd": {}
 }

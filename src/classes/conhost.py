@@ -16,9 +16,10 @@ def printf(*args):
 class ConHost:
     """ConHost class. Used to handle console output and input."""
 
-    def __init__(self, ui: UI.Interface, cvars: CV.CvarCollection):
+    def __init__(self, ui: UI.Interface, cvars: CV.CvarCollection, data):
         global shared_console_text
         self.cvars        = cvars
+        self.data         = data
         self.console_text = shared_console_text
         self.shown        = False
         self.ui           = ui
@@ -112,9 +113,9 @@ class ConHost:
 
             if len(keys_nheld) > 0:
                 char = keys_nheld[0]
-                if char == 8:  # Backspace
+                if char   == pg.window.key.BACKSPACE: # Backspace
                     self.input_text = self.input_text[:-1]
-                elif char == pg.window.key.RETURN:  # Enter
+                elif char == pg.window.key.RETURN:    # Enter
                     self.input(self.input_text)
                 self._prockey(char)
                 self.hold_timer = 0
@@ -176,11 +177,12 @@ class ConHost:
         elif opc == "eng_chproj":
             exec(f"Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)
             exec(f"Data.directory = '{args[0]}'", self.eng_gl, self.eng_gl)
+            exec(f"reload_engine('{args[0]}')", self.eng_gl, self.eng_gl)
         elif opc == "eng_reload":
             exec("reload_engine()", self.eng_gl, self.eng_gl)
         else:
             try:
-                printf(opc)
+                exec(self.data.game_bdata["cmd"][opc], self.eng_gl, self.eng_gl)
             except:
                 printf(f"Illegal command: {opc}")
     
@@ -195,3 +197,4 @@ class ConHost:
                 self._proccmd(text)
             except Exception as error:
                 printf(f"Error processing command '{text}': {error}")
+                raise error
