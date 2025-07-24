@@ -49,16 +49,13 @@ class Interface:
                 if "bottom" in anchor:
                     new_pos[1] = pos[1]
                 if "centerX" in anchor:
-                    new_pos[0] = (win_w/2 - surf_w/2) + pos[0]
-                    new_pos[0] += surf_w/2
+                    new_pos[0] = (win_w/2 - surf_w) + pos[0]
                 if "centerY" in anchor:
-                    new_pos[1] = (win_h/2 - surf_h/2) + pos[1]
-                    new_pos[1] += surf_h/2
+                    new_pos[1] = (win_h/2 - surf_h) + pos[1]
                 if "center" in anchor:
-                    new_pos[0] = (win_w/2 - surf_w/2) + pos[0]
-                    new_pos[1] = (win_h/2 - surf_h/2) + pos[1]
-                    new_pos[0] += surf_w/2
-                    new_pos[1] += surf_h/2
+                    new_pos[0] = (win_w/2 - surf_w) + pos[0]
+                    new_pos[1] = (win_h/2 - surf_h) + pos[1]
+                new_pos=[round(new_pos[0]),round(new_pos[1])]
                 self.anchors[anchor_id]=new_pos
             else:
                 new_pos = self.anchors[anchor_id]

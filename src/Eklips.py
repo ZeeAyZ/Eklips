@@ -7,13 +7,10 @@ from classes.conhost import printf
 from classes.key_entries import key_entries
 from classes.data_ekl import *
 
-## Print basic information
-printf(f"### Eklips {VER} / {Data.game_name} {Data.game_bdata['project-ver']}")
-
 ## Basic garbage collection
 gc.enable()
 
-## A mess
+## Pre-define everything as empty
 keys_pressed, keys_nheld = [],[]               
 savefile        : Save.Savefile         = 0    
 signal_sys      : Signals.SignalHandler = 0    
@@ -37,13 +34,14 @@ cvars           : CV.CvarCollection     = 0
 def reload_engine(dir=None):
     global savefile,signal_sys,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
     """Reload/Load the engine variables."""
-
-    ## Reload data and load cvars
-    print(" ~ Initializing CVARs")
+    
+    ## Reload data and load cvars and print basic information
     cvars = Data._init()
+    printf(f"### Eklips {VER} / {Data.game_name} {Data.game_bdata['project-ver']}")
+    print(" ~ Initializing CVARs")
     if dir:
         Data.data_directory = dir
-        cvars.set("directory", dir, dir, "dir_test")
+        cvars.set("directory", dir, dir, "directoryParameterModifiedByArgument")
 
     ## Empty this variable since.. uh.. yes.
     keys_pressed = []
