@@ -26,7 +26,7 @@ class Interface:
         self.main_surf_id    = self.add_screen(screen, batch)
         self.is_doublebuffer = True
         self.area_cache      = {}
-        self.label_pool      = {}
+        self.label_pool      = {i: pg.text.Label("", font_size=15, batch=batch) for i in range(cvars.get("ui_labelpoolamount"))}
         self.label_used      = []
         self.draw_queue      = {}
         self.anchors         = {}

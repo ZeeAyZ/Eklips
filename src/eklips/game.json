@@ -96,6 +96,11 @@
             "default": 450,
             "description": "Speed of the console host."
         },
+        "ui_labelpoolamount": {
+            "type": "int",
+            "default": 100,
+            "description": "Amount of label objects in the label pool to be premade."
+        },
         "con_rate": {
             "type": "int",
             "default": 5,

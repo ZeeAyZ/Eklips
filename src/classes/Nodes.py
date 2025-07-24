@@ -236,54 +236,12 @@ class Node(NodeMixin):
     def get_fired(self):
         self.demand_for.append("signals")
 
-class Window(Node):
-    """
-    ## BROKEN!
-    ## A Pyglet Window.
-
-    Self-explanatory if you have used Pyglet. `Window.window_id` is the Window id object. To get the window object, use `interface.surfaces[window_id]['window']`.
-    Make a Node the child of a Window node to display contents in it.
-    """
-    def true_init(self):
-        self.parameters["dimension"]  = "640x480"
-        self.parameters["caption"]    = "Window.Pyglet"
-        self.parameters["icon"]       = "res:/media/icon.png"
-        self.parameters["fullscreen"] = 0
-        self.editor_icon              = "program:/internal/eklips/Window.png"
-        self.window_id                = 0
-        
-    def on_ready(self):
-        self.my_window = pg.window.Window(
-            int(self.parameters["dimension"].split("x")[0]), int(self.parameters["dimension"].split("x")[1]),
-            caption    = self.parameters["caption"],
-            fullscreen = self.parameters["fullscreen"],
-            vsync      = 0,
-            file_drops = self.project_data.game_bdata["file_drops"]
-        )
-        self.my_batch  = pg.graphics.Batch()
-        self.window_id = self.screen.add_screen(self.my_window, self.my_batch)
-        self.event     = Event.Event(self.my_window)
-
-    def update(self):
-        if not self.dead:
-            self.my_window.dispatch_events()
-            events               = self.event.get_and_handle()
-            mpos, mpressed       = self.event.get_mouse()
-            keys_pressed         = self.event.key_map
-
-            self.my_window.clear()
-            self.get_fired()
-            self.run_script()
-            self.true_update()
-        else:
-            self._discard()
-
 class TkWindow(Node):
     """
     ## A Tkinter Window.
 
-    Self-explanatory if you have used Tkinter. `TkWindow.tk_self` is the Window object.
-    No 2D Nodes work in this, and it won't make children nodes behave like a Window() Node.
+    Self-explanatory if you have used Tkinter. `TkWindow.tk_self` is the Tk() object.
+    No 2D Nodes work in this. The icon property only works if the image is in res:/.
     """
     def true_init(self):
         self.tk_self = tk.Tk()
@@ -295,7 +253,7 @@ class TkWindow(Node):
     def on_ready(self):
         self.tk_self.geometry(self.parameters["dimension"])
         self.tk_self.title(self.parameters["caption"])
-        icon_image = Image.open(self.parameters["icon"].replace("res:/", self.project_data.data_directory+"/"))
+        icon_image  = Image.open(self.parameters["icon"].replace("res:/", self.project_data.data_directory+"/"))
         photo_image = ImageTk.PhotoImage(icon_image)
         self.tk_self.wm_iconphoto(True, photo_image)
 
