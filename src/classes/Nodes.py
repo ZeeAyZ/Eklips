@@ -495,6 +495,7 @@ class Node2D(CanvasItem):
     """
 
     def true_init(self):
+        super().true_init()
         self.name         = "Node2D"
         self.editor_icon  = "Node2D"
     
@@ -548,6 +549,7 @@ class ColorRect(CanvasItem):
     Self-explanatory.
     """
     def true_init(self):
+        super().true_init()
         self.parameters["color"] = [128,128,128]
         self.image               = 0
 
@@ -571,6 +573,7 @@ class ColorRect(CanvasItem):
 
 class Button(ColorRect):
     def true_init(self):
+        super().true_init()
         self.parameters["color"] = [128,128,128]
         self.clicked             = False
         self.image               = 0
@@ -595,6 +598,7 @@ class Button(ColorRect):
 class Treeview(CanvasItem):
     # TODO: Make visually pleasing
     def true_init(self):
+        super().true_init()
         self.treechildren = {}
         self.revealed     = []
     
@@ -642,7 +646,7 @@ class PhysicsBody2D(Node2D):
 
         for i in collided:
             if i == -1: continue
-            node = nearby[i]
+            node = i
             if self.colliderect(node):
                 # You little shit
                 if self.parameters["transform"]["pos"][1] + self.parameters["transform"]["size"][1] <= node.parameters["transform"]["pos"][1]:
@@ -679,11 +683,16 @@ class CollisionBox2D(PhysicsBody2D):
         )
 
     def true_init(self):
+        super().true_init()
         self._phys_init()
         self.name                                = "CollisionBox2D"                                 
         self.editor_icon                         = "CollisionBox2D"                                 
+        self.remap_dim()
         self.id                                  = f"{self.path}/{self.name}NodeColA{self.w*self.h}"
         self.root_scene.nodes_collision[self.id] = self                                     
+    
+    def remap_dim(self):
+        self.x,self.y,self.w,self.h = self.parameters["transform"]["pos"][0], self.parameters["transform"]["pos"][1], self.parameters["transform"]["size"][0], self.parameters["transform"]["size"][1]
     
     def colliderect(self, rect): return self._check_overlap(self, rect)
 
@@ -712,6 +721,7 @@ class CollisionBox2D(PhysicsBody2D):
     
     def true_update(self):
         global camera_pos
+        self.remap_dim()
         nearby   = self.get_all_rects_nearby()
         collided = self.collidelistall(nearby)
         self._physics_update(nearby, collided)  # Update physics based on nearby rectangles and collided ones
@@ -733,6 +743,7 @@ class Camera2D(Node2D):
     Self-explanatory. The position of this Node is the position of the camera
     """
     def true_init(self):
+        super().true_init()
         self.editor_icon = "Camera2D"
     
     def true_update(self):
@@ -745,6 +756,7 @@ class Sprite2D(Node2D):
     Self-explanatory.
     """
     def true_init(self):
+        super().true_init()
         self.parameters["sprite"] = "res://media/bg.png"
         self.image                = 0
         self.editor_icon          = "Sprite2D"
@@ -763,6 +775,7 @@ class AnimatedSprite2D(Sprite2D):
     Self-explanatory.
     """
     def true_init(self):
+        super().true_init()
         self.parameters["sprite"] = ["res://media/bg.png"]
         self.images               = []
         self.sprite_used          = 0 
@@ -788,6 +801,7 @@ class AnimatedSprite2D(Sprite2D):
 
 class Parallax2D(Sprite2D):
     def true_init(self):
+        super().true_init()
         self.parameters["sprite"]       = "res://media/bg.png"
         self.parameters["scroll_speed"] = 5
         self.image                      = 0

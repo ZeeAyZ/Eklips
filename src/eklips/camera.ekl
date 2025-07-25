@@ -1,0 +1,6 @@
+def _process(empty):
+    ply      = scene.get_node_from_path("","Player")
+    plytrans = ply.parameters["transform"]["pos"]
+    plyt_cen = [plytrans[0] - myself.screen.screen.width/2, plytrans[1] - myself.screen.screen.height/2]
+
+    myself.parameters["transform"]["pos"] = plyt_cen
