@@ -5,7 +5,7 @@ def _walk_dist(fol, layer=0):
     r={}
     try:
         for i in os.listdir(fol):
-            if os.path.isdir(f"{fol}/{i}") and layer < 2:
+            if os.path.isdir(f"{fol}/{i}") and layer < 1:
                 r[i] = _walk_dist(f"{fol}/{i}", layer+1)
     except:
         return r
@@ -16,7 +16,9 @@ def _process(empty):
         node_p = scene.get_node_from_path("", "BackD")
         node_p.popup()
         node_p = scene.get_node_from_path("", "Trv")
-        node_p.parameters["visible"] = 1
+        node_p.parameters["visible"] = True
+        c_d    = _walk_dist("C:/")
+        node_p.parameters["children"]["C:/"] = c_d
         node_p = scene.get_node_from_path("", "AudioPlayer")
         node_p.play()
         myself.balls = 0

@@ -40,8 +40,8 @@ class Interface:
         for i in range(-self.layer_amount,self.layer_amount):
             self.layers[i] = pg.graphics.Group(order=i)
     
-    def get_anchor(self,pos,win_w,win_h,anchor,surf_w,surf_h,can_cache):
-        anchor_id   = f"{anchor},win{win_w}x{win_h},surf{surf_w}x{surf_h},pos{pos}"
+    def get_anchor(self,pos,win_w,win_h,anchor,surf_w,surf_h,can_cache,rot):
+        anchor_id   = f"{anchor},win{win_w}x{win_h},surf{surf_w}x{surf_h},pos{pos},rot{True if rot else False}"
 
         new_pos = pos.copy()
         if can_cache:
@@ -58,6 +58,9 @@ class Interface:
                 if "center" in anchor:
                     new_pos[0] = (win_w/2 - surf_w) + pos[0]
                     new_pos[1] = (win_h/2 - surf_h) + pos[1]
+                if rot:
+                    new_pos[0]+=surf_w
+                    new_pos[1]+=surf_h
                 new_pos=[round(new_pos[0]),round(new_pos[1])]
                 self.anchors[anchor_id]=new_pos
             else:
@@ -70,7 +73,6 @@ class Interface:
         path        = surface.get_path()
         img         = surface.get()
         new_opacity = int(opacity * 255)
-        img.scale_x, img.scale_y = scale
         new_clip    = clip
 
         if clip:
@@ -94,7 +96,7 @@ class Interface:
         batch  = self.surfaces[blit_in]["batch"]
         
         win_w, win_h = screen.get_size()
-        new_pos      = self.get_anchor(pos,win_w,win_h,anchor,img.width,img.height,1)
+        new_pos      = self.get_anchor(pos,win_w,win_h,anchor,img.width,img.height,1, rot)
         
         ## Detect if i'm even visible and change position
         id_ = len(self.draw_queue)
@@ -109,13 +111,9 @@ class Interface:
                     img.width,             
                     img.height             
                 )
-            
-            if rot != 0:
-                img.anchor_x = img.width 
-                img.anchor_y = img.height
-                new_pos     += [img.width,img.height]
 
             spr_id       = -1
+            hsize        = [img.width//2,img.height//2]
             for i in self.sprite_pool:
                 if not i in self.sprite_used:     
                     spr      = self.sprite_pool[i]
@@ -146,6 +144,11 @@ class Interface:
                 spr.scale_x  = scale[0]
             if spr.scale_y  != scale[1]:
                 spr.scale_y  = scale[1]
+            if rot:
+                if spr.image.anchor_x != hsize[0]:
+                    spr.image.anchor_x = hsize[0]
+                if spr.image.anchor_y != hsize[1]:
+                    spr.image.anchor_y = hsize[1]
             spr.visible = True
             self.draw_queue[id_] = spr
             self.sprite_used.append(spr_id)
@@ -182,7 +185,8 @@ class Interface:
             anchor,
             lbl.content_width,
             lbl.content_height,
-            True
+            True,
+            0
         )
 
         if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -lbl.content_width or new_pos[1] < -lbl.content_height:
