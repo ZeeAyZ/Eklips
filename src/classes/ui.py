@@ -110,7 +110,7 @@ class Interface:
                     img.height             
                 )
             
-            if rot:
+            if rot != 0:
                 img.anchor_x = img.width 
                 img.anchor_y = img.height
                 new_pos     += [img.width,img.height]

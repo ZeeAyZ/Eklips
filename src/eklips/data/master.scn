@@ -28,6 +28,21 @@
             "path":              "",
             "runtimedata":       0
         },
+        "aud": {
+            "type":       "AudioPlayer",
+            "properties": {
+                "media":       "res://media/dssecret.wav",
+                "autostart":   true,
+                "loop":        false,
+                "where":       0,
+                "play_global": true
+            },
+            "script_properties": {},
+            "name":              "AudioPlayer",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        },
         "tr": {
             "type":       "Treeview",
             "properties": {
@@ -56,7 +71,7 @@
             "type":       "OptionDialog",
             "properties": {
                 "caption":     "Eklips Test Dialog",
-                "icon":        "program://internal/eklips/icon.png",
+                "icon":        "root://internal//eklips/icon.png",
                 "message":     "A C: drive is revealed!",
                 "optionindex": 4
             },

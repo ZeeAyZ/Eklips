@@ -78,12 +78,12 @@
         },
         "loading-scene": {
             "type": "string",
-            "default": "program:/internal/loading.scn",
+            "default": "root://internal//loading.scn",
             "description": "Scene to be used for loading."
         },
         "master-scene": {
             "type": "string",
-            "default": "res:/data/master.scn",
+            "default": "res://data/master.scn",
             "description": "Master scene to be loaded at the start of the game."
         },
         "con": {

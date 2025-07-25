@@ -241,19 +241,19 @@ class TkWindow(Node):
     ## A Tkinter Window.
 
     Self-explanatory if you have used Tkinter. `TkWindow.tk_self` is the Tk() object.
-    No 2D Nodes work in this. The icon property only works if the image is in res:/.
+    No 2D Nodes work in this. The icon property only works if the image is in res://.
     """
     def true_init(self):
         self.tk_self = tk.Tk()
         self.parameters["dimension"]  = "640x480"
         self.parameters["caption"]    = "Window.Tk"
-        self.parameters["icon"]       = "res:/media/icon.png"
+        self.parameters["icon"]       = "res://media/icon.png"
         self.parameters["fullscreen"] = 0
         
     def on_ready(self):
         self.tk_self.geometry(self.parameters["dimension"])
         self.tk_self.title(self.parameters["caption"])
-        icon_image  = Image.open(self.parameters["icon"].replace("res:/", self.project_data.data_directory+"/"))
+        icon_image  = Image.open(self.parameters["icon"].replace("res://", self.project_data.data_directory+"/"))
         photo_image = ImageTk.PhotoImage(icon_image)
         self.tk_self.wm_iconphoto(True, photo_image)
 
@@ -272,7 +272,7 @@ class OptionDialog(TkWindow):
 
     def true_init(self):
         self.parameters["caption"]     = "Node.Window.Tk.Dialog"
-        self.parameters["icon"]        = "res:/media/icon.png"
+        self.parameters["icon"]        = "res://media/icon.png"
         self.parameters["message"]     = "Node.Window.Tk.Dialog.Message"
         self.parameters["optionindex"] = 4
         self.parameters["custom_opts"] = []
@@ -302,7 +302,7 @@ class AudioPlayer(Node):
     def true_init(self):
         self.player       = None
         self.parameters   = {
-            "media":       "res:/media/load.mp3",
+            "media":       "res://media/load.mp3",
             "loop":        False,
             "where":       0,
             "autostart":   False,
@@ -350,7 +350,7 @@ class VideoPlayer(AudioPlayer):
     def true_init(self):
         self.player       = None
         self.parameters   = {
-            "media":     "res:/media/load.mp3",
+            "media":     "res://media/load.mp3",
             "loop":      0,
             "where":     0,
             "autostart": 0
@@ -745,7 +745,7 @@ class Sprite2D(Node2D):
     Self-explanatory.
     """
     def true_init(self):
-        self.parameters["sprite"] = "res:/media/bg.png"
+        self.parameters["sprite"] = "res://media/bg.png"
         self.image                = 0
         self.editor_icon          = "Sprite2D"
 
@@ -763,7 +763,7 @@ class AnimatedSprite2D(Sprite2D):
     Self-explanatory.
     """
     def true_init(self):
-        self.parameters["sprite"] = ["res:/media/bg.png"]
+        self.parameters["sprite"] = ["res://media/bg.png"]
         self.images               = []
         self.sprite_used          = 0 
         self.editor_icon          = "Sprite2D"
@@ -788,7 +788,7 @@ class AnimatedSprite2D(Sprite2D):
 
 class Parallax2D(Sprite2D):
     def true_init(self):
-        self.parameters["sprite"]       = "res:/media/bg.png"
+        self.parameters["sprite"]       = "res://media/bg.png"
         self.parameters["scroll_speed"] = 5
         self.image                      = 0
         self.editor_icon                = "Parallax2D"

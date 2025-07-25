@@ -29,7 +29,7 @@ class Resource:
         return self.id
     
     def get_path(self):
-        # Get the resource path (`res:/test.png`, etc..)
+        # Get the resource path (`res://test.png`, etc..)
         return self.path
     
     def on_ready(self):
@@ -173,10 +173,13 @@ class Loader:
         return obj
     
     def load(self, path, can_cache=1):
-        ## Load a resource. Specify path "`user:/..`", "`res:/..`" or "`program:/..`"
+        ## Load a resource. Specify path "`user://..`", "`res://..`" or `root://..`"
+        ## User:// = save directory
+        ## Res://  = project directory
+        ## Root:// = directory that the binary is in
         asset       = 0
         type        = "mm"
-        location    = path.lstrip("res:").lstrip("program:/")
+        location    = path.lstrip("res://").lstrip("user://")
         actual_path = location
         if can_cache:
             if location in self.resource_tree:
@@ -184,14 +187,19 @@ class Loader:
                 return asset
             else:
                 print(f"  ~ Loading file {path}")
-                if path.startswith("program:") and not IS_EXECUTABLE:
-                    path = path.lstrip("program:/")
-                if path.startswith("program:"):
-                    actual_path = path.lstrip("program:/")
+                if path.startswith("root://"):
+                    actual_path = path.lstrip("root://")
+                elif path.startswith("user://"):
+                    actual_path = self.save + path.lstrip("user://")
+                elif path.startswith("res://"):
+                    actual_path = self.game_data.get("directory") + "/" + path.lstrip("res://")
+                else:
+                    actual_path = path
+                if IS_EXECUTABLE:
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp"):
                         asset = pg.resource.image(actual_path)
                         assetres = Image(asset, "sprite", path)
-                    elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","avi","mpeg"):
+                    elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","flac","avi","mpeg"):
                         asset = pg.resource.media(actual_path)
                         assetres = Media(asset, "med", path)
                     elif actual_path.split(".")[-1].lower() in ("res"):
@@ -201,12 +209,6 @@ class Loader:
                         asset = pg.resource.file(actual_path, "r").read()
                         assetres = Script(asset, "str", path)
                 else:
-                    if path.startswith("user:"):
-                        actual_path = self.save + path.lstrip("user:")
-                    elif path.startswith("res:"):
-                        actual_path = self.game_data.get("directory") + path.lstrip("res:")
-                    else:
-                        actual_path = path
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp","dds"):
                         asset = pg.image.load(actual_path)
                         assetres = Image(asset, "sprite", actual_path)
