@@ -26,8 +26,11 @@ class Interface:
         self.main_surf_id    = self.add_screen(screen, batch)
         self.is_doublebuffer = True
         self.area_cache      = {}
+        self.boilerimg       = pg.image.ImageData(1,1,"RGB", bytes([0,0,0]))
         self.label_pool      = {i: pg.text.Label("", font_size=15, batch=batch) for i in range(cvars.get("ui_labelpoolamount"))}
+        self.sprite_pool     = {i: pg.sprite.Sprite(self.boilerimg, batch=batch) for i in range(cvars.get("ui_labelpoolamount"))}
         self.label_used      = []
+        self.sprite_used     = []
         self.draw_queue      = {}
         self.anchors         = {}
         self.label_queue     = {}
@@ -94,30 +97,57 @@ class Interface:
         new_pos      = self.get_anchor(pos,win_w,win_h,anchor,img.width,img.height,1)
         
         ## Detect if i'm even visible and change position
-        id  = len(self.draw_queue)
-        if scroll != [0, 0]:
-            img = img.get_region(
-                scroll[0] % img.width, 
-                scroll[1] % img.height,
-                img.width,             
-                img.height             
-            )
-        
-        if rot:
-            img.anchor_x = img.width  // 2 
-            img.anchor_y = img.height // 2 # (img.height)
-        
+        id_ = len(self.draw_queue)
         if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -img.width or new_pos[1] < -img.height:
             pass
         else:
             if not layer in self.layers: layer = 0
-            self.draw_queue[id]                                      = pg.sprite.Sprite(img, x=new_pos[0], y=new_pos[1], z=layer, batch=batch, group=self.layers[layer])
-            self.draw_queue[id].scale_x, self.draw_queue[id].scale_y = scale
-            self.draw_queue[id].rotation                             = rot
-            if new_opacity > 0:
-                self.draw_queue[id].opacity  = new_opacity
-            else:
-                self.draw_queue[id].opacity  = 0
+            if scroll != [0, 0]:
+                img = img.get_region(
+                    scroll[0] % img.width, 
+                    scroll[1] % img.height,
+                    img.width,             
+                    img.height             
+                )
+            
+            if rot:
+                img.anchor_x = img.width  // 2
+                img.anchor_y = img.height // 2
+
+            spr_id       = -1
+            for i in self.sprite_pool:
+                if not i in self.sprite_used:     
+                    spr      = self.sprite_pool[i]
+                    spr_id   = i                  
+                    break                         
+            if spr_id == -1:
+                spr = pg.sprite.Sprite(
+                    self.boilerimg,
+                    batch=batch
+                )
+                id = len(self.sprite_pool)
+                self.sprite_pool[id] = spr
+                spr_id               = id 
+            if spr.x        != new_pos[0]:
+                spr.x        = new_pos[0]
+            if spr.y        != new_pos[1]:
+                spr.y        = new_pos[1]
+            if spr.image    != img:
+                spr.image    = img
+            if spr.z        != layer:
+                spr.z        = layer
+                spr.group    = self.layers[layer]
+            if spr.rotation != rot:
+                spr.rotation = rot
+            if spr.opacity  != new_opacity:
+                spr.opacity  = new_opacity
+            if spr.scale_x  != scale[0]:
+                spr.scale_x  = scale[0]
+            if spr.scale_y  != scale[1]:
+                spr.scale_y  = scale[1]
+            spr.visible = True
+            self.draw_queue[id_] = spr
+            self.sprite_used.append(spr_id)
     
     def render(self, text, pos, blit_in="main", layer=5, anchor=""):
         # Todo: make good3
@@ -179,8 +209,6 @@ class Interface:
             for surf in self.surfaces.values():
                 surf["batch"].draw() 
                 surf["tbatch"].draw()
-            self.draw_queue.clear() 
-            self.label_queue.clear()
         self.making_surface = False
 
         ## === 2. Flip/update window ===
@@ -192,14 +220,18 @@ class Interface:
                 self.screen.update()
     
     def fill(self, delta, color="black"):
-        self.delta = delta
-        for i in self.surfaces:
+        self.delta = delta      
+        for i in self.surfaces: 
             screen = self.surfaces[i]["screen"]
-            screen.clear()
+            screen.clear()      
         for lbl in self.label_used:
             self.label_pool[lbl].visible = False
-        self.label_used.clear()
+        for spr in self.sprite_used:
+            self.sprite_pool[spr].visible = False
+        self.label_used.clear() 
+        self.draw_queue.clear() 
         self.label_queue.clear()
+        self.sprite_used.clear()
     
     def close(self):
         for i in self.surfaces:

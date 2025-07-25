@@ -9,7 +9,7 @@
             "properties": {
                 "transform": {
                     "scale":  [1,1],
-                    "pos":    [50,50],
+                    "pos":    [150,150],
                     "rot":    0,
                     "anchor": "",
                     "layer":  0,
