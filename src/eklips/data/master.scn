@@ -14,12 +14,12 @@
                     "anchor": "",
                     "layer":  0,
                     "alpha":  1,
-                    "size":   [100,100],
+                    "size":   [65,35],
                     "scroll": [0,0]
                 },
                 "visible":   1,
                 "color":     [59,59,59],
-                "text":      "Hi!",
+                "text":      "Show",
                 "pressed_t": "Ow!"
             },
             "script_properties": {},
@@ -28,12 +28,36 @@
             "path":              "",
             "runtimedata":       0
         },
+        "tr": {
+            "type":       "Treeview",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [215,35],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "size":   [45,35],
+                    "scroll": [0,0]
+                },
+                "visible":   0,
+                "children":  {
+                    "C:/": {}
+                }
+            },
+            "script_properties": {},
+            "name":              "Trv",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        },
         "pp": {
             "type":       "OptionDialog",
             "properties": {
-                "caption":     "Button Hi",
+                "caption":     "Eklips Test Dialog",
                 "icon":        "program://internal/eklips/icon.png",
-                "message":     "Hi!",
+                "message":     "A C: drive is revealed!",
                 "optionindex": 4
             },
             "script_properties": {},

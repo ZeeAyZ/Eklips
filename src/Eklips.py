@@ -1,6 +1,6 @@
 ## Import all the libraries
 import pyglet as pg
-import ErrorHandler, json, Data, gc, time
+import ErrorHandler, json, Data, gc, time, os
 import requests
 from classes import UI, Save, Event, Signals, Nodes, Resources, CV, conhost
 from classes.conhost import printf

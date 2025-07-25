@@ -1,8 +1,21 @@
 def on_ready(empty):
     myself.balls = 1
 
+def _walk_dist(fol, layer=0):
+    r={}
+    try:
+        for i in os.listdir(fol):
+            if os.path.isdir(f"{fol}/{i}") and layer < 1:
+                r[i] = _walk_dist(f"{fol}/{i}", layer+1)
+    except:
+        return r
+    return r
 def _process(empty):
     if myself.clicked and myself.balls:
         node_p = scene.get_node_from_path("", "BackD")
         node_p.popup()
+        node_p = scene.get_node_from_path("", "Trv")
+        node_p.parameters["visible"] = 1
+        c_d = _walk_dist("C:/")
+        node_p.parameters["children"]["C:/"] = c_d
         myself.balls = 0

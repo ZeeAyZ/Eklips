@@ -585,7 +585,11 @@ class Button(ColorRect):
             self.load_render()
         self.screen.render(
             self.parameters["text"],
-            self.parameters["transform"]["pos"]
+            [
+                self.parameters["transform"]["pos"][0]+7.5,
+                self.parameters["transform"]["pos"][1]
+            ],
+            anchor=self.parameters["transform"]["anchor"]
         )
 
 class Treeview(CanvasItem):

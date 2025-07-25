@@ -109,6 +109,11 @@ class Interface:
                     img.width,             
                     img.height             
                 )
+            
+            if rot:
+                img.anchor_x = img.width 
+                img.anchor_y = img.height
+                new_pos     += [img.width,img.height]
 
             spr_id       = -1
             for i in self.sprite_pool:
@@ -133,9 +138,6 @@ class Interface:
             if spr.z        != layer:
                 spr.z        = layer
                 spr.group    = self.layers[layer]
-            if rot:
-                spr.anchor_x = spr.width  // 2
-                spr.anchor_y = spr.height // 2
             if spr.rotation != rot:
                 spr.rotation = rot
             if spr.opacity  != new_opacity:
