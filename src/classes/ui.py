@@ -43,6 +43,7 @@ class Interface:
     def get_anchor(self,pos,win_w,win_h,anchor,surf_w,surf_h,can_cache,rot):
         anchor_id   = f"{anchor},win{win_w}x{win_h},surf{surf_w}x{surf_h},pos{pos},rot{True if rot else False}"
 
+        print(pos)
         new_pos = pos.copy()
         if can_cache:
             if not anchor_id in self.anchors:
@@ -69,6 +70,7 @@ class Interface:
 
     def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in="main", can_cache = 1, rot = 0):
         # the origin for the position is topleft. surface is a sprite.
+        print(pos)
         new_pos     = pos[:]
         path        = surface.get_path()
         img         = surface.get()

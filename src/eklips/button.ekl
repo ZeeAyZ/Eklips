@@ -12,10 +12,11 @@ def _walk_dist(fol, layer=0):
     return r
 
 def _process(empty):
+    print("bm")
     if myself.clicked and myself.balls:
-        node_p = scene.get_node_from_path("Back", "BackD")
+        node_p = scene.get_node_from_path("", "BackD")
         node_p.popup()
-        node_p = scene.get_node_from_path("Back", "Trv")
+        node_p = scene.get_node_from_path("", "Trv")
         node_p.parameters["visible"] = True
         c_d    = _walk_dist("C:/")
         node_p.parameters["children"]["C:/"] = c_d

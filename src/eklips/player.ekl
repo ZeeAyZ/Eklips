@@ -1,9 +1,27 @@
+def on_ready(e):
+    print("wth")
+
 def _process(e):
+    # Movement
     if is_key_pressed("moveup") and myself.if_on_floor():
-        myself.motion[1] -= delta * 300
+        myself.motion[1] -= delta * 600
+        print("up")
     if is_key_pressed("moveleft"):
         myself.motion[0] -= delta * 150
+        print("l")
     if is_key_pressed("moveright"):
-        myself.motion[1] -= delta * 150
+        myself.motion[0] += delta * 150
+        print("r")
+    
     # Gravity
-    myself.motion[1] += delta * 150
+    myself.motion[1]      += delta * 300
+
+    # Debug info
+    lbl                    = scene.get_node_from_path("","LblB")
+    lbl.parameters["text"] = f"{[round(myself.x),round(myself.y)]}"
+
+    # Camera
+    cam      = scene.get_node_from_path("","Cam2d") 
+    plytrans = myself.parameters["transform"]["pos"]
+
+    cam.parameters["transform"]["pos"] = plytrans

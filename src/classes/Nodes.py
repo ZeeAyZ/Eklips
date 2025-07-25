@@ -171,6 +171,7 @@ class Node(NodeMixin):
         self.window_id    = "main"
         self.camera_pos   = [0,0]
         self.dead         = 0
+        self.where        = where
         self.resourceman  = resourceman
         self.editor_icon  = "Node"
         self.initialized  = False
@@ -421,21 +422,16 @@ class CanvasItem(Node):
         self.name                        = "CanvasItem"
         self.anchor                      = self.parameters["transform"]["anchor"]
         self.editor_icon                 = "CanvasItem"
-        self.runtime_data["rendererpos"] = self.parameters["transform"]["pos"]
-        self.runtime_data["relativepos"] = self.runtime_data["rendererpos"][:]
+        self.runtime_data["rendererpos"] = self.parameters["transform"]["pos"][:]
+        self.runtime_data["relativepos"] = self.parameters["transform"]["pos"][:]
 
     def get_relative_pos(self):
-        my_pos = self.runtime_data["rendererpos"]
+        my_pos     = self.parameters["transform"]["pos"]
+        parent_pos = [0, 0]
         if self.parent and hasattr(self.parent, "get_relative_pos"):
-            parent_pos = self.parent.get_relative_pos()
-            # Add position vectors element-wise
-            self.runtime_data["relativepos"] = [
-                my_pos[0] + parent_pos[0],
-                my_pos[1] + parent_pos[1]
-            ]
-        else:
-            self.runtime_data["relativepos"] = my_pos[:]
-        return self.runtime_data["relativepos"]
+            parent_pos = self.parent.get_relative_pos()[0]
+            return [my_pos[0] + parent_pos[0], my_pos[1] + parent_pos[1]], parent_pos
+        return my_pos[:], parent_pos
     
     def get_relative_anchor(self):
         if self.parent and hasattr(self.parent, "anchor"):
@@ -456,7 +452,7 @@ class CanvasItem(Node):
         if self.image and self.parameters["visible"]:
             self.sprid = self.screen.blit(
                 self.image,                                   
-                self.get_relative_pos(),             
+                self.runtime_data["rendererpos"],             
                 anchor  = self.parameters["transform"]["anchor"],
                 scale   = self.parameters["transform"]["scale"],
                 layer   = self.parameters["transform"]["layer"],
@@ -481,7 +477,12 @@ class CanvasItem(Node):
             self.get_fired()
             self.run_script()
             self.anchor                      = self.parameters["transform"]["anchor"]
-            self.runtime_data["rendererpos"] = self.parameters["transform"]["pos"]
+            rel_pos, parent_pos              = self.get_relative_pos()
+
+            # World-space relative position
+            self.runtime_data["relativepos"] = rel_pos
+            self.runtime_data["rendererpos"] = rel_pos
+            print(f"{self.name} // Rel: {rel_pos} // Mom: {parent_pos} // Cam: ?? // RendPos: {self.runtime_data["rendererpos"]}")
             self.true_update()
         else:
             self._discard()
@@ -500,13 +501,18 @@ class Node2D(CanvasItem):
         self.editor_icon  = "Node2D"
     
     def update(self):
+        global camera_pos
         if not self.dead:
             self.get_fired()
             self.run_script()
-            self.runtime_data["rendererpos"] = [
-                self.parameters["transform"]["pos"][0] + self.root_scene.cam_pos[0],
-                self.parameters["transform"]["pos"][1] + self.root_scene.cam_pos[1]
-            ]
+            self.anchor                      = self.parameters["transform"]["anchor"]
+            rel_pos, parent_pos              = self.get_relative_pos()
+
+            # World-space relative position
+            self.runtime_data["relativepos"] = rel_pos
+            cam = self.root_scene.cam_pos
+            self.runtime_data["rendererpos"] = [rel_pos[0] - cam[0], rel_pos[1] - cam[1]]
+            print(f"{self.name} // Rel: {rel_pos} // Dad: {parent_pos} // Cam: {cam} // RendPos: {self.runtime_data["rendererpos"]}")
             self.true_update()
         else:
             self._discard()
@@ -518,9 +524,14 @@ class Label(CanvasItem):
      
     Self-explanatory.
     """
+    def true_init(self):
+        super().true_init()
+        self.name = "Label"
+    
     def load_render(self):
         if self.parameters["visible"]:
-            pos = self.get_relative_pos()
+            pos = self.runtime_data["rendererpos"]
+            print(pos)
             self.screen.render(
                 text    = self.parameters["text"],
                 pos     = pos,
@@ -550,6 +561,7 @@ class ColorRect(CanvasItem):
     """
     def true_init(self):
         super().true_init()
+        self.name = "ColorRect"
         self.parameters["color"] = [128,128,128]
         self.image               = 0
 
@@ -574,6 +586,7 @@ class ColorRect(CanvasItem):
 class Button(ColorRect):
     def true_init(self):
         super().true_init()
+        self.name = "Button"
         self.parameters["color"] = [128,128,128]
         self.clicked             = False
         self.image               = 0
@@ -589,8 +602,8 @@ class Button(ColorRect):
         self.screen.render(
             self.parameters["text"],
             [
-                self.parameters["transform"]["pos"][0]+7.5,
-                self.parameters["transform"]["pos"][1]
+                self.runtime_data["rendererpos"][0]+7.5,
+                self.runtime_data["rendererpos"][1]
             ],
             anchor=self.parameters["transform"]["anchor"]
         )
@@ -599,6 +612,7 @@ class Treeview(CanvasItem):
     # TODO: Make visually pleasing
     def true_init(self):
         super().true_init()
+        self.name = "Treeview"
         self.treechildren = {}
         self.revealed     = []
     
@@ -627,10 +641,14 @@ class Treeview(CanvasItem):
         self.revealed     = []
         
         if self.parameters["visible"]:
-            self._rlayer(self.treechildren, self.parameters["transform"]["pos"].copy())
+            self._rlayer(self.treechildren, self.runtime_data["rendererpos"].copy())
 
 ## Every other 2D node
 class PhysicsBody2D(Node2D):
+    def true_init(self):
+        super().true_init()
+        self.name = "PhysicsBody2D"
+    
     def _phys_init(self):
         self._onf   = False
         self._onw   = False
@@ -645,7 +663,6 @@ class PhysicsBody2D(Node2D):
         self._onw = False
 
         for i in collided:
-            if i == -1: continue
             node = i
             if self.colliderect(node):
                 # You little shit
@@ -656,20 +673,22 @@ class PhysicsBody2D(Node2D):
                         self.motion[1] = -self.motion[1] / self.weight
                     else:
                         self.motion[1] = 0
-                elif (self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] >= node.parameters["transform"]["pos"][0] and
-                      self.parameters["transform"]["pos"][0] <= node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
+                elif (self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] > node.parameters["transform"]["pos"][0] and
+                      self.parameters["transform"]["pos"][0] < node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
                     self._onw = True
+                    print("collided_")
                     # Ow
                     if bounce_mode:
                         self.motion[0] = -self.motion[0] / self.weight
                     else:
                         self.motion[0] = 0
             
-            self.parameters["transform"]["pos"] += self.motion
-            if bounce_mode:
-                self.motion[1] = -self.motion[1]
-            else:
-                self.motion = [0,0]
+        self.parameters["transform"]["pos"][0] += self.motion[0]
+        self.parameters["transform"]["pos"][1] += self.motion[1]
+        if bounce_mode:
+            self.motion[1] = -self.motion[1]
+        else:
+            self.motion = [0,0]
         
 
 class CollisionBox2D(PhysicsBody2D):
@@ -677,7 +696,7 @@ class CollisionBox2D(PhysicsBody2D):
         # Use AABB
         return (
             rect1.parameters["transform"]["pos"][0] < rect2.parameters["transform"]["pos"][0] + rect2.parameters["transform"]["size"][0] and
-            rect1.parameters["transform"]["pos"][0] + rect1.parameters["transform"]["size"][0] > rect2.x and
+            rect1.parameters["transform"]["pos"][0] + rect1.parameters["transform"]["size"][0] > rect2.parameters["transform"]["pos"][0] and
             rect1.parameters["transform"]["pos"][1] < rect2.parameters["transform"]["pos"][1] + rect2.parameters["transform"]["size"][1] and
             rect1.parameters["transform"]["pos"][1] + rect1.parameters["transform"]["size"][1] > rect2.parameters["transform"]["pos"][1]
         )
@@ -714,6 +733,9 @@ class CollisionBox2D(PhysicsBody2D):
         for i in self.root_scene.nodes_collision:
             node = self.root_scene.nodes_collision[i]
             # rang = The range in pixels that this rectangle can be in to count
+
+            if node == self: continue
+
             if abs(node.x - node.x) < rang:
                 if abs(node.y - node.y) < rang:
                     il.append(node)
@@ -745,9 +767,13 @@ class Camera2D(Node2D):
     def true_init(self):
         super().true_init()
         self.editor_icon = "Camera2D"
+        self.name        = "Camera2D"
     
     def true_update(self):
-        self.root_scene.cam_pos = self.parameters["transform"]["pos"]
+        self.root_scene.cam_pos = [
+            self.parameters["transform"]["pos"][0] - self.screen.screen.width  // 2,
+            self.parameters["transform"]["pos"][1] - self.screen.screen.height // 2,
+        ]
 
 class Sprite2D(Node2D):
     """
@@ -779,7 +805,7 @@ class AnimatedSprite2D(Sprite2D):
         self.parameters["sprite"] = ["res://media/bg.png"]
         self.images               = []
         self.sprite_used          = 0 
-        self.editor_icon          = "Sprite2D"
+        self.editor_icon          = "AnimatedSprite2D"
 
     def on_ready(self):                     
         for i in self.parameters["sprite"]: 

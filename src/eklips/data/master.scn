@@ -4,8 +4,8 @@
         "instancedWith": ""
     },
     "Nodes":      {
-        "cn": {
-            "type":       "Node2D",
+        "ll": {
+            "type":       "Label",
             "properties": {
                 "transform": {
                     "scale":  [1,1],
@@ -14,17 +14,35 @@
                     "anchor": "",
                     "layer":  0,
                     "alpha":  1,
-                    "size":   [65,35],
                     "scroll": [0,0]
                 },
                 "visible":   1,
                 "color":     [59,59,59],
-                "text":      "Show",
-                "pressed_t": "Ow!"
+                "text":      "[?,?]"
             },
             "script_properties": {},
-            "name":              "Back",
-            "script":            "res://button.ekl",
+            "name":              "LblB",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        },
+        "cm": {
+            "type":       "Camera2D",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [0,0],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "scroll": [0,0]
+                },
+                "visible":   1
+            },
+            "script_properties": {},
+            "name":              "Cam2d",
+            "script":            null,
             "path":              "",
             "runtimedata":       0
         },
@@ -49,7 +67,7 @@
             "script_properties": {},
             "name":              "Button",
             "script":            "res://button.ekl",
-            "path":              "Back",
+            "path":              "",
             "runtimedata":       0
         },
         "aud": {
@@ -88,7 +106,7 @@
             "script_properties": {},
             "name":              "Trv",
             "script":            null,
-            "path":              "Back",
+            "path":              "",
             "runtimedata":       0
         },
         "cl": {
@@ -108,7 +126,7 @@
             },
             "script_properties": {},
             "name":              "Player",
-            "script":            null,
+            "script":            "res://player.ekl",
             "path":              "",
             "runtimedata":       0
         },
@@ -129,30 +147,9 @@
                 "sprite": "root://internal/eklips/icon.png"
             },
             "script_properties": {},
-            "name":              "Color",
+            "name":              "Pl_Sprite",
             "script":            null,
             "path":              "Player",
-            "runtimedata":       0
-        },
-        "cm": {
-            "type":       "Camera2D",
-            "properties": {
-                "transform": {
-                    "scale":  [1,1],
-                    "pos":    [215,35],
-                    "rot":    0,
-                    "anchor": "",
-                    "layer":  0,
-                    "alpha":  1,
-                    "size":   [45,35],
-                    "scroll": [0,0]
-                },
-                "visible":   1
-            },
-            "script_properties": {},
-            "name":              "Camera",
-            "script":            "res://camera.ekl",
-            "path":              "",
             "runtimedata":       0
         },
         "pp": {
@@ -166,7 +163,7 @@
             "script_properties": {},
             "name":              "BackD",
             "script":            null,
-            "path":              "Back",
+            "path":              "",
             "runtimedata":       0
         }
     }
