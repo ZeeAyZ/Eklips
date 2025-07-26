@@ -482,7 +482,6 @@ class CanvasItem(Node):
             # World-space relative position
             self.runtime_data["relativepos"] = rel_pos
             self.runtime_data["rendererpos"] = rel_pos
-            print(f"{self.name} // Rel: {rel_pos} // Mom: {parent_pos} // Cam: ?? // RendPos: {self.runtime_data["rendererpos"]}")
             self.true_update()
         else:
             self._discard()
@@ -512,7 +511,6 @@ class Node2D(CanvasItem):
             self.runtime_data["relativepos"] = rel_pos
             cam = self.root_scene.cam_pos
             self.runtime_data["rendererpos"] = [rel_pos[0] - cam[0], rel_pos[1] - cam[1]]
-            print(f"{self.name} // Rel: {rel_pos} // Dad: {parent_pos} // Cam: {cam} // RendPos: {self.runtime_data["rendererpos"]}")
             self.true_update()
         else:
             self._discard()
@@ -531,7 +529,6 @@ class Label(CanvasItem):
     def load_render(self):
         if self.parameters["visible"]:
             pos = self.runtime_data["rendererpos"]
-            print(pos)
             self.screen.render(
                 text    = self.parameters["text"],
                 pos     = pos,

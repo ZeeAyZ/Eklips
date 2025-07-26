@@ -5,13 +5,10 @@ def _process(e):
     # Movement
     if is_key_pressed("moveup") and myself.if_on_floor():
         myself.motion[1] -= delta * 600
-        print("up")
     if is_key_pressed("moveleft"):
         myself.motion[0] -= delta * 150
-        print("l")
     if is_key_pressed("moveright"):
         myself.motion[0] += delta * 150
-        print("r")
     
     # Gravity
     myself.motion[1]      += delta * 300
