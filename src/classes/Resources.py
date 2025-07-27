@@ -17,7 +17,7 @@ class Resource:
         self.id   = global_res_len
 
         self.on_ready()
-        print(f"    ~ Loading resource of type {type}")
+        print(f"    ~ Loading resource of type {type}//{parameters}//{path}//{data}")
         global_res_len += 1
     
     def get(self):
@@ -64,21 +64,25 @@ class Image(Resource):
             f.write(struct.pack("<I", len(self.get_path())))
             f.write(self.get_path().encode())
 
-class SheetImage(Image):
+class SheetImage(Resource):
     """A portion of a spritesheet image. Works just like a regular image resource, but saved differently."""
     def on_ready(self):
         self.image  = self.data
-        self.width  = self.image.width
-        self.height = self.image.height
+        self.width  = self.data.width
+        self.height = self.data.height
         self._clip()
     
     def _clip(self):
+        print(self.para["clip"])
         if self.para["clip"]:
             ## Clipping
             cx, cy, cw, ch = self.para["clip"]
-            cy = self.image.height - cy - ch
+            cy             = (self.height - ch) - cy
 
-            self.image = self.image.get_region(cx, cy, cw, ch)
+            self.image  = self.image.get_region(cx, cy, cw, ch)
+            self.data   = self.image
+            self.height = ch
+            self.width  = cw
     
     def serialize(self, path):
         """Save the resource into a file"""
@@ -142,33 +146,33 @@ class Loader:
 
             if type == b"MED": return Media()
             if type == b"SCR":
-                dal = f.read(struct.unpack("<I", f.read(4))) # Data length
+                dal = struct.unpack("<I", f.read(4))[0] # Data length
                 dat = f.read(dal).decode()
                 obj = Script(dat)
             if type == b"SCR":
-                dal = f.read(struct.unpack("<I", f.read(4))) # Data length
+                dal = struct.unpack("<I", f.read(4))[0] # Data length
                 dat = f.read(dal).decode()
                 obj = Script(dat)
             if type == b"RES":
-                dal = f.read(struct.unpack("<I", f.read(4))) # Data length
+                dal = struct.unpack("<I", f.read(4))[0] # Data length
                 dat = f.read(dal).decode()
                 obj = Resource(dat)
             if type == b"IMG":
-                w,h = f.read(struct.unpack("<II", f.read(8))) 
-                dal = f.read(struct.unpack("<I", f.read(4)))  # Data length
+                w,h = struct.unpack("<II", f.read(8))
+                dal = struct.unpack("<I", f.read(4))[0] # Data length
                 dat = f.read(dal).decode()
                 obj = Image(self.load(dat), path=dat)
             if type == b"IMS":
-                w,h            = f.read(struct.unpack("<II", f.read(8)))    
-                cx, cy, cw, ch = f.read(struct.unpack("<IIII", f.read(16))) 
+                w,h      = struct.unpack("<II", f.read(8))   
+                cx, cy   = struct.unpack("<II", f.read(8))
 
-                clip           = [cx,cy,cw,ch]
+                clip     = [cx,cy,w,h]
                 if clip == [0,0,0,0]:
-                    clip       = 0
+                    clip = 0
                 
-                dal            = f.read(struct.unpack("<I", f.read(4)))     # Data length
-                dat            = f.read(dal).decode()
-                obj            = SheetImage(self.load(dat), path=dat, parameters={"clip":clip})
+                dal      = struct.unpack("<I", f.read(4))[0]    # Data length
+                dat      = f.read(dal).decode()
+                obj      = SheetImage(self.load(dat).get(), path=dat, parameters={"clip":clip})
         
         return obj
     

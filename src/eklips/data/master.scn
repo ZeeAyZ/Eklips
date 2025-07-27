@@ -144,7 +144,7 @@
                     "scroll": [0,0]
                 },
                 "visible":1,
-                "sprite": "root://internal/eklips/icon.png"
+                "sprite": "res://data/cropped_ico.res"
             },
             "script_properties": {},
             "name":              "Pl_Sprite",

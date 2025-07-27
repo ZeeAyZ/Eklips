@@ -165,7 +165,7 @@ while (im_running):
             if keys_pressed_dict[i]:
                 keys_pressed.append(i)
         
-        # handle scene and signals                                                        
+        # handle scene and signal                                                        
         interface.mpos = mpos
         interface.mclk = mpressed
         try:
@@ -181,7 +181,7 @@ while (im_running):
             savefile.save_data()
             break
         
-        # handle console
+        # handle console                                                                  
         if is_key_pressed("eng_cheats"):
             console.toggle()
 
