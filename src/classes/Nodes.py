@@ -162,7 +162,6 @@ class Node(NodeMixin):
         self.added_param  = parameters
         self.runtime_data = {}
         self.node_path_da = where
-        self.name         = name
         self.parent       = parent
         self.signal_data  = {}
         self.demand_for   = []
@@ -178,6 +177,7 @@ class Node(NodeMixin):
         self.engine_glb   = eng_global
         self.scriptobj    = 0
         self.true_init()
+        self.name         = name
         for i in self.added_param:
             self.parameters[i] = self.added_param[i]
         self.initialized  = True
@@ -250,6 +250,8 @@ class TkWindow(Node):
         self.parameters["caption"]    = "Window.Tk"
         self.parameters["icon"]       = "res://media/icon.png"
         self.parameters["fullscreen"] = 0
+        self.name                     = "TkWindow"
+        self.editor_icon              = "Window"
         
     def on_ready(self):
         self.tk_self.geometry(self.parameters["dimension"])
@@ -335,7 +337,7 @@ class AudioPlayer(Node):
         if not self.dead:
             if not self.is_playedyet and self.parameters["autostart"]:
                 self.play()
-                self.is_playedyet = 0
+                self.is_playedyet = 1
             self.get_fired()
             self.run_script()
             self.true_update()
@@ -372,29 +374,33 @@ class VideoPlayer(AudioPlayer):
     
     def update(self):
         global camera_pos
-        if not self.as_playedyet:
-            self.play()
-            self.as_playedyet = 0
-        if self.player.playing:
-            self.screen.blit(
-                pg.sprite.Sprite(
-                    self.player.texture
-                ),                                   
-                self.runtime_data["rendererpos"],             
-                anchor  = self.parameters["transform"]["anchor"],
-                scale   = self.parameters["transform"]["scale"],
-                layer   = self.parameters["transform"]["layer"],
-                rot     = self.parameters["transform"]["rot"],
-                opacity = self.parameters["transform"]["alpha"],
-                scroll  = self.parameters["transform"]["scroll"]
-            )
-        self.get_fired()
-        self.run_script()
-        self.runtime_data["rendererpos"] = [
-            self.parameters["transform"]["pos"][0] + camera_pos[0],
-            self.parameters["transform"]["pos"][1] + camera_pos[1]
-        ]
-        self.true_update()
+        ## TODO: FIX
+        if not self.dead:
+            if not self.as_playedyet and self.parameters["autostart"]:
+                self.play()
+                self.as_playedyet = 1
+            if self.player.playing:
+                self.screen.blit(
+                    pg.sprite.Sprite(
+                        self.player.texture
+                    ),                                   
+                    self.runtime_data["rendererpos"],             
+                    anchor  = self.parameters["transform"]["anchor"],
+                    scale   = self.parameters["transform"]["scale"],
+                    layer   = self.parameters["transform"]["layer"],
+                    rot     = self.parameters["transform"]["rot"],
+                    opacity = self.parameters["transform"]["alpha"],
+                    scroll  = self.parameters["transform"]["scroll"]
+                )
+            self.get_fired()
+            self.run_script()
+            self.runtime_data["rendererpos"] = [
+                self.parameters["transform"]["pos"][0] + camera_pos[0],
+                self.parameters["transform"]["pos"][1] + camera_pos[1]
+            ]
+            self.true_update()
+        else:
+            self._discard()
 
 class CanvasItem(Node):
     """
@@ -486,6 +492,42 @@ class CanvasItem(Node):
         else:
             self._discard()
 
+class Timer(Node):
+    """
+    ## A Timer.
+
+    It's a fucking timer??
+    """
+
+    def true_init(self):
+        super().true_init()
+        self.parameters   = {
+            "duration_ep": 0,          # in epoch format
+            "only_once":   False,
+            "autostart":   False,
+            "play_global": False
+        }
+        self.is_playedyet = False
+        self.name         = "Timer"
+        self.editor_icon  = "Timer"
+        self.playing      = False       #... is timing?
+        self.epochs       = time.time() #what the epoch was when timer started
+    
+    def start(self):
+        self.epochs  = time.time()
+        self.playing = True
+    
+    def stop(self): self.playing = False
+
+    def true_update(self):
+        if not self.is_playedyet and self.parameters["autostart"]:
+            self.start()
+            self.is_playedyet=True
+        if self.playing:
+            epoch_now = time.time()
+            if epoch_now-self.epochs>self.parameters["duration"]:
+                self.stop()
+
 class Node2D(CanvasItem):
     """
     ## A 2D Node.
@@ -524,7 +566,8 @@ class Label(CanvasItem):
     """
     def true_init(self):
         super().true_init()
-        self.name = "Label"
+        self.name         = "Label"
+        self.editor_icon  = "Label"
     
     def load_render(self):
         if self.parameters["visible"]:
@@ -558,7 +601,8 @@ class ColorRect(CanvasItem):
     """
     def true_init(self):
         super().true_init()
-        self.name = "ColorRect"
+        self.name                = "ColorRect"
+        self.editor_icon         = "ColorRect"
         self.parameters["color"] = [128,128,128]
         self.image               = 0
 
@@ -583,7 +627,8 @@ class ColorRect(CanvasItem):
 class Button(ColorRect):
     def true_init(self):
         super().true_init()
-        self.name = "Button"
+        self.name                = "Button"
+        self.editor_icon         = "Button"
         self.parameters["color"] = [128,128,128]
         self.clicked             = False
         self.image               = 0
@@ -609,7 +654,8 @@ class Treeview(CanvasItem):
     # TODO: Make visually pleasing
     def true_init(self):
         super().true_init()
-        self.name = "Treeview"
+        self.name         = "Treeview"
+        self.editor_icon  = "Treeview"
         self.treechildren = {}
         self.revealed     = []
     
@@ -644,7 +690,8 @@ class Treeview(CanvasItem):
 class PhysicsBody2D(Node2D):
     def true_init(self):
         super().true_init()
-        self.name = "PhysicsBody2D"
+        self.name         = "PhysicsBody2D"
+        self.editor_icon  = "PhysicsBody2D"
     
     def _phys_init(self):
         self._onf   = False
@@ -803,6 +850,7 @@ class AnimatedSprite2D(Sprite2D):
         self.images               = []
         self.sprite_used          = 0 
         self.editor_icon          = "AnimatedSprite2D"
+        self.name                 = "AnimatedSprite2D"
 
     def on_ready(self):                     
         for i in self.parameters["sprite"]: 
@@ -829,6 +877,7 @@ class Parallax2D(Sprite2D):
         self.parameters["scroll_speed"] = 5
         self.image                      = 0
         self.editor_icon                = "Parallax2D"
+        self.name                       = "Parallax2D"
     
     def true_update(self):
         self.load_render()
