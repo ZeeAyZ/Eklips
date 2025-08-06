@@ -4,6 +4,21 @@
         "instancedWith": ""
     },
     "Nodes":      {
+        "t": {
+            "type":       "Timer",
+            "properties": {
+                "duration":    0.1,
+                "autostart":   true,
+                "loop":        false,
+                "where":       0,
+                "play_global": true
+            },
+            "script_properties": {},
+            "name":              "aaaa",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        },
         "1": {
             "type":       "ColorRect",
             "properties": {

@@ -207,6 +207,8 @@ class Interface:
         self.label_pool[id].visible = True
         self.label_used.append(id)
         self.label_queue[id] = lbl
+
+        return lbl.content_width, lbl.content_height
     
     def flip(self):
         ## === 1. Draw batches ===
@@ -230,7 +232,7 @@ class Interface:
             screen = self.surfaces[i]["screen"]
             screen.clear()      
         for lbl in self.label_used:
-            self.label_pool[lbl].visible = False
+            self.label_pool[lbl].visible  = False
         for spr in self.sprite_used:
             self.sprite_pool[spr].visible = False
         self.label_used.clear() 

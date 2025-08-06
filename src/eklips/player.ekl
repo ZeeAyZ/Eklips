@@ -1,5 +1,8 @@
 def on_ready(e):
-    print("wth")
+    # Camera
+    cam      = scene.get_node_from_path("","Cam2d")
+
+    cam.follow(myself)
 
 def _process(e):
     # Movement
@@ -16,9 +19,3 @@ def _process(e):
     # Debug info
     lbl                    = scene.get_node_from_path("","LblB")
     lbl.parameters["text"] = f"{[round(myself.x),round(myself.y)]}"
-
-    # Camera
-    cam      = scene.get_node_from_path("","Cam2d") 
-    plytrans = myself.parameters["transform"]["pos"]
-
-    cam.parameters["transform"]["pos"] = plytrans

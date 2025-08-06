@@ -17,7 +17,7 @@ class Resource:
         self.id   = global_res_len
 
         self.on_ready()
-        print(f"    ~ Loading resource of type {type}//{parameters}//{path}//{data}")
+        print(f"    ~ Loading resource of type {type}")
         global_res_len += 1
     
     def get(self):
@@ -67,9 +67,10 @@ class Image(Resource):
 class SheetImage(Resource):
     """A portion of a spritesheet image. Works just like a regular image resource, but saved differently."""
     def on_ready(self):
-        self.image  = self.data
-        self.width  = self.data.width
+        self.image  = self.data       
+        self.width  = self.data.width 
         self.height = self.data.height
+        self.sheet  = self.data
         self._clip()
     
     def _clip(self):
@@ -91,9 +92,9 @@ class SheetImage(Resource):
             try:
                 cx, cy, cw, ch = self.para["clip"]
             except:
-                cx, cy, cw, ch = 0, 0, 0, 0
-            f.write(struct.pack("<II", self.width, self.height))
-            f.write(struct.pack("<IIII", cx, cy, cw, ch))
+                cx, cy, cw, ch = 0, 0, self.sheet.width, self.sheet.height
+            f.write(struct.pack("<II", cw, ch))
+            f.write(struct.pack("<II", cx, cy))
             f.write(struct.pack("<I", len(self.get_path())))
             f.write(self.get_path().encode())
 
@@ -200,30 +201,30 @@ class Loader:
                 else:
                     actual_path = path
                 if IS_EXECUTABLE:
-                    if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp"):
-                        asset = pg.resource.image(actual_path)
+                    if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp"):
+                        asset    = pg.resource.image(actual_path)
                         assetres = Image(asset, "sprite", path)
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","flac","avi","mpeg"):
-                        asset = pg.resource.media(actual_path)
+                        asset    = pg.resource.media(actual_path)
                         assetres = Media(asset, "med", path)
                     elif actual_path.split(".")[-1].lower() in ("res"):
-                        asset = pg.resource.file(actual_path, "rb")
+                        asset    = pg.resource.file(actual_path, "rb")
                         assetres = self.load_from_resf(asset)
                     else:
-                        asset = pg.resource.file(actual_path, "r").read()
+                        asset    = pg.resource.file(actual_path, "r").read()
                         assetres = Script(asset, "str", path)
                 else:
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp","dds"):
-                        asset = pg.image.load(actual_path)
+                        asset    = pg.image.load(actual_path)
                         assetres = Image(asset, "sprite", actual_path)
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","avi","mpeg"):
-                        asset = pg.media.load(actual_path)
+                        asset    = pg.media.load(actual_path)
                         assetres = Media(asset, "med", actual_path)
                     elif actual_path.split(".")[-1].lower() in ("res", "import"):
-                        asset = open(actual_path,"rb")
+                        asset    = open(actual_path,"rb")
                         assetres = self.load_from_resf(asset)
                     else:
-                        asset = open(actual_path).read()
+                        asset    = open(actual_path).read()
                         assetres = Script(asset, "str", actual_path)
                 
                 self.resource_tree[location] = assetres

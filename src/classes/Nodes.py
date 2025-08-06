@@ -423,6 +423,7 @@ class CanvasItem(Node):
             "scroll": [0, 0],
             "rot":    0
         }
+        self.w,self.h                    = 0, 0
         self.sprid                       = 0
         self.parameters["visible"]       = 1
         self.name                        = "CanvasItem"
@@ -456,6 +457,7 @@ class CanvasItem(Node):
     
     def load_render(self):
         if self.image and self.parameters["visible"]:
+            self.w,self.h=self.image.width,self.image.height
             self.sprid = self.screen.blit(
                 self.image,                                   
                 self.runtime_data["rendererpos"],             
@@ -501,31 +503,40 @@ class Timer(Node):
 
     def true_init(self):
         super().true_init()
-        self.parameters   = {
-            "duration_ep": 0,          # in epoch format
+        self.parameters    = {
+            "duration_ep": 0,          # in seconds
             "only_once":   False,
             "autostart":   False,
             "play_global": False
         }
-        self.is_playedyet = False
-        self.name         = "Timer"
-        self.editor_icon  = "Timer"
-        self.playing      = False       #... is timing?
-        self.epochs       = time.time() #what the epoch was when timer started
+        self.is_playedyet  = False
+        self.name          = "Timer"
+        self.editor_icon   = "Timer"
+        self.playing       = False       #... is timing?
+        self.start_epoch   = time.time() #what the epoch was when timer started
+        self.current_epoch = time.time() #current time
     
     def start(self):
-        self.epochs  = time.time()
-        self.playing = True
+        self.start_epoch = time.time()
+        self.playing     = True
+    
+    def get_time_since_start(self):
+        return self.current_epoch-self.start_epoch
+    
+    def format_time(self, epoch_time):
+        """Format an epoch timestamp in seconds"""
+        return float(f"{epoch_time:.6f}".lstrip("-"))
     
     def stop(self): self.playing = False
 
     def true_update(self):
+        self.current_epoch = time.time()
         if not self.is_playedyet and self.parameters["autostart"]:
             self.start()
             self.is_playedyet=True
         if self.playing:
-            epoch_now = time.time()
-            if epoch_now-self.epochs>self.parameters["duration"]:
+            if self.format_time(self.get_time_since_start())>self.parameters["duration"]:
+                print(self.format_time(self.get_time_since_start()),"s")
                 self.stop()
 
 class Node2D(CanvasItem):
@@ -572,7 +583,7 @@ class Label(CanvasItem):
     def load_render(self):
         if self.parameters["visible"]:
             pos = self.runtime_data["rendererpos"]
-            self.screen.render(
+            self.w,self.h=self.screen.render(
                 text    = self.parameters["text"],
                 pos     = pos,
 
@@ -812,12 +823,22 @@ class Camera2D(Node2D):
         super().true_init()
         self.editor_icon = "Camera2D"
         self.name        = "Camera2D"
+        self.target      = None
+    
+    def follow(self, target_node): self.target = target_node
     
     def true_update(self):
-        self.root_scene.cam_pos = [
-            self.parameters["transform"]["pos"][0] - self.screen.screen.width  // 2,
-            self.parameters["transform"]["pos"][1] - self.screen.screen.height // 2,
-        ]
+        if not self.target:
+            self.root_scene.cam_pos = [
+                self.parameters["transform"]["pos"][0] - self.screen.screen.width  // 2,
+                self.parameters["transform"]["pos"][1] - self.screen.screen.height // 2
+            ]
+        else:
+            w,h=self.target.w,self.target.h
+            self.root_scene.cam_pos = [
+                self.target.parameters["transform"]["pos"][0] - self.screen.screen.width  // 2 - w // 2,
+                self.target.parameters["transform"]["pos"][1] - self.screen.screen.height // 2 - h // 2
+            ]
 
 class Sprite2D(Node2D):
     """
@@ -859,8 +880,10 @@ class AnimatedSprite2D(Sprite2D):
     
     def load_render(self):
         if self.sprite_used in self.images and self.parameters["visible"]:
+            img=self.images[self.sprite_used]
+            self.w,self.h=img.w,img.h
             self.screen.blit(
-                self.images[self.sprite_used],                                   
+                img,                                   
                 self.get_relative_pos(),             
                 anchor  = self.parameters["transform"]["anchor"],
                 scale   = self.parameters["transform"]["scale"],
