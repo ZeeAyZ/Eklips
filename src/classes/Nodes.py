@@ -458,16 +458,7 @@ class CanvasItem(Node):
     def load_render(self):
         if self.image and self.parameters["visible"]:
             self.w,self.h=self.image.width,self.image.height
-            self.sprid = self.screen.blit(
-                self.image,                                   
-                self.runtime_data["rendererpos"],             
-                anchor  = self.parameters["transform"]["anchor"],
-                scale   = self.parameters["transform"]["scale"],
-                layer   = self.parameters["transform"]["layer"],
-                rot     = self.parameters["transform"]["rot"],
-                opacity = self.parameters["transform"]["alpha"],
-                scroll  = self.parameters["transform"]["scroll"]
-            )
+            self._draw_onto_screen(self.image)
     
     def get_if_mouse_hovering(self):
         mpos = self.screen.mpos
@@ -478,6 +469,18 @@ class CanvasItem(Node):
             mpos[1] + 20 > self.parameters["transform"]["pos"][1]
         )
         return is_it
+    
+    def _draw_onto_screen(self, img):
+        self.screen.blit(
+            img,                                   
+            self.get_relative_pos(),             
+            anchor  = self.parameters["transform"]["anchor"],
+            scale   = self.parameters["transform"]["scale"],
+            layer   = self.parameters["transform"]["layer"],
+            rot     = self.parameters["transform"]["rot"],
+            opacity = self.parameters["transform"]["alpha"],
+            scroll  = self.parameters["transform"]["scroll"]
+        )
     
     def update(self):
         global camera_pos
@@ -535,8 +538,7 @@ class Timer(Node):
             self.start()
             self.is_playedyet=True
         if self.playing:
-            if self.format_time(self.get_time_since_start())>self.parameters["duration"]:
-                print(self.format_time(self.get_time_since_start()),"s")
+            if self.get_time_since_start()>self.parameters["duration"]:
                 self.stop()
 
 class Node2D(CanvasItem):
@@ -583,18 +585,20 @@ class Label(CanvasItem):
     def load_render(self):
         if self.parameters["visible"]:
             pos = self.runtime_data["rendererpos"]
-            self.w,self.h=self.screen.render(
-                text    = self.parameters["text"],
-                pos     = pos,
+            self.w,self.h=self._draw_onto_screen(pos)
+        
+    def _draw_onto_screen(self, pos):
+        self.screen.render(
+            text    = self.parameters["text"],
+            pos     = pos,
 
-                anchor  = self.anchor,
-                layer   = self.parameters["transform"]["layer"],
-                blit_in = self.window_id
-            )
+            anchor  = self.anchor,
+            layer   = self.parameters["transform"]["layer"],
+            blit_in = self.window_id
+        )
     
     def true_update(self):
         self.load_render()
-        
 
 class RichLabel(Label):
     """
@@ -878,20 +882,11 @@ class AnimatedSprite2D(Sprite2D):
             asset = self.resourceman.load(i)
             self.images.append(asset)       
     
-    def load_render(self):
+    def render(self):
         if self.sprite_used in self.images and self.parameters["visible"]:
             img=self.images[self.sprite_used]
             self.w,self.h=img.w,img.h
-            self.screen.blit(
-                img,                                   
-                self.get_relative_pos(),             
-                anchor  = self.parameters["transform"]["anchor"],
-                scale   = self.parameters["transform"]["scale"],
-                layer   = self.parameters["transform"]["layer"],
-                rot     = self.parameters["transform"]["rot"],
-                opacity = self.parameters["transform"]["alpha"],
-                scroll  = self.parameters["transform"]["scroll"]
-            )
+            self._draw_onto_screen(img)
 
 class Parallax2D(Sprite2D):
     def true_init(self):
