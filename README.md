@@ -1,10 +1,9 @@
-
 # ![Eklips](img/icon.png) Eklips Engine
 A 2D Node hierarchy-based game engine written in Python using Pyglet.
 
 >[!WARNING]
 >This project is still in development and is very buggy and unstable, so use at your own risk.
->Most features are yet to be complete, so please wait...
+>Most features are yet to be completed...
 
 # Features
 For now, the features are:
