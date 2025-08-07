@@ -183,7 +183,11 @@ class ConHost:
             exec("reload_engine()", self.eng_gl, self.eng_gl)
         else:
             try:
-                exec(self.data.game_bdata["cmd"][opc], self.eng_gl, self.eng_gl)
+                if self.data.game_bdata["cmd"][opc].startswith("@pointer="):
+                    pointer_file = self.data.game_bdata["cmd"][opc].lstrip("@pointer=")
+                    exec(singleton.resource_loader.load(pointer_file), self.eng_gl, self.eng_gl)
+                else:
+                    exec(self.data.game_bdata["cmd"][opc], self.eng_gl, self.eng_gl)
             except:
                 printf(f"Illegal command: {opc}")
     

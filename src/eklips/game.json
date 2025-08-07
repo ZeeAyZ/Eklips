@@ -4,15 +4,6 @@
 
     "game_name":     "Eklips Test App",
 
-    "datagenerated": {                                
-        "mediafiles": [
-            "media/*.*"
-        ],
-        "datafiles": [
-            "data/*.*"
-        ]
-    },
-
     "keys": {
         "cursorup": {
             "keys": ["w","up"],
@@ -72,15 +63,8 @@
         },
         "glbl_scripts": {
             "type": "list",
-            "default": [
-                "load_new_scene",
-                "is_key_pressed",
-                "suicide",
-                "cvars",
-                "console",
-                "Data"
-            ],
-            "description": "Global scripts or parameters to be loaded at the start of the game."
+            "default": [],
+            "description": "Paths of scripts that will be autoloaded into the engine singleton `engine`."
         },
         "directory": {
             "type": "string",
@@ -89,23 +73,23 @@
         },
         "loading-scene": {
             "type": "string",
-            "default": "root://internal//loading.scn",
-            "description": "Scene to be used for loading."
+            "default": "root://internal/loading.scn",
+            "description": "Scene to be used for the loading animation."
         },
         "master-scene": {
             "type": "string",
             "default": "res://data/master.scn",
-            "description": "Master scene to be loaded at the start of the game."
+            "description": "Scene to be loaded at the start."
         },
         "con": {
             "type": "bool",
             "default": true,
-            "description": "Enable the console host."
+            "description": "Enable the console."
         },
         "con_speed": {
             "type": "int",
             "default": 450,
-            "description": "Speed of the console host."
+            "description": "The speed of the console dropdown."
         },
         "con_rate": {
             "type": "int",
