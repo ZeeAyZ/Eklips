@@ -1,5 +1,6 @@
 ## Import all the libraries
 import pyglet as pg
+import classes.singleton as singleton
 
 ## UI Class.
 class Interface:
@@ -14,33 +15,34 @@ class Interface:
         self.making_surface = 0
         return id
 
-    def __init__(self, screen, batch, cvars):
+    def __init__(self):
         self.mpos            = [0,0]
         self.mclk            = [0,0,0]
-        self.cvars           = cvars
-        self.screen          = screen
-        self.batch           = batch
+        self.cvars           = singleton.cvars
+        self.screen          = singleton.display
+        self.batch           = singleton.batch
         self.delta           = 0
         self.surfaces        = {}
         self.making_surface  = False
-        self.main_surf_id    = self.add_screen(screen, batch)
+        self.main_surf_id    = self.add_screen(self.screen, self.batch)
         self.is_doublebuffer = True
         self.area_cache      = {}
         self.boilerimg       = pg.image.ImageData(1,1,"RGB", bytes([0,0,0]))
-        self.label_pool      = {i: pg.text.Label("", font_size=15, batch=batch) for i in range(cvars.get("ui_labelpoolamount"))}
-        self.sprite_pool     = {i: pg.sprite.Sprite(self.boilerimg, batch=batch) for i in range(cvars.get("ui_labelpoolamount"))}
+        self.label_pool      = {i: pg.text.Label("", font_size=15, batch=self.batch) for i in range(self.cvars.get("ui_labelpoolamount"))}
+        self.sprite_pool     = {i: pg.sprite.Sprite(self.boilerimg, batch=self.batch) for i in range(self.cvars.get("ui_labelpoolamount"))}
         self.label_used      = []
         self.sprite_used     = []
         self.draw_queue      = {}
         self.anchors         = {}
         self.label_queue     = {}
         self.layers          = {}
-        self.layer_amount    = cvars.get("ui_layers") # -X ... X
+        self.layer_amount    = self.cvars.get("ui_layers") # -X ... X
 
         for i in range(-self.layer_amount,self.layer_amount):
             self.layers[i] = pg.graphics.Group(order=i)
     
     def get_anchor(self,pos,win_w,win_h,anchor,surf_w,surf_h,can_cache,rot):
+        pos         = list(pos)
         anchor_id   = f"{anchor},win{win_w}x{win_h},surf{surf_w}x{surf_h},pos{pos},rot{True if rot else False}"
 
         new_pos = pos.copy()
@@ -69,7 +71,7 @@ class Interface:
 
     def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in="main", can_cache = 1, rot = 0):
         # the origin for the position is topleft. surface is a sprite.
-        new_pos     = pos[:]
+        new_pos     = list(pos)[:]
         path        = surface.get_path()
         img         = surface.get()
         new_opacity = int(opacity * 255)
@@ -179,7 +181,7 @@ class Interface:
             self.label_pool[id] = lbl
             lbl_id              = id
         new_pos = self.get_anchor(
-            pos,
+            list(pos),
             win_w,
             win_h,
             anchor,

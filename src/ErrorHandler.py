@@ -1,6 +1,6 @@
 from tkinter.messagebox import *
 import traceback, os, webbrowser, requests
-from classes.data_ekl import *
+from classes.constants_ekl import *
 from github import Github
 from github import Auth
 

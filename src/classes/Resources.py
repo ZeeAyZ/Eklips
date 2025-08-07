@@ -1,39 +1,157 @@
 ## Import all the libraries
-import pyglet as pg, gc, struct
+import pyglet as pg, gc, struct, types
+from anytree import NodeMixin
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
+import classes.singleton as singleton
+
+## Objects
+obj_ids = 10
+racism  = [None, "Resource"] # I know this variable sounds bad.. But if your kind is in this list, then you get immediately discarded when free() is called..
+                             # That sounded way better in my head
+class Object:
+    """
+    This is the class that is inherited by every Node, and Resource.
+    This class is pretty simple, it stores data, the class name and properties.
+    It comes with no default data, so everything has to be specified on its own.
+
+    Properties commented "virtual" must be edited to have any effect.
+    """
+
+    obj_base_data = {
+        "prop":   {},
+        "data":   {
+            "object": None,
+            "path":   "res://"
+        },
+        "meta":   {
+            "kind": None,
+            "name": "Object"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=obj_base_data):
+        global obj_ids
+
+        self.scene            = singleton.scene
+        self._data_all        = data
+        self.data             = data["data"]
+        self.metadata         = data["meta"]
+        self.properties       = data["prop"]
+        self.scriptpath       = data["script"]
+        self.stop_running     = False
+        self.script           = None
+        self.call_deferr_list = []
+        self._obj_id          = obj_ids
+        self.runtime_data     = {}
+        obj_ids              += 1
+        self._init_script()
+        self._onready()
+    
+    ## Script related
+    def call(self, method, *args):
+        if self.script:
+            mobj = types.MethodType(self.script[method], self)
+            if len(args) == 0:
+                return mobj()
+            else:
+                return mobj(*args)
+
+    def call_deferred(self, method, args):
+        self.call_deferr_list.append([method, args])
+    
+    def _init_script(self):
+        if self.scriptpath:
+            return
+    
+    def _onready(self):
+        self.call("_onready")
+    
+    def _process(self, delta):
+        # Whoops!
+        if self.stop_running:
+            return
+        
+        # Call the process function
+        self.call("_process", delta)
+
+        # Call any deferred functions
+        for i in self.call_deferr_list:
+            self.call(i[0], i[1])
+        self.call_deferr_list.clear()
+    
+    ## Signal-related
+    def get_signals(self):
+        if self.scene:
+            return self.scene.signals
+    
+    ## Other
+    def _free(self):
+        del self.data, self.properties
+        del self
+        gc.collect()
+    
+    def free(self):
+        self.stop_running = True
+        try:
+            if self.meta["kind"] in racism:
+                self._free()
+        except:
+            pass
+
+    def get_class(self):
+        return self.__class__.__name__
+    
+    def get_instance_id(self):
+        return self._obj_id
+
+    ## Get/Set
+    def to_string(self):
+        return f"<{self.get_class()}:{self.get_instance_id()}>"
+    
+    def get(self, property, default=None):
+        return self.properties.get(property, default)
+    
+    def set(self, property, value):
+        self.properties[property] = value
+    
+    ## Get engine singleton
+    def get_engine_singleton(self):
+        return self.scene.engine_singleton
+
+    ## Virtual
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "wb") as f:
+            f.write(b"OBJ")
 
 ## Resources
 global_res_len = 0
-class Resource:
+class Resource(Object):
     """The main Resource object. This stores nothing, but all other Resources uses this class as a base."""
-    def __init__(self, data="", type="str", path="nothing.txt", parameters={}):
-        """Initalize the Resource object."""
-        global global_res_len
 
-        self.data = data
-        self.para = parameters
-        self.type = type
-        self.path = path
-        self.id   = global_res_len
-
-        self.on_ready()
-        print(f"    ~ Loading resource of type {type}")
-        global_res_len += 1
+    res_base_data = {
+        "prop":   {},
+        "data":   {
+            "object": None,
+            "path":   "res://"
+        },
+        "meta":   {
+            "kind": "Resource",
+            "name": "Resource"
+        },
+        "script": None
+    }
+    def __init__(self, data=res_base_data):
+        super().__init__(data)
     
     def get(self):
         # Get the resource data (`Sprite`, `Image`, `Script`, etc..)
-        return self.data
-    
-    def get_id(self):
-        # Get the Resource ID
-        return self.id
+        return self.data["object"]
     
     def get_path(self):
         # Get the resource path (`res://test.png`, etc..)
-        return self.path
-    
-    def on_ready(self):
-        pass
+        return self.data["path"]
 
     def serialize(self, path):
         # Save the resource into a file
@@ -42,17 +160,24 @@ class Resource:
             f.write(struct.pack("<I", len(self.get())))
             f.write(self.get().encode())
 
-    def discard(self):
-        # Remove resource
-        del self.data
-        del self.path
-        del self
-        gc.collect()
-
 class Image(Resource):
     """This resource stores an Image. you may get only the image by getting the `image` variable."""
-    def on_ready(self):
-        self.image  = self.data
+
+    img_base_data = {
+        "prop":   {},
+        "data":   {
+            "object": None,
+            "path":   "res://"
+        },
+        "meta":   {
+            "kind": "Resource",
+            "name": "Image"
+        },
+        "script": None
+    }
+    def __init__(self, data=img_base_data):
+        super().__init__(data)
+        self.image  = self.data["object"]
         self.width  = self.image.width
         self.height = self.image.height
     
@@ -66,24 +191,38 @@ class Image(Resource):
 
 class SheetImage(Resource):
     """A portion of a spritesheet image. Works just like a regular image resource, but saved differently."""
-    def on_ready(self):
-        self.image  = self.data       
-        self.width  = self.data.width 
-        self.height = self.data.height
-        self.sheet  = self.data
+
+    img_base_data = {
+        "prop":   {},
+        "data":   {
+            "object": None,
+            "path":   "res://",
+            "clip":   [0,0]
+        },
+        "meta":   {
+            "kind": "Resource",
+            "name": "SheetImage"
+        },
+        "script": None
+    }
+    def __init__(self, data=img_base_data):
+        super().__init__(data)
+        self.image  = self.data["object"]
+        self.width  = self.image.width
+        self.height = self.image.height
+        self.sheet  = self.image
         self._clip()
     
     def _clip(self):
-        print(self.para["clip"])
-        if self.para["clip"]:
+        if self.data["clip"]:
             ## Clipping
-            cx, cy, cw, ch = self.para["clip"]
+            cx, cy, cw, ch = self.data["clip"]
             cy             = (self.height - ch) - cy
 
-            self.image  = self.image.get_region(cx, cy, cw, ch)
-            self.data   = self.image
-            self.height = ch
-            self.width  = cw
+            self.image          = self.image.get_region(cx, cy, cw, ch)
+            self.data["object"] = self.image
+            self.height         = ch
+            self.width          = cw
     
     def serialize(self, path):
         """Save the resource into a file"""
@@ -107,8 +246,22 @@ class Media(Resource):
 
 class Script(Resource):
     """A Script file."""
-    def on_ready(self):
-        self.contents = self.data
+
+    scr_base_data = {
+        "prop":   {},
+        "data":   {
+            "object": "# python 3.13",
+            "path":   "res://"
+        },
+        "meta":   {
+            "kind": "Resource",
+            "name": "Script/PlainText"
+        },
+        "script": None
+    }
+    def __init__(self, data=scr_base_data):
+        super().__init__(data)
+        self.contents = self.data["object"]
         self.language = self.contents.splitlines()[0]
     
     def serialize(self, path):
@@ -121,18 +274,25 @@ class Script(Resource):
 ## Functions
 def img_to_sheet(img, clip = 0):
     """Convert a spritesheet image to only a part of it."""
-    paran = img.para.copy()
+    paran = img.data.copy()
     paran["clip"] = clip
     
-    ims = SheetImage(img.get(), img.type, img.path, paran)
+    ims = SheetImage({
+        "data": paran,
+        "meta":   {
+            "kind": "Resource",
+            "name": "SheetImage"
+        },
+        "script": None
+    })
 
     return ims
 
 ## Loader class
 class Loader:
-    def __init__(self, cvars, save):
-        self.game_data     = cvars
-        self.save          = save
+    def __init__(self):
+        self.game_data     = singleton.cvars
+        self.save          = singleton.savefile
         self.resource_tree = {}
     
     def load_from_resf(self,data):
@@ -149,20 +309,47 @@ class Loader:
             if type == b"SCR":
                 dal = struct.unpack("<I", f.read(4))[0] # Data length
                 dat = f.read(dal).decode()
-                obj = Script(dat)
-            if type == b"SCR":
-                dal = struct.unpack("<I", f.read(4))[0] # Data length
-                dat = f.read(dal).decode()
-                obj = Script(dat)
+                obj = Script({
+                    "prop":   {},
+                    "data":   {
+                        "object": dat,
+                        "path":   "res://"
+                    },
+                    "meta":   {
+                        "kind": "Resource",
+                        "name": "Script/PlainText"
+                    },
+                    "script": None
+                })
             if type == b"RES":
-                dal = struct.unpack("<I", f.read(4))[0] # Data length
-                dat = f.read(dal).decode()
-                obj = Resource(dat)
+                obj = Resource({
+                    "prop":   {},
+                    "data":   {
+                        "object": None,
+                        "path":   "res://"
+                    },
+                    "meta":   {
+                        "kind": "Resource",
+                        "name": "Resource"
+                    },
+                    "script": None
+                })
             if type == b"IMG":
                 w,h = struct.unpack("<II", f.read(8))
                 dal = struct.unpack("<I", f.read(4))[0] # Data length
                 dat = f.read(dal).decode()
-                obj = Image(self.load(dat), path=dat)
+                obj = Image({
+                    "prop":   {},
+                    "data":   {
+                        "object": self.load(dat).get(),
+                        "path":   dat
+                    },
+                    "meta":   {
+                        "kind": "Resource",
+                        "name": "Image"
+                    },
+                    "script": None
+                })
             if type == b"IMS":
                 w,h      = struct.unpack("<II", f.read(8))   
                 cx, cy   = struct.unpack("<II", f.read(8))
@@ -173,7 +360,19 @@ class Loader:
                 
                 dal      = struct.unpack("<I", f.read(4))[0]    # Data length
                 dat      = f.read(dal).decode()
-                obj      = SheetImage(self.load(dat).get(), path=dat, parameters={"clip":clip})
+                obj      = SheetImage({
+                    "prop":   {},
+                    "data":   {
+                        "object": self.load(dat).get(),
+                        "path":   dat,
+                        "clip":   clip
+                    },
+                    "meta":   {
+                        "kind": "Resource",
+                        "name": "Image"
+                    },
+                    "script": None
+                })
         
         return obj
     
@@ -182,6 +381,7 @@ class Loader:
         ## User:// = save directory
         ## Res://  = project directory
         ## Root:// = directory that the binary is in
+
         asset       = 0
         type        = "mm"
         location    = path.lstrip("res://").lstrip("user://")
@@ -203,29 +403,95 @@ class Loader:
                 if IS_EXECUTABLE:
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp"):
                         asset    = pg.resource.image(actual_path)
-                        assetres = Image(asset, "sprite", path)
+                        assetres = Image({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Image"
+                            },
+                            "script": None
+                        })
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","flac","avi","mpeg"):
                         asset    = pg.resource.media(actual_path)
-                        assetres = Media(asset, "med", path)
+                        assetres = Media({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Media"
+                            },
+                            "script": None
+                        })
                     elif actual_path.split(".")[-1].lower() in ("res"):
                         asset    = pg.resource.file(actual_path, "rb")
                         assetres = self.load_from_resf(asset)
                     else:
                         asset    = pg.resource.file(actual_path, "r").read()
-                        assetres = Script(asset, "str", path)
+                        assetres = Script({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Script/PlainText"
+                            },
+                            "script": None
+                        })
                 else:
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp","dds"):
                         asset    = pg.image.load(actual_path)
-                        assetres = Image(asset, "sprite", actual_path)
+                        assetres = Image({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Image"
+                            },
+                            "script": None
+                        })
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","avi","mpeg"):
                         asset    = pg.media.load(actual_path)
-                        assetres = Media(asset, "med", actual_path)
+                        assetres = Media({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Media"
+                            },
+                            "script": None
+                        })
                     elif actual_path.split(".")[-1].lower() in ("res", "import"):
                         asset    = open(actual_path,"rb")
                         assetres = self.load_from_resf(asset)
                     else:
                         asset    = open(actual_path).read()
-                        assetres = Script(asset, "str", actual_path)
+                        assetres = Script({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Script/PlainText"
+                            },
+                            "script": None
+                        })
                 
                 self.resource_tree[location] = assetres
                 return assetres

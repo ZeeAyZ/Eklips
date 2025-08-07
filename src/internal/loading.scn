@@ -4,7 +4,7 @@
         "instancedWith": ""
     },
     "Nodes":      {
-        "t": {
+        "root": {
             "type":       "Timer",
             "properties": {
                 "duration":    0.1,

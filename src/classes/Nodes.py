@@ -3,40 +3,36 @@ import pyglet as pg
 import json, time, types, tkinter as tk
 from tkinter.messagebox import *
 from classes import Event, UI, Resources
+from classes.Resources import Object
 from pyglet import gl
-from pyglet.graphics.shader import Shader, ShaderProgram
-from pyglet.text import Label as PygletLabel
 from anytree import NodeMixin
 from PIL import Image, ImageTk
+import classes.singleton as singleton
 
 ## Scene class
 class Scene:
-    def __init__(self, file, screen, resourceman, Data):
-        self.file            = file
-        self.eng_globals     = {}
-        self.player_global   = pg.media.Player()
-        self.nodes           = {}
-        self.cam_pos         = [0, 0]
-        self.Data            = Data
-        self.killing         = 0
-        self.nodes_collision = {}
-        self.properties      = {}
-        self.screen          = screen
-        self.resourceman     = resourceman # Resource manager
-        self.load() 
+    def __init__(self, file_path):
+        self.file_path        = file_path
+        self.nodes            = {}
+        self.cam_pos          = [0, 0]
+        self.nodes_collision  = {}
+        self.signals          = None
+        self.properties       = {}
+        self.screen           = singleton.interface
+        self.resourceman      = singleton.resource_loader
     
     def empty(self):
         self.nodes_collision = {}
         self.cam_pos         = [0, 0]
         for i in self.nodes:
-            self.nodes[i]["object"].discard()
+            self.nodes[i]["object"].free()
         self.nodes           = {}
     
-    def add_node(self, who, where, parameters={}, script=None, node_data={}, name="Node?"):
+    def add_node(self, node_data={}):
         id = len(self.nodes)
 
         # Full path including this node
-        full_path   = f"{where}/{name}".strip("/")
+        full_path   = f"{node_data['path']}/{node_data['name']}".strip("/")
 
         directories  = full_path.split("/")[:-1]  # Only parents, exclude self
         parent       = None
@@ -46,92 +42,58 @@ class Scene:
             existing = self.get_node_from_path(current_path.lstrip("/"), directory)
             current_path += f"/{directory}"
             if not existing:
-                raise Exception("The node you are trying to create's parent does not exist.")
+                raise Exception("The parent of the node you are creating does not exist.")
             else:
                 parent = existing
 
+        # Construct node data
+        node_obj_data = {
+            "prop":   node_data["properties"],
+            "data":   {},
+            "meta":   {
+                "kind": "Node",
+                "name": node_data["name"]
+            },
+            "script": node_data["script"]
+        }
+
         # Create the actual node
-        classobj = globals().get(who)
-        object = classobj.__new__(classobj)
-        object.project_data = self.Data
-        object.__init__(parameters, parent, self.Data, script, self.screen, self.resourceman, self, where, name, self.eng_globals)
-        object.on_ready()
+        classobj           = globals().get(node_data["type"])
+        object             = classobj.__new__(classobj)
+        object.__init__(node_obj_data, parent)
 
         # Store in flat dictionary
         self.nodes[id] = {
-            "class": who,
-            "path": where,
+            "class": node_data["type"],
+            "path": node_data["path"],
             "object": object,
-            "name": name,
+            "name": node_data["name"],
             "base_data": node_data
         }
 
-    def save(self, save_as="myself"):
-        # Serialize
-        serialized = {
-            "Properties": self.properties,
-            "Nodes": {}
-        }
-
-        for node in self.nodes:
-            node_info = self.nodes[node]
-            data = {
-                "script_properties": {},
-                "name":              node_info["object"].name,
-                "script":            node_info["object"].script,
-                "script":            node_info["path"],
-                "runtimedata":       node_info["object"].runtime_data,
-                "type":              node_info["class"],
-                "properties":        node_info["object"].properties,
-            }
-
-            serialized[str(node)] = data
-        
-        # Save data
-        if save_as == "myself":
-            save_as = self.file
-        with open(save_as, "w") as f:
-            f.write(json.dumps(serialized, indent=4))
-
     def load(self):
-        self.nodes           = {}
-        self.cam_pos         = [0, 0]
-        self.nodes_collision = {}
-        scene_obj  = json.loads(self.resourceman.load(self.file).get())
+        self.empty()
+        scene_obj  = json.loads(self.resourceman.load(self.file_path).get())
         self.properties = scene_obj["Properties"]
         for node in scene_obj["Nodes"]:
             node_data = scene_obj["Nodes"][node]
-            self.add_node(node_data["type"], node_data["path"], node_data["properties"], node_data["script"], node_data, node_data["name"])
+            self.add_node(node_data)
 
-    def update(self, signalclass, glob):
+    def update(self, signalclass, delta):
         try:
             for nodeID in self.nodes:
-                if not self.killing:
-                    node            = self.nodes[nodeID]["object"]
-                    node.engine_glb = glob
-                    node.update()
-                    if "signals" in node.demand_for:
-                        node.signal_data = {
-                            "data": signalclass.get(),
-                            "clss": signalclass
-                        }
-                    node.demand_for = []
+                node            = self.nodes[nodeID]["object"]
+
+                self.signals    = signalclass.get()
+                if node.stop_running:
+                    node._free()
+                    continue
+                node.update(delta)
         except Exception as error:
-            print(f" Scene({self.file}) had an error updating; {error}")
+            print(f" Scene({self.file_path}) had an error updating; {error}")
             raise error
     
-    def get_node_from_name(self, name):
-        # All names must be unique for this to work.
-        for i in self.nodes:
-            if self.nodes[i]["object"].name == name:
-                return self.nodes[i]["object"]
-    
-    def get_node_id_from_name(self, name):
-        # All names must be unique for this to work.
-        for i in self.nodes:
-            if self.nodes[i]["object"].name == name:
-                return i
-    
+    ## Get nodes
     def get_node_from_path(self, path, name):
         for i in self.nodes:
             if self.nodes[i]["path"] == path:
@@ -139,103 +101,54 @@ class Scene:
                     return self.nodes[i]["object"]
 
 ## Nodes (ROOT NODES)
-class Node(NodeMixin):
+class Node(Object, NodeMixin):
     """
     ## An empty Node.
 
     Nodes are the building block of Eklips (well, Eklips 4+ atleast). Every Node is inherited off this node class.
-    A tree of Nodes make a Scene, A node is stored as `myself.root_scene` or `scene`.
+    A tree of Nodes make a Scene, A node is stored as `myself.scene` or `scene`.
 
     All Nodes must have an unique name.
-
-    The `myself` value is.. the node the script is attached to. You cannot replace Node functions with a script.
     
-    You can make a script have an `on_ready(empty)` function. This will only run when a Node is fully loaded.
-    You can make a script have an `_process(empty)` function. This will run every frame after `on_ready(empty)`.
+    You can make a script have an `_onready(self)` function. This will only run when a Node is fully loaded.
+    You can make a script have an `_process(self, delta)` function. This will run every frame after `on_ready()`. The argument `delta` is the delta time variable.
+    
+    The `self` value in these functions is.. the node the script is attached to. You cannot replace Node functions with a script.
 
     There is nothing to do with it. The only useful thing to do with it is run a script with it, and no more.
     """
-    def __init__(self, parameters, parent, data, script, screen, resourceman, scene_obj, where, name, eng_global):
-        self.screen       = screen
-        self.parameters   = {}
-        self.project_data = data
-        self.added_param  = parameters
-        self.runtime_data = {}
-        self.node_path_da = where
-        self.parent       = parent
-        self.signal_data  = {}
-        self.demand_for   = []
-        self.root_scene   = scene_obj
-        self.script       = script
-        self.window_id    = "main"
-        self.camera_pos   = [0,0]
-        self.dead         = 0
-        self.where        = where
-        self.resourceman  = resourceman
-        self.editor_icon  = "Node"
-        self.initialized  = False
-        self.engine_glb   = eng_global
-        self.scriptobj    = 0
-        self.true_init()
-        self.name         = name
-        for i in self.added_param:
-            self.parameters[i] = self.added_param[i]
-        self.initialized  = True
     
-    def true_init(self):
-        # Empty
-        pass
+    node_base_data = {
+        "prop":   {},
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
 
-    def on_ready(self):
-        # Empty
-        pass
+    def __init__(self, data=node_base_data, parent=None):
+        self.parent      = parent
+        self.screen      = singleton.interface
+        self.resourceman = singleton.resource_loader
+        super().__init__(data)
 
-    def true_update(self):
-        # Empty
-        pass
+    def _init_script(self):
+        if self.scriptpath:
+            print("ScriptLoading")
+            script_glb           = locals()
+            script_glb["engine"] = singleton
+            for i in self.properties:
+                script_glb[i]    = self.properties[i]
+            
+            script_contents      = self.resourceman.load(self.scriptpath).get()
+            exec(script_contents, globals=script_glb,locals=script_glb)
+            self.script          = script_glb
 
-    def call_deferred(self, fun, args=[]):
-        try:
-            func = types.MethodType(self.scriptobj[fun], self)
-            if len(args): func(*args)
-            else: func()
-        except Exception as e:
-            print(f"Unable to call {type(self).__name__}.{fun}{tuple(args)}: {e}")
-            raise e
-
-    def run_script(self):
-        if self.script:
-            if not self.scriptobj:
-                myglb=self.engine_glb
-                myglb["myself"] = self
-                exec(self.resourceman.load(self.script).get(), globals=myglb,locals=myglb)
-                self.scriptobj=myglb
-                self.call_deferred("on_ready")
-            else:
-                self.call_deferred("_process")
-
-    def update(self):
-        if not self.dead:
-            self.get_fired()
-            self.run_script()
-            self.true_update()
-        else:
-            self._discard()
-    
-    def _discard(self):
-        del self.parameters
-        del self.name
-        del self.runtime_data
-        del self.scriptobj
-        del self.script
-        self.initialized = False
-        del self
-    
-    def discard(self):
-        self.dead = 1
-    
-    def get_fired(self):
-        self.demand_for.append("signals")
+    def update(self, delta):
+        self.signals  = self.get_signals()
+        self._process(delta)
 
 class TkWindow(Node):
     """
@@ -244,23 +157,32 @@ class TkWindow(Node):
     Self-explanatory if you have used Tkinter. `TkWindow.tk_self` is the Tk() object.
     No 2D Nodes work in this. The icon property only works if the image is in res://.
     """
-    def true_init(self):
+    
+    node_base_data = {
+        "prop":   {
+            "caption":     "Node.Window.Tk",
+            "icon":        None,
+            "dimension":   "640x480",
+            "fullscreen":  False
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
         self.tk_self = tk.Tk()
-        self.parameters["dimension"]  = "640x480"
-        self.parameters["caption"]    = "Window.Tk"
-        self.parameters["icon"]       = "res://media/icon.png"
-        self.parameters["fullscreen"] = 0
-        self.name                     = "TkWindow"
-        self.editor_icon              = "Window"
-        
-    def on_ready(self):
-        self.tk_self.geometry(self.parameters["dimension"])
-        self.tk_self.title(self.parameters["caption"])
-        icon_image  = Image.open(self.parameters["icon"].replace("res://", self.project_data.data_directory+"/"))
+        self.tk_self.geometry(self.properties["dimension"])
+        self.tk_self.title(self.properties["caption"])
+        icon_image  = Image.open(self.properties["icon"].replace("res://", self.project_data.data_directory+"/"))
         photo_image = ImageTk.PhotoImage(icon_image)
         self.tk_self.wm_iconphoto(True, photo_image)
 
-class OptionDialog(TkWindow):
+class OptionDialog(Node):
     """
     ## A Window node to ask for a question.
      
@@ -273,26 +195,34 @@ class OptionDialog(TkWindow):
     # 4: Yes/No/Cancel
     """
 
-    def true_init(self):
-        self.parameters["caption"]     = "Node.Window.Tk.Dialog"
-        self.parameters["icon"]        = "res://media/icon.png"
-        self.parameters["message"]     = "Node.Window.Tk.Dialog.Message"
-        self.parameters["optionindex"] = 4
-        self.parameters["custom_opts"] = []
-        self.fate                      = 0
-    
-    def on_ready(self):
-        return
+    node_base_data = {
+        "prop":   {
+            "caption":     "Node.Window.Tk.Dialog",
+            "icon":        None,
+            "message":     "Node.Window.Tk.Dialog.Message",
+            "optionindex": 4
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
+        self.fate = None
     
     def popup(self):
-        if self.parameters["optionindex"] == 1:
-            func=askyesno(self.parameters["caption"], self.parameters["message"])
-        if self.parameters["optionindex"] == 2:
-            func=askokcancel(self.parameters["caption"], self.parameters["message"])
-        if self.parameters["optionindex"] == 3:
-            func=askretrycancel(self.parameters["caption"], self.parameters["message"])
-        if self.parameters["optionindex"] == 4:
-            func=askyesnocancel(self.parameters["caption"], self.parameters["message"])
+        if self.properties["optionindex"] == 1:
+            func=askyesno(self.properties["caption"], self.properties["message"])
+        if self.properties["optionindex"] == 2:
+            func=askokcancel(self.properties["caption"], self.properties["message"])
+        if self.properties["optionindex"] == 3:
+            func=askretrycancel(self.properties["caption"], self.properties["message"])
+        if self.properties["optionindex"] == 4:
+            func=askyesnocancel(self.properties["caption"], self.properties["message"])
         self.fate = func
         return self.fate
 
@@ -302,29 +232,39 @@ class AudioPlayer(Node):
      
     Self-explanatory.
     """
-    def true_init(self):
-        self.player       = None
-        self.parameters   = {
+    
+    node_base_data = {
+        "prop":   {
             "media":       "res://media/load.mp3",
             "loop":        False,
             "where":       0,
             "autostart":   False,
             "play_global": False
-        }
-        self.editor_icon  = "AudioPlayer"
-        self.name         = "AudioPlayer"
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        global player_global
+        super().__init__(data,parent)
+
+        if self.properties["play_global"]:
+            self.player = singleton.global_stream
+        else:
+            self.player = pg.media.Player()
+
         self.audio_data   = 0
         self.is_playedyet = 0
-    
-    def on_ready(self):
-        global player_global
-        if self.parameters["play_global"]: self.player = self.root_scene.player_global
-        else:                              self.player = pg.media.Player()
     
     def play(self, volume=1):
         what = self.audio_data
         if not what:
-            what = self.resourceman.load(self.parameters["media"]).get()
+            what = self.resourceman.load(self.properties["media"]).get()
         self.player.queue(what)
         self.player.volume = volume
         self.player.play()
@@ -332,17 +272,12 @@ class AudioPlayer(Node):
     def pause(self):
         self.player.pause()
     
-    def update(self):
-        global camera_pos
-        if not self.dead:
-            if not self.is_playedyet and self.parameters["autostart"]:
-                self.play()
-                self.is_playedyet = 1
-            self.get_fired()
-            self.run_script()
-            self.true_update()
-        else:
-            self._discard()
+    def update(self, delta):
+        if not self.is_playedyet and self.properties["autostart"]:
+            self.play()
+            self.is_playedyet = 1
+        
+        super().update(delta)
 
 class VideoPlayer(AudioPlayer):
     """
@@ -350,90 +285,107 @@ class VideoPlayer(AudioPlayer):
      
     Self-explanatory.
     """
-    def true_init(self):
-        self.player       = None
-        self.parameters   = {
-            "media":     "res://media/load.mp3",
-            "loop":      0,
-            "where":     0,
-            "autostart": 0
-        }
-        self.name         = "VideoPlayer"
+
+    node_base_data = {
+        "prop":   {
+            "media":       "res://media/load.mp3",
+            "loop":        False,
+            "where":       0,
+            "autostart":   False,
+
+            "transform":  {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "scroll": [0,0]
+            }
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        global player_global
+        super().__init__(data,parent)
+
         self.audio_data   = 0
         self.as_playedyet = 0
-        self.editor_icon  = "VideoPlayer"
-        self.parameters["transform"]  = {
-            "scale":  [1,1],
-            "pos":    [0,0],
-            "anchor": "top left",
-            "layer":  0,
-            "alpha":  1,
-            "scroll": [0,0]
-        }
-        self.runtime_data["rendererpos"] = self.parameters["transform"]["pos"]
+
+        self.runtime_data["rendererpos"] = self.properties["transform"]["pos"]
     
-    def update(self):
+    def update(self, delta):
         global camera_pos
-        ## TODO: FIX
-        if not self.dead:
-            if not self.as_playedyet and self.parameters["autostart"]:
-                self.play()
-                self.as_playedyet = 1
-            if self.player.playing:
-                self.screen.blit(
-                    pg.sprite.Sprite(
-                        self.player.texture
-                    ),                                   
-                    self.runtime_data["rendererpos"],             
-                    anchor  = self.parameters["transform"]["anchor"],
-                    scale   = self.parameters["transform"]["scale"],
-                    layer   = self.parameters["transform"]["layer"],
-                    rot     = self.parameters["transform"]["rot"],
-                    opacity = self.parameters["transform"]["alpha"],
-                    scroll  = self.parameters["transform"]["scroll"]
-                )
-            self.get_fired()
-            self.run_script()
-            self.runtime_data["rendererpos"] = [
-                self.parameters["transform"]["pos"][0] + camera_pos[0],
-                self.parameters["transform"]["pos"][1] + camera_pos[1]
-            ]
-            self.true_update()
-        else:
-            self._discard()
+        if not self.is_playedyet and self.properties["autostart"]:
+            self.play()
+            self.is_playedyet = 1
+        
+        self.runtime_data["rendererpos"] = [
+            self.properties["transform"]["pos"][0] + camera_pos[0],
+            self.properties["transform"]["pos"][1] + camera_pos[1]
+        ]
+        if self.player.playing:
+            self.screen.blit(
+                pg.sprite.Sprite(
+                    self.player.texture
+                ),                                   
+                self.runtime_data["rendererpos"],             
+                anchor  = self.properties["transform"]["anchor"],
+                scale   = self.properties["transform"]["scale"],
+                layer   = self.properties["transform"]["layer"],
+                rot     = self.properties["transform"]["rot"],
+                opacity = self.properties["transform"]["alpha"],
+                scroll  = self.properties["transform"]["scroll"]
+            )
+        
+        super().update(delta)
 
 class CanvasItem(Node):
     """
     ## A Canvas Node.
     
-    This is a Node that has parameters for transformation, and is meant for rendering items in a canvas.
+    This is a Node that has parameters for transformation, and is meant for rendering items in the window.
     This has no properties for Cameras, which makes it good for rendering UI elements. Which is it's purpose.
     For Nodes in a 2D world, use Node2D.
 
     This has relativity only on the position and anchor.
     """
-    def true_init(self):
-        self.parameters["transform"] = {
-            "scale":  [1,1],
-            "pos":    [0,0],
-            "anchor": "top left",
-            "layer":  0,
-            "alpha":  1,
-            "size":   [100, 100],
-            "scroll": [0, 0],
-            "rot":    0
-        }
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible": True,
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
         self.w,self.h                    = 0, 0
-        self.sprid                       = 0
-        self.parameters["visible"]       = 1
-        self.name                        = "CanvasItem"
-        self.anchor                      = self.parameters["transform"]["anchor"]
-        self.editor_icon                 = "CanvasItem"
-        self.runtime_data["rendererpos"] = self.parameters["transform"]["pos"][:]
-        self.runtime_data["relativepos"] = self.parameters["transform"]["pos"][:]
+        self.anchor                      = self.properties["transform"]["anchor"]
+        self.runtime_data["rendererpos"] = self.properties["transform"]["pos"][:]
+        self.runtime_data["relativepos"] = self.properties["transform"]["pos"][:]
 
     def get_relative_pos(self):
-        my_pos     = self.parameters["transform"]["pos"]
+        my_pos     = self.properties["transform"]["pos"]
         parent_pos = [0, 0]
         if self.parent and hasattr(self.parent, "get_relative_pos"):
             parent_pos = self.parent.get_relative_pos()[0]
@@ -443,60 +395,45 @@ class CanvasItem(Node):
     def get_relative_anchor(self):
         if self.parent and hasattr(self.parent, "anchor"):
             return self.parent.parameters["transform"]["anchor"]
-        return self.parameters["transform"]["anchor"]
+        return self.properties["transform"]["anchor"]
     
-    def _discard(self):
-        # self.screen.rem_from_pool(self.sprid)
-        del self.parameters
-        del self.name
-        del self.runtime_data
-        del self.scriptobj
-        del self.script
-        self.initialized = False
-        del self
-    
-    def load_render(self):
-        if self.image and self.parameters["visible"]:
+    def draw(self):
+        if self.image and self.properties["visible"]:
             self.w,self.h=self.image.width,self.image.height
             self._draw_onto_screen(self.image)
     
     def get_if_mouse_hovering(self):
-        mpos = self.screen.mpos
+        mpos = singleton.mpos
         is_it = (
-            mpos[0] < self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] and
-            mpos[0] + 20 > self.parameters["transform"]["pos"][0]                                      and
-            mpos[1] < self.parameters["transform"]["pos"][1] + self.parameters["transform"]["size"][1] and
-            mpos[1] + 20 > self.parameters["transform"]["pos"][1]
+            mpos[0] < self.properties["transform"]["pos"][0] + self.properties["transform"]["size"][0] and
+            mpos[0] + 20 > self.properties["transform"]["pos"][0]                                      and
+            mpos[1] < self.properties["transform"]["pos"][1] + self.properties["transform"]["size"][1] and
+            mpos[1] + 20 > self.properties["transform"]["pos"][1]
         )
         return is_it
     
     def _draw_onto_screen(self, img):
-        self.screen.blit(
+        return self.screen.blit(
             img,                                   
-            self.get_relative_pos(),             
-            anchor  = self.parameters["transform"]["anchor"],
-            scale   = self.parameters["transform"]["scale"],
-            layer   = self.parameters["transform"]["layer"],
-            rot     = self.parameters["transform"]["rot"],
-            opacity = self.parameters["transform"]["alpha"],
-            scroll  = self.parameters["transform"]["scroll"]
+            self.runtime_data["rendererpos"],             
+            anchor  = self.properties["transform"]["anchor"],
+            scale   = self.properties["transform"]["scale"],
+            layer   = self.properties["transform"]["layer"],
+            rot     = self.properties["transform"]["rot"],
+            opacity = self.properties["transform"]["alpha"],
+            scroll  = self.properties["transform"]["scroll"]
         )
+        
+    def update(self, delta):
+        self.anchor                      = self.properties["transform"]["anchor"]
+        rel_pos, parent_pos              = self.get_relative_pos()
+
+        # World-space relative position
+        self.runtime_data["relativepos"] = rel_pos
+        self.runtime_data["rendererpos"] = rel_pos
+        
+        super().update(delta)
     
-    def update(self):
-        global camera_pos
-        if not self.dead:
-            self.get_fired()
-            self.run_script()
-            self.anchor                      = self.parameters["transform"]["anchor"]
-            rel_pos, parent_pos              = self.get_relative_pos()
-
-            # World-space relative position
-            self.runtime_data["relativepos"] = rel_pos
-            self.runtime_data["rendererpos"] = rel_pos
-            self.true_update()
-        else:
-            self._discard()
-
 class Timer(Node):
     """
     ## A Timer.
@@ -504,17 +441,25 @@ class Timer(Node):
     It's a fucking timer??
     """
 
-    def true_init(self):
-        super().true_init()
-        self.parameters    = {
+    node_base_data = {
+        "prop":   {
             "duration_ep": 0,          # in seconds
             "only_once":   False,
             "autostart":   False,
             "play_global": False
-        }
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        global player_global
+        super().__init__(data,parent)
         self.is_playedyet  = False
-        self.name          = "Timer"
-        self.editor_icon   = "Timer"
         self.playing       = False       #... is timing?
         self.start_epoch   = time.time() #what the epoch was when timer started
         self.current_epoch = time.time() #current time
@@ -532,13 +477,14 @@ class Timer(Node):
     
     def stop(self): self.playing = False
 
-    def true_update(self):
+    def update(self, delta):
+        super().update(delta)
         self.current_epoch = time.time()
-        if not self.is_playedyet and self.parameters["autostart"]:
+        if not self.is_playedyet and self.properties["autostart"]:
             self.start()
             self.is_playedyet=True
         if self.playing:
-            if self.get_time_since_start()>self.parameters["duration"]:
+            if self.get_time_since_start()>self.properties["duration"]:
                 self.stop()
 
 class Node2D(CanvasItem):
@@ -548,27 +494,18 @@ class Node2D(CanvasItem):
     This is basically the same as a CanvasItem, but meant for gameplay purposes, because it follows the camera.
     All nodes that are meant in a 2D space (Camera2D, Sprite2D..) are inherited from this Node.
     """
-
-    def true_init(self):
-        super().true_init()
-        self.name         = "Node2D"
-        self.editor_icon  = "Node2D"
     
-    def update(self):
+    def update(self, delta):
         global camera_pos
-        if not self.dead:
-            self.get_fired()
-            self.run_script()
-            self.anchor                      = self.parameters["transform"]["anchor"]
-            rel_pos, parent_pos              = self.get_relative_pos()
+        self.anchor                      = self.properties["transform"]["anchor"]
+        rel_pos, parent_pos              = self.get_relative_pos()
 
-            # World-space relative position
-            self.runtime_data["relativepos"] = rel_pos
-            cam = self.root_scene.cam_pos
-            self.runtime_data["rendererpos"] = [rel_pos[0] - cam[0], rel_pos[1] - cam[1]]
-            self.true_update()
-        else:
-            self._discard()
+        # World-space relative position
+        self.runtime_data["relativepos"] = rel_pos
+        cam = self.scene.cam_pos
+        self.runtime_data["rendererpos"] = [rel_pos[0] - cam[0], rel_pos[1] - cam[1]]
+        
+        super().update(delta)
 
 ## Every canvas node
 class Label(CanvasItem):
@@ -577,35 +514,56 @@ class Label(CanvasItem):
      
     Self-explanatory.
     """
-    def true_init(self):
-        super().true_init()
-        self.name         = "Label"
-        self.editor_icon  = "Label"
     
-    def load_render(self):
-        if self.parameters["visible"]:
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible": True,
+            "text":    ""
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def draw(self):
+        if self.properties["visible"]:
             pos = self.runtime_data["rendererpos"]
             self.w,self.h=self._draw_onto_screen(pos)
         
     def _draw_onto_screen(self, pos):
-        self.screen.render(
-            text    = self.parameters["text"],
+        return self.screen.render(
+            text    = self.properties["text"],
             pos     = pos,
 
             anchor  = self.anchor,
-            layer   = self.parameters["transform"]["layer"],
+            layer   = self.properties["transform"]["layer"],
             blit_in = self.window_id
         )
     
-    def true_update(self):
-        self.load_render()
+    def update(self, delta):
+        super().update(delta)
+        self.draw()
 
 class RichLabel(Label):
     """
     ## A Label Node to render fancy text.
      
-    Self-explanatory.
+    Non-functional
     """
+    # TODO: Do stuff
     pass
 
 class ColorRect(CanvasItem):
@@ -614,63 +572,138 @@ class ColorRect(CanvasItem):
      
     Self-explanatory.
     """
-    def true_init(self):
-        super().true_init()
-        self.name                = "ColorRect"
-        self.editor_icon         = "ColorRect"
-        self.parameters["color"] = [128,128,128]
+     
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible": True,
+            "color":   [128, 128, 128]
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
         self.image               = 0
 
-    def true_update(self):
-        self.load_render()
+    def update(self, delta):
+        super().update(delta)
+        self.draw()
 
     def on_ready(self):
-        r, g, b = self.parameters["color"]
+        r, g, b = self.properties["color"]
         # RGB for each pixel, repeated for all pixels
-        raw_data = bytes([r, g, b] * self.parameters["transform"]["size"][0] * self.parameters["transform"]["size"][1])
+        raw_data = bytes([r, g, b] * self.properties["transform"]["size"][0] * self.properties["transform"]["size"][1])
         self.image = Resources.Image(
-            data = pg.image.ImageData(
-                self.parameters["transform"]["size"][0],
-                self.parameters["transform"]["size"][1],
-                'RGB',
-                raw_data
-            ),
-            type = "sprite",
-            path = f"{r+g+b/3}{self.parameters["transform"]["size"]}.mm"
+            {
+                "prop":   {},
+                "data":   {
+                    "object": pg.image.ImageData(
+                        self.properties["transform"]["size"][0],
+                        self.properties["transform"]["size"][1],
+                        'RGB',
+                        raw_data
+                    ),
+                    "path":   f"{r}{g}{b}{self.properties["transform"]["size"]}.mm"
+                },
+                "meta":   {
+                    "kind": "Resource",
+                    "name": "Image"
+                },
+                "script": None
+            }
         )
 
 class Button(ColorRect):
-    def true_init(self):
-        super().true_init()
-        self.name                = "Button"
-        self.editor_icon         = "Button"
-        self.parameters["color"] = [128,128,128]
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible": True,
+            "color":   [128, 128, 128],
+            "text":    "Text"
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
         self.clicked             = False
         self.image               = 0
     
-    def true_update(self):
+    def update(self, delta):
+        super().update(delta)
         hovering = self.get_if_mouse_hovering()
-        clicked  = self.screen.mclk[0]            
+        clicked  = singleton.mclk[0]            
 
         self.clicked = (hovering and clicked)
         
         if not self.clicked:
-            self.load_render()
+            self.draw()
         self.screen.render(
-            self.parameters["text"],
+            self.properties["text"],
             [
                 self.runtime_data["rendererpos"][0]+7.5,
                 self.runtime_data["rendererpos"][1]
             ],
-            anchor=self.parameters["transform"]["anchor"]
+            anchor=self.properties["transform"]["anchor"]
         )
 
 class Treeview(CanvasItem):
     # TODO: Make visually pleasing
-    def true_init(self):
-        super().true_init()
-        self.name         = "Treeview"
-        self.editor_icon  = "Treeview"
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible":  True,
+            "children": {}
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
         self.treechildren = {}
         self.revealed     = []
     
@@ -693,21 +726,17 @@ class Treeview(CanvasItem):
             _pos     = self._rlayer(data[i], _pos, layer+1)
         return _pos
 
-    def true_update(self):
+    def update(self, delta):
+        super().update(delta)
         # TBA
-        self.treechildren = self.parameters["children"]
+        self.treechildren = self.properties["children"]
         self.revealed     = []
         
-        if self.parameters["visible"]:
+        if self.properties["visible"]:
             self._rlayer(self.treechildren, self.runtime_data["rendererpos"].copy())
 
 ## Every other 2D node
 class PhysicsBody2D(Node2D):
-    def true_init(self):
-        super().true_init()
-        self.name         = "PhysicsBody2D"
-        self.editor_icon  = "PhysicsBody2D"
-    
     def _phys_init(self):
         self._onf   = False
         self._onw   = False
@@ -725,15 +754,15 @@ class PhysicsBody2D(Node2D):
             node = i
             if self.colliderect(node):
                 # You little shit
-                if self.parameters["transform"]["pos"][1] + self.parameters["transform"]["size"][1] <= node.parameters["transform"]["pos"][1]:
+                if self.properties["transform"]["pos"][1] + self.properties["transform"]["size"][1] <= node.parameters["transform"]["pos"][1]:
                     self._onf = True
                     # Ow
                     if bounce_mode:
                         self.motion[1] = -self.motion[1] / self.weight
                     else:
                         self.motion[1] = 0
-                elif (self.parameters["transform"]["pos"][0] + self.parameters["transform"]["size"][0] > node.parameters["transform"]["pos"][0] and
-                      self.parameters["transform"]["pos"][0] < node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
+                elif (self.properties["transform"]["pos"][0] + self.properties["transform"]["size"][0] > node.parameters["transform"]["pos"][0] and
+                      self.properties["transform"]["pos"][0] < node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
                     self._onw = True
                     print("collided_")
                     # Ow
@@ -742,13 +771,12 @@ class PhysicsBody2D(Node2D):
                     else:
                         self.motion[0] = 0
             
-        self.parameters["transform"]["pos"][0] += self.motion[0]
-        self.parameters["transform"]["pos"][1] += self.motion[1]
+        self.properties["transform"]["pos"][0] += self.motion[0]
+        self.properties["transform"]["pos"][1] += self.motion[1]
         if bounce_mode:
             self.motion[1] = -self.motion[1]
         else:
             self.motion = [0,0]
-        
 
 class CollisionBox2D(PhysicsBody2D):
     def _check_overlap(self, rect1, rect2):
@@ -760,17 +788,15 @@ class CollisionBox2D(PhysicsBody2D):
             rect1.parameters["transform"]["pos"][1] + rect1.parameters["transform"]["size"][1] > rect2.parameters["transform"]["pos"][1]
         )
 
-    def true_init(self):
-        super().true_init()
+    def __init__(self, data=Node2D.node_base_data, parent=None):
+        super().__init__(data,parent)
         self._phys_init()
-        self.name                                = "CollisionBox2D"                                 
-        self.editor_icon                         = "CollisionBox2D"                                 
         self.remap_dim()
-        self.id                                  = f"{self.path}/{self.name}NodeColA{self.w*self.h}"
-        self.root_scene.nodes_collision[self.id] = self                                     
+        self.id                             = f"{self.to_string()}NodeColA{self.w*self.h}"
+        self.scene.nodes_collision[self.id] = self
     
     def remap_dim(self):
-        self.x,self.y,self.w,self.h = self.parameters["transform"]["pos"][0], self.parameters["transform"]["pos"][1], self.parameters["transform"]["size"][0], self.parameters["transform"]["size"][1]
+        self.x,self.y,self.w,self.h = self.properties["transform"]["pos"][0], self.properties["transform"]["pos"][1], self.properties["transform"]["size"][0], self.properties["transform"]["size"][1]
     
     def colliderect(self, rect): return self._check_overlap(self, rect)
 
@@ -789,8 +815,8 @@ class CollisionBox2D(PhysicsBody2D):
     
     def get_all_rects_nearby(self, rang=500):
         il = []
-        for i in self.root_scene.nodes_collision:
-            node = self.root_scene.nodes_collision[i]
+        for i in self.scene.nodes_collision:
+            node = self.scene.nodes_collision[i]
             # rang = The range in pixels that this rectangle can be in to count
 
             if node == self: continue
@@ -800,22 +826,17 @@ class CollisionBox2D(PhysicsBody2D):
                     il.append(node)
         return il
     
-    def true_update(self):
-        global camera_pos
+    def update(self, delta):
+        super().update(delta)
+
         self.remap_dim()
         nearby   = self.get_all_rects_nearby()
         collided = self.collidelistall(nearby)
         self._physics_update(nearby, collided)  # Update physics based on nearby rectangles and collided ones
 
-    def _discard(self):
-        del self.parameters
-        del self.name
-        del self.runtime_data
-        del self.scriptobj
-        del self.script
-        self.initialized = False
-        self.root_scene.nodes_collision.pop(self.id)
-        del self
+    def free(self):
+        self.scene.nodes_collision.pop(self.id)
+        super().free()
 
 class Camera2D(Node2D):
     """
@@ -823,23 +844,23 @@ class Camera2D(Node2D):
      
     Self-explanatory. The position of this Node is the position of the camera
     """
-    def true_init(self):
-        super().true_init()
-        self.editor_icon = "Camera2D"
-        self.name        = "Camera2D"
+    
+    def __init__(self, data=Node2D.node_base_data, parent=None):
+        super().__init__(data,parent)
         self.target      = None
     
     def follow(self, target_node): self.target = target_node
     
-    def true_update(self):
+    def update(self, delta):
+        super().update(delta)
         if not self.target:
-            self.root_scene.cam_pos = [
-                self.parameters["transform"]["pos"][0] - self.screen.screen.width  // 2,
-                self.parameters["transform"]["pos"][1] - self.screen.screen.height // 2
+            self.scene.cam_pos = [
+                self.properties["transform"]["pos"][0] - self.screen.screen.width  // 2,
+                self.properties["transform"]["pos"][1] - self.screen.screen.height // 2
             ]
         else:
             w,h=self.target.w,self.target.h
-            self.root_scene.cam_pos = [
+            self.scene.cam_pos = [
                 self.target.parameters["transform"]["pos"][0] - self.screen.screen.width  // 2 - w // 2,
                 self.target.parameters["transform"]["pos"][1] - self.screen.screen.height // 2 - h // 2
             ]
@@ -850,18 +871,38 @@ class Sprite2D(Node2D):
      
     Self-explanatory.
     """
-    def true_init(self):
-        super().true_init()
-        self.parameters["sprite"] = "res://media/bg.png"
-        self.image                = 0
-        self.editor_icon          = "Sprite2D"
 
-    def on_ready(self):
-        asset      = self.resourceman.load(self.parameters["sprite"])
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible":  True,
+            "sprite":   "res://media/bg.png"
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+    
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
+        asset      = self.resourceman.load(self.properties["sprite"])
         self.image = asset
     
-    def true_update(self):
-        self.load_render()
+    def update(self, delta):
+        super().update(delta)
+        self.draw()
 
 class AnimatedSprite2D(Sprite2D):
     """
@@ -869,37 +910,82 @@ class AnimatedSprite2D(Sprite2D):
      
     Self-explanatory.
     """
-    def true_init(self):
-        super().true_init()
-        self.parameters["sprite"] = ["res://media/bg.png"]
-        self.images               = []
-        self.sprite_used          = 0 
-        self.editor_icon          = "AnimatedSprite2D"
-        self.name                 = "AnimatedSprite2D"
 
-    def on_ready(self):                     
-        for i in self.parameters["sprite"]: 
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible":  True,
+            "sprite":   ["res://media/bg.png"]
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+    
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
+        self.images      = []
+        self.sprite_used = 0          
+        for i in self.properties["sprite"]: 
             asset = self.resourceman.load(i)
             self.images.append(asset)       
     
-    def render(self):
-        if self.sprite_used in self.images and self.parameters["visible"]:
+    def draw(self):
+        if self.sprite_used in self.images and self.properties["visible"]:
             img=self.images[self.sprite_used]
             self.w,self.h=img.w,img.h
-            self._draw_onto_screen(img)
+            return self._draw_onto_screen(img)
 
 class Parallax2D(Sprite2D):
-    def true_init(self):
-        super().true_init()
-        self.parameters["sprite"]       = "res://media/bg.png"
-        self.parameters["scroll_speed"] = 5
-        self.image                      = 0
-        self.editor_icon                = "Parallax2D"
-        self.name                       = "Parallax2D"
+    """
+    ## A 2D Sprite Node.. to scroll the image at a provided speed..
+     
+    There is seriously no way you need help with this
+    """
+
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "size":   [100, 100],
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible":      True,
+            "sprite":       "res://media/bg.png",
+            "scroll_speed": 5,
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
     
-    def true_update(self):
-        self.load_render()
-        self.parameters["transform"]["scroll"][0] -= self.parameters["scroll_speed"]
-        if self.parameters["transform"]["scroll"][0] < (-self.image.get().width) + self.parameters["scroll_speed"]:
-            self.parameters["transform"]["scroll"][0] = -(self.parameters["scroll_speed"])
+    def __init__(self, data=node_base_data, parent=None):
+        super().__init__(data,parent)
+    
+    def update(self, delta):
+        super().update(delta)
+
+        self.properties["transform"]["scroll"][0] -= self.properties["scroll_speed"]
+        if self.properties["transform"]["scroll"][0] < (-self.image.get().width) + self.properties["scroll_speed"]:
+            self.properties["transform"]["scroll"][0] = -(self.properties["scroll_speed"])
         

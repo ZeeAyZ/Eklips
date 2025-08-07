@@ -2,13 +2,15 @@
 import json, os
 from functools import reduce
 import operator
+import classes.singleton as singleton
 
 ## Savefile class
 class Savefile:
-    def __init__(self, data):
-        self.save_dir  = f"{os.path.expanduser('~')}/{data.game_name}" # Save file directory
+    def __init__(self):
+        self.data      = singleton.Data
+        self.save_dir  = f"{os.path.expanduser('~')}/{self.data.game_name}" # Save file directory
         self.savefpath = f"{self.save_dir}/save.json" # Save file path
-        self.base_save = f"{data.data_directory}/base_save.json"       # Empty save file path
+        self.base_save = f"{self.data.data_directory}/base_save.json"       # Empty save file path
         self.savefile  = {}
         self.load_data()
     

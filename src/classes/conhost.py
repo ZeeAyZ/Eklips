@@ -2,7 +2,8 @@
 import pyglet as pg
 from classes import UI, CV, convenience
 from classes.key_entries import key_entries
-from classes.data_ekl import *
+from classes.constants_ekl import *
+import classes.singleton as singleton
 
 shared_console_text = []
 def printf(*args):
@@ -16,13 +17,13 @@ def printf(*args):
 class ConHost:
     """ConHost class. Used to handle console output and input."""
 
-    def __init__(self, ui: UI.Interface, cvars: CV.CvarCollection, data):
+    def __init__(self):
         global shared_console_text
-        self.cvars        = cvars
-        self.data         = data
+        self.cvars        = singleton.cvars
+        self.data         = singleton.Data
         self.console_text = shared_console_text
         self.shown        = False
-        self.ui           = ui
+        self.ui           = singleton.interface
         self.input_text   = ""
         self.h            = self.ui.screen.height / 2
         self.w            = self.ui.screen.width
@@ -34,8 +35,8 @@ class ConHost:
         self.is_upper     = False
         self.hold_timer   = 0
         self.klp          = None
-        self.speed        = cvars.get("con_speed")
-        self.bl_rate      = cvars.get("con_rate")
+        self.speed        = self.cvars.get("con_speed")
+        self.bl_rate      = self.cvars.get("con_rate")
         self.shifted      = False
         self.con_panel    = pg.shapes.Rectangle(
             x=0,

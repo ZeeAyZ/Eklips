@@ -1,15 +1,16 @@
 ## Import all the libraries
 import pyglet as pg
-from classes.data_ekl import *
+import classes.singleton as singleton
+from classes.constants_ekl import *
 
 ## Event class
 class Event:
-    def __init__(self, window):
-        self.screen       = window
+    def __init__(self):
+        self.screen       = singleton.display
         self.key_map      = {}
         self.key_once_map = []
         self.events       = []
-        window.push_handlers(self)
+        self.screen.push_handlers(self)
         self.mouse_pos = (0, 0)
         self.mouse_buttons = [0, 0, 0]  # Left, Middle, Right
 

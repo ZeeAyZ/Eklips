@@ -2,143 +2,14 @@
 import pyglet as pg
 import ErrorHandler, json, Data, gc, time, os
 import requests
-from classes import UI, Save, Event, Signals, Nodes, Resources, CV, conhost
+from classes.singleton import *
 from classes.conhost import printf
-from classes.key_entries import key_entries
-from classes.data_ekl import *
+from classes.constants_ekl import *
 
-## Basic garbage collection
-gc.enable()
+## No initialization code is here. Look at classes/singleton.py
 
-## Pre-define everything as empty
-keys_pressed, keys_nheld = [],[]               
-savefile        : Save.Savefile         = 0    
-signal_sys      : Signals.SignalHandler = 0    
-resource_loader : Resources.Loader      = 0    
-display         : Unknown               = 0 # Pylance is being a bitch, and, to be honest,
-                                            # why use this variable when the interface variable exists?
-batch           : pg.graphics.Batch     = 0    
-icon            : pg.image.BufferImage  = 0    
-interface       : UI.Interface          = 0    
-initialized     : bool                  = False
-event           : Event.Event           = 0    
-im_running      : bool                  = True 
-ticks           : int                   = 0    
-clock           : pg.clock.Clock        = 0    
-scene_file      : str                   = ""   
-scene           : Nodes.Scene           = 0    
-console         : conhost.ConHost       = 0    
-cvars           : CV.CvarCollection     = 0    
-
-## Functions
-def reload_engine(dir=None):
-    global savefile,signal_sys,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene_file,scene
-    """Reload/Load the engine variables."""
-    
-    ## Reload data and load cvars and print basic information
-    cvars = Data._init()
-    printf(f"### Eklips {VER} / {Data.game_name} {Data.game_bdata['project-ver']}")
-    print(" ~ Initializing CVARs")
-    if dir:
-        Data.data_directory = dir
-        cvars.set("directory", dir, dir, "directoryParameterModifiedByArgument")
-
-    ## Empty this variable since.. uh.. yes.
-    keys_pressed = []
-    keys_nheld   = []
-
-    ## Load libraries
-    printf(" ~ Initializing savefile")
-    savefile        = Save.Savefile(Data)
-    printf(" ~ Initializing signals")
-    signal_sys      = Signals.SignalHandler()
-    printf(" ~ Initializing ResourceMan")
-    resource_loader = Resources.Loader(cvars, savefile)
-
-    ## .. and then display
-    if not initialized:
-        printf(" ~ Initializing display")
-        display   = pg.window.Window(
-            savefile.get("display/resolution")[0], savefile.get("display/resolution")[1],
-            caption    = Data.game_name,
-            fullscreen = savefile.get("display/fullscreen"),
-            vsync      = savefile.get("display/vsync"),
-            file_drops = cvars.get("file_drops"),
-            resizable  = True
-        )
-        batch    = pg.graphics.Batch()
-        icon     = pg.image.load(f"{Data.data_directory}/media/icon.png")
-        display.set_icon(icon)
-        interface = UI.Interface(display, batch, cvars)
-    else:
-        display.set_size(savefile.get("display/resolution")[0], savefile.get("display/resolution")[1])
-        display.set_caption(Data.game_name)
-        icon      = pg.image.load(f"{Data.data_directory}/media/icon.png")
-        display.set_icon(icon)
-        interface = UI.Interface(display, batch, cvars)
-
-    ## .. more libraries
-    printf(" ~ Initializing events")
-    event   = Event.Event(display)
-    clock   = pg.clock.Clock()
-    console = conhost.ConHost(interface, cvars, Data)
-
-    ## Scene data
-    printf(f" ~ Initializing loading scene")
-    scene_file = cvars.get("loading-scene")
-    scene      = Nodes.Scene(scene_file, interface, resource_loader, Data=Data)
-    
-    ## Hacking!
-    Data.game_bdata["keys"]["eng_cheats"] = {
-        "keys": ["`","~"],
-        "holdable": False
-    }
-    
-    initialized = True
-
-def load_new_scene(file):
-    global scene_file, scene
-    """Load a new scene from a file path."""
-    printf(f" ~ Initializing scene {scene_file}")
-    scene_file  = file
-    printf(f" ~ Emptying scene {scene.file}")
-    scene.file  = file
-    scene.empty()
-    printf(f" ~ Loading scene {scene.file}")
-    scene.load()  
-   
-def suicide():
-    global im_running, interface, savefile, i_have_died
-    """Kill the engine"""
-    interface.close()
-    im_running  = 0
-    i_have_died = 1
-    savefile.save_data()
-
-def is_key_pressed(key_name):
-    """Get if a key is pressed from its name entry. (Name; eg. 'moveup', 'movedown', etc...)"""
-    global keys_pressed, keys_nheld
-    for i in Data.game_bdata["keys"]:
-        if i == key_name:
-            key_data = Data.game_bdata["keys"][i]
-            for key in key_data["keys"]:
-                keyd = key_entries[key.upper()]
-                if keyd in keys_pressed and key_data["holdable"]:
-                    return True
-                if keyd in keys_nheld and not key_data["holdable"]:
-                    return True
-    return False
-
-## Actually load the engine
-reload_engine() 
-
-## FPS Display
-fps_display = pg.window.FPSDisplay(display)
-
-## Delta time
+## Run the engine
 last_dt = time.time()
-
-## .. and run it!
 while (im_running):
     events = []
     try:
@@ -166,14 +37,12 @@ while (im_running):
                 keys_pressed.append(i)
         
         # handle scene and signal                                                        
-        interface.mpos = mpos
-        interface.mclk = mpressed
         try:
-            scene.update(signal_sys, globals())
+            scene.update(signal_sys, delta)
         except (BaseException, Exception) as error:
-            ErrorHandler.error  = error
-            ErrorHandler.reason = scene_file
-            events.append(PREMATURE_DEATH)
+            ErrorHandler.error  = error     
+            ErrorHandler.reason = scene.file_path
+            events.append(PREMATURE_DEATH)  
         
         # handle events (most of them)                                                    
         if SOFT_QUIT in events:
@@ -187,7 +56,7 @@ while (im_running):
 
         # flip the screen
         clock.tick()
-        if savefile.get("display/showfps", 1):
+        if savefile.get("display/showfps", True):
             fps_display.draw()
         console.update(keys_nheld, keys_pressed, globals())
         interface.flip()

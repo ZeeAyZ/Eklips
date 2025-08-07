@@ -16,35 +16,39 @@
     "keys": {
         "cursorup": {
             "keys": ["w","up"],
-            "holdable": 0
+            "holdable": false
         },
         "moveup": {
             "keys": ["w","up"],
-            "holdable": 1
+            "holdable": true
         },
         "cursordown": {
             "keys": ["s","down"],
-            "holdable": 0
+            "holdable": false
         },
         "movedown": {
             "keys": ["s","down"],
-            "holdable": 1
+            "holdable": true
         },
         "cursorleft": {
             "keys": ["a","left"],
-            "holdable": 0
+            "holdable": false
         },
         "moveleft": {
             "keys": ["a","left"],
-            "holdable": 1
+            "holdable": true
         },
         "cursorright": {
             "keys": ["d","right"],
-            "holdable": 0
+            "holdable": false
         },
         "moveright": {
             "keys": ["d","right"],
-            "holdable": 1
+            "holdable": true
+        },
+        "eng_cheats": {
+            "keys": ["`","~","v"],
+            "holdable": false
         }
     },
                                                      
@@ -68,8 +72,15 @@
         },
         "glbl_scripts": {
             "type": "list",
-            "default": [],
-            "description": "Global scripts to be loaded at the start of the game."
+            "default": [
+                "load_new_scene",
+                "is_key_pressed",
+                "suicide",
+                "cvars",
+                "console",
+                "Data"
+            ],
+            "description": "Global scripts or parameters to be loaded at the start of the game."
         },
         "directory": {
             "type": "string",
@@ -108,7 +119,7 @@
         },
         "ui_layers": {
             "type": "int",
-            "default": 35,
+            "default": 25,
             "description": "The layers the UI module has access to (negative and positive)"
         }
     },
