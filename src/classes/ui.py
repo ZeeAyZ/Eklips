@@ -48,23 +48,25 @@ class Interface:
         new_pos = pos.copy()
         if can_cache:
             if not anchor_id in self.anchors:
-                new_pos[1] = (win_h - surf_h) - pos[1] # This is a pygame household btw
+                if not "bottom" in anchor:
+                    new_pos[1] = (win_h - surf_h) - pos[1] # Pyglet uses bottom-left for 0,0 while pygame uses top-left. I'm more familliar with pygame
+                
                 if "right" in anchor:
                     new_pos[0] = (win_w - surf_w) - pos[0]
-                if "bottom" in anchor:
-                    new_pos[1] = pos[1]
                 if "centerX" in anchor:
-                    new_pos[0] = (win_w/2 - surf_w) + pos[0]
+                    new_pos[0] = (win_w/2 - surf_w/2) + pos[0]
                 if "centerY" in anchor:
-                    new_pos[1] = (win_h/2 - surf_h) + pos[1]
+                    new_pos[1] = (win_h/2 - surf_h/2) + pos[1]
                 if "center" in anchor:
-                    new_pos[0] = (win_w/2 - surf_w) + pos[0]
-                    new_pos[1] = (win_h/2 - surf_h) + pos[1]
+                    new_pos[0] = (win_w/2 - surf_w/2) + pos[0]
+                    new_pos[1] = (win_h/2 - surf_h/2) + pos[1]
                 if rot:
-                    new_pos[0]+=surf_w
-                    new_pos[1]+=surf_h
+                    new_pos[0]+=surf_w/2
+                    new_pos[1]+=surf_h/2
                 new_pos=[round(new_pos[0]),round(new_pos[1])]
                 self.anchors[anchor_id]=new_pos
+                print(pos, win_w, win_h, anchor, surf_w, surf_h, rot, new_pos)
+                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             else:
                 new_pos = self.anchors[anchor_id]
         return new_pos
@@ -98,7 +100,7 @@ class Interface:
         batch  = self.surfaces[blit_in]["batch"]
         
         win_w, win_h = screen.get_size()
-        new_pos      = self.get_anchor(pos,win_w,win_h,anchor,img.width,img.height,1, rot)
+        new_pos      = self.get_anchor(pos,win_w,win_h,anchor,img.width*scale[0],img.height*scale[1],1, rot)
         
         ## Detect if i'm even visible and change position
         id_ = len(self.draw_queue)

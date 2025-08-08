@@ -1,7 +1,10 @@
 ## Constants
 ENGINE_NAME     = "Eklips"
 BUILD_DATE      = "00/00/2025"
-VER             = "4.0A"
+MAJOR_VER       = 4             # 1 (Lost), 2-3 (Arch)
+MEDIU_VER       = 0             # 4.0
+MINOR_VER       = "A"           # 4.0A
+VER             = f"{MAJOR_VER}.{MINOR_VER}{MINOR_VER}"
 SOFT_QUIT       = 0
 KEYDOWN         = 1
 KEYUP           = 2

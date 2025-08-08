@@ -384,7 +384,7 @@ class Loader:
 
         asset       = 0
         type        = "mm"
-        location    = path.lstrip("res://").lstrip("user://")
+        location    = f"<EklipsObject:{path}:{singleton.VER}>"
         actual_path = location
         if can_cache:
             if location in self.resource_tree:

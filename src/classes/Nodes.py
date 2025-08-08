@@ -155,7 +155,7 @@ class TkWindow(Node):
     ## A Tkinter Window.
 
     Self-explanatory if you have used Tkinter. `TkWindow.tk_self` is the Tk() object.
-    No 2D Nodes work in this. The icon property only works if the image is in res://.
+    No 2D Nodes work in this. The icon property only works if the image isn't a part of the executable.
     """
     
     node_base_data = {
@@ -598,13 +598,6 @@ class ColorRect(CanvasItem):
 
     def __init__(self, data=node_base_data, parent=None):
         super().__init__(data,parent)
-        self.image               = 0
-
-    def update(self, delta):
-        super().update(delta)
-        self.draw()
-
-    def on_ready(self):
         r, g, b = self.properties["color"]
         # RGB for each pixel, repeated for all pixels
         raw_data = bytes([r, g, b] * self.properties["transform"]["size"][0] * self.properties["transform"]["size"][1])
@@ -627,6 +620,10 @@ class ColorRect(CanvasItem):
                 "script": None
             }
         )
+
+    def update(self, delta):
+        super().update(delta)
+        self.draw()
 
 class Button(ColorRect):
     node_base_data = {

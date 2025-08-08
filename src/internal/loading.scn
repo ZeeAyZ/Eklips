@@ -19,28 +19,6 @@
             "path":              "",
             "runtimedata":       0
         },
-        "1": {
-            "type":       "ColorRect",
-            "properties": {
-                "transform": {
-                    "scale":  [1,1],
-                    "pos":    [0,0],
-                    "rot":    0,
-                    "anchor": "center",
-                    "layer":  0,
-                    "alpha":  1,
-                    "size":   [500,500],
-                    "scroll": [0,0]
-                },
-                "visible":1,
-                "color":  [0, 0, 0]
-            },
-            "script_properties": {},
-            "name":              "Back",
-            "script":            null,
-            "path":              "",
-            "runtimedata":       0
-        },
         "Ekl": {
             "type":       "Sprite2D",
             "properties": {

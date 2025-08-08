@@ -43,8 +43,8 @@ def reload_engine(dir=None):
     ## Reload data and load cvars and print basic information
     gc.enable()
     cvars = Data._init()
-    print(f"{Data.game_name} v{Data.game_bdata['project-ver']} for {ENGINE_NAME} v{VER}")
-    print(" ~ Initializing CVARs")
+    printf(f"{Data.game_name} v{Data.game_bdata['project-ver']} for {ENGINE_NAME} v{VER}")
+    printf(" ~ Initializing CVARs")
     if dir:
         Data.data_directory = dir
         cvars.set("directory", dir, dir, "directoryParameterModifiedByArgument")
