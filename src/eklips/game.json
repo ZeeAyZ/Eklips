@@ -36,10 +36,6 @@
         "moveright": {
             "keys": ["d","right"],
             "holdable": true
-        },
-        "eng_cheats": {
-            "keys": ["`","~","v"],
-            "holdable": false
         }
     },
                                                      

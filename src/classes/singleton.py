@@ -15,8 +15,8 @@ events         = []
 mpos, mpressed = [0,0], [0,0,0]
 
 ## Global variables
-delta           : int                   = 0
-keys_pressed, keys_nheld                = [],[]
+delta           : int                   = 0    
+keys_pressed, keys_nheld                = [None],[None]
 savefile        : Save.Savefile         = 0    
 signal_sys      : Signals.SignalHandler = 0    
 resource_loader : Resources.Loader      = 0    
@@ -48,10 +48,6 @@ def reload_engine(dir=None):
     if dir:
         Data.data_directory = dir
         cvars.set("directory", dir, dir, "directoryParameterModifiedByArgument")
-
-    ## Empty this variable since.. uh.. yes.
-    keys_pressed = []
-    keys_nheld   = []
 
     ## Load libraries
     printf(" ~ Initializing savefile")
@@ -94,6 +90,12 @@ def reload_engine(dir=None):
     scene      = Nodes.Scene(scene_file)
     scene.load()
     
+    ## hacking
+    Data.game_bdata["keys"]["eng_cheats"] = {
+        "keys": ["`","~"],
+        "holdable": False
+    }
+
     ## Set flag to true
     initialized = True
 
