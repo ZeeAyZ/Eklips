@@ -23,13 +23,13 @@ def _onready(self):
                     "pos":    [50+x,100+y],
                     "rot":    0,
                     "anchor": "",
-                    "layer":  15,
+                    "layer":  20,
                     "alpha":  1,
                     "size":   [5,95],
                     "scroll": [0,0]
                 },
                 "visible": True,
-                "color":   [10,10,20]
+                "color":   [255,255,255]
             },
             "script_properties": {},
             "name":              f"ProjectPointRec{i}",
@@ -52,6 +52,7 @@ def _onready(self):
                 },
                 "visible":   True,
                 "text":      name,
+                "color":     [255,255,255],
                 "font_size": 28
             },
             "script_properties": {},
@@ -74,34 +75,12 @@ def _onready(self):
                     "scroll": [0,0]
                 },
                 "visible":   True,
-                "text":      f"{version}",
+                "text":      f"{version} @ Ekl v{ekl_ver}",
+                "color":     [255,255,255],
                 "font_size": 15
             },
             "script_properties": {},
-            "name":              f"Text{i}{version}",
-            "script":            None,
-            "path":              "",
-            "runtimedata":       0
-        })
-        lbl_vek = scene.add_node({
-            "type":       "Label",
-            "properties": {
-                "transform": {
-                    "scale":  [1,1],
-                    "pos":    [60+x,157+y],
-                    "rot":    0,
-                    "anchor": "",
-                    "layer":  11,
-                    "alpha":  1,
-                    "size":   [5,95],
-                    "scroll": [0,0]
-                },
-                "visible":   True,
-                "text":      f"v{ekl_ver}",
-                "font_size": 15
-            },
-            "script_properties": {},
-            "name":              f"Text{i}{ekl_ver}",
+            "name":              f"Text{i}{version}{ekl_ver}",
             "script":            None,
             "path":              "",
             "runtimedata":       0

@@ -155,11 +155,11 @@ class Interface:
             self.draw_queue[id_] = spr
             self.sprite_used.append(spr_id)
     
-    def render(self, text, pos, blit_in="main", layer=5, anchor="", size=15):
+    def render(self, text, pos, blit_in="main", layer=5, anchor="", size=15, rot=0, alpha=1, color=[255,255,255]):
         # Todo: make good3
         id           = len(self.label_queue)
         if blit_in  == "main":
-            blit_in =  self.main_surf_id
+            blit_in  =  self.main_surf_id
         
         screen       = self.surfaces[blit_in]["screen"]
         batch        = self.surfaces[blit_in]["tbatch"]
@@ -188,8 +188,9 @@ class Interface:
             lbl.content_width,
             lbl.content_height,
             True,
-            0
+            rot
         )
+        color_new = [color[0],color[1],color[2],255]
 
         if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -lbl.content_width or new_pos[1] < -lbl.content_height:
             self.label_pool[id].visible = False
@@ -207,6 +208,17 @@ class Interface:
             lbl.y = new_pos[1]
         if not lbl.font_size == size:
             lbl.font_size = size
+        if not lbl.rotation == rot:
+            lbl.rotation = rot
+            hsize        = [lbl.content_width//2, lbl.content_height//2]
+            if lbl.anchor_x != hsize[0]:
+                lbl.anchor_x = hsize[0]
+            if lbl.anchor_y != hsize[1]:
+                lbl.anchor_y = hsize[1]
+        if not lbl.color == color_new:
+            lbl.color = color_new
+        if not lbl.opacity == alpha*255:
+            lbl.opacity = alpha*255
 
         self.label_pool[id].visible = True
         self.label_used.append(id)

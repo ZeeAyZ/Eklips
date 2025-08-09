@@ -166,8 +166,7 @@ class TkWindow(Node):
         "prop":   {
             "caption":     "Node.Window.Tk",
             "icon":        None,
-            "dimension":   "640x480",
-            "fullscreen":  False
+            "dimension":   "640x480"
         },
         "data":   {},
         "meta":   {
@@ -202,7 +201,6 @@ class OptionDialog(Node):
     node_base_data = {
         "prop":   {
             "caption":     "Node.Window.Tk.Dialog",
-            "icon":        None,
             "message":     "Node.Window.Tk.Dialog.Message",
             "optionindex": 4
         },
@@ -240,7 +238,6 @@ class AudioPlayer(Node):
         "prop":   {
             "media":       "res://media/load.mp3",
             "loop":        False,
-            "where":       0,
             "autostart":   False,
             "play_global": False
         },
@@ -524,17 +521,15 @@ class Label(CanvasItem):
     node_base_data = {
         "prop":   {
             "transform": {
-                "scale":  [1,1],
                 "pos":    [0,0],
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
-                "size":   [100, 100],
-                "scroll": [0, 0],
                 "rot":    0
             },
             "visible": True,
-            "text":    ""
+            "text":    "",
+            "color":   [255,255,255]
         },
         "data":   {},
         "meta":   {
@@ -558,20 +553,14 @@ class Label(CanvasItem):
             layer   = self.properties["transform"]["layer"],
             blit_in = self.window_id,
             size    = self.properties["font_size"],
+            rot     = self.properties["transform"]["rot"],
+            alpha   = self.properties["transform"]["alpha"],
+            color   = self.properties["color"]
         )
     
     def update(self, delta):
         super().update(delta)
         self.draw()
-
-class RichLabel(Label):
-    """
-    ## A Label Node to render fancy text.
-     
-    Non-functional
-    """
-    # TODO: Do stuff
-    pass
 
 class ColorRect(CanvasItem):
     """
@@ -690,14 +679,9 @@ class Treeview(CanvasItem):
     node_base_data = {
         "prop":   {
             "transform": {
-                "scale":  [1,1],
                 "pos":    [0,0],
                 "anchor": "top left",
-                "layer":  0,
-                "alpha":  1,
-                "size":   [100, 100],
-                "scroll": [0, 0],
-                "rot":    0
+                "layer":  0
             },
             "visible":  True,
             "children": {}
@@ -746,10 +730,11 @@ class Treeview(CanvasItem):
 ## Every other 2D node
 class PhysicsBody2D(Node2D):
     def _phys_init(self):
-        self._onf   = False
-        self._onw   = False
-        self.weight = 1
-        self.motion = [0, 0]
+        self.should_stop = True
+        self._onf        = False
+        self._onw        = False
+        self.weight      = 1
+        self.motion      = [0, 0]
 
     def if_on_floor(self): return self._onf 
     def if_on_wall(self):  return self._onw
@@ -784,7 +769,8 @@ class PhysicsBody2D(Node2D):
         if bounce_mode:
             self.motion[1] = -self.motion[1]
         else:
-            self.motion = [0,0]
+            if self.should_stop:
+                self.motion = [0,0]
 
 class CollisionBox2D(PhysicsBody2D):
     def _check_overlap(self, rect1, rect2):
@@ -796,7 +782,7 @@ class CollisionBox2D(PhysicsBody2D):
             rect1.properties["transform"]["pos"][1] + rect1.properties["transform"]["size"][1] > rect2.properties["transform"]["pos"][1]
         )
 
-    def __init__(self, data=Node2D.node_base_data, parent=None):
+    def __init__(self, data=CanvasItem.node_base_data, parent=None):
         super().__init__(data,parent)
         self._phys_init()
         self.remap_dim()
@@ -846,6 +832,11 @@ class CollisionBox2D(PhysicsBody2D):
         self.scene.nodes_collision.pop(self.id)
         super().free()
 
+class Area2D(CollisionBox2D):
+    def update(self, delta):
+        self.should_stop = False
+        super().update(delta)
+
 class Camera2D(Node2D):
     """
     ## A 2D Node to control the Camera in the 2D world.
@@ -888,7 +879,6 @@ class Sprite2D(Node2D):
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
-                "size":   [100, 100],
                 "scroll": [0, 0],
                 "rot":    0
             },
@@ -914,7 +904,7 @@ class Sprite2D(Node2D):
 
 class AnimatedSprite2D(Sprite2D):
     """
-    ## A 2D Node to display an image.
+    ## A 2D Node to display an animmated image.
      
     Self-explanatory.
     """

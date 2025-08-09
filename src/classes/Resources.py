@@ -40,7 +40,8 @@ class Object:
         self.properties       = data["prop"]
         self.scriptpath       = data["script"]
         self.stop_running     = False
-        self.script           = None
+        self.script           = {}
+        self.hook_script      = {}
         self.call_deferr_list = []
         self._obj_id          = obj_ids
         self.runtime_data     = {}
@@ -49,6 +50,24 @@ class Object:
         self._onready()
     
     ## Script related
+    def make_signal_method(self, callable_name, node_path, node_name):
+        node         = self.scene.get_node_from_path(node_path, node_name)
+        callable_obj = self.script[callable_name]
+
+        node._hook(callable_name, callable_obj)
+        self.hook_script[callable_name] = callable_obj
+    
+    def call_signal_method(self, method, *args):
+        if method in self.hook_script:
+            mobj = types.MethodType(self.hook_script[method], self)
+            if len(args) == 0:
+                return mobj()
+            else:
+                return mobj(*args)
+    
+    def _hooK(self, callable_name, callable_obj):
+        self.script[callable_name] = callable_obj
+    
     def call(self, method, *args):
         if self.script:
             if method in self.script:
@@ -83,8 +102,8 @@ class Object:
     
     ## Signal-related
     def get_signals(self):
-        if self.scene:
-            return self.scene.signals
+        # Get the currently attached signal methods
+        return self.hook_script
     
     ## Other
     def _free(self):

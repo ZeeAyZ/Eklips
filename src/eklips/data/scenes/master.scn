@@ -34,7 +34,7 @@
                     "pos":    [20,75],
                     "rot":    0,
                     "anchor": "",
-                    "layer":  0,
+                    "layer":  1,
                     "alpha":  1,
                     "size":   [1240, 615],
                     "scroll": [0,0]
@@ -63,6 +63,7 @@
                 },
                 "visible":   true,
                 "text":      "Please pick a package:",
+                "color":     [255,255,255],
                 "font_size": 20
             },
             "script_properties": {},
