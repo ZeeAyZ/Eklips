@@ -1,0 +1,99 @@
+{
+    "Properties": {
+        "instanced":     false,
+        "instancedWith": ""
+    },
+    "Nodes":      {
+        "Background": {
+            "type":       "ColorRect",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [0,0],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "size":   [1280, 720],
+                    "scroll": [0,0]
+                },
+                "visible": true,
+                "color":   [20, 20, 30]
+            },
+            "script_properties": {},
+            "name":              "Back",
+            "script":            "res://data/main_populate_tree.ekl",
+            "path":              "",
+            "runtimedata":       0
+        },
+        "Panel": {
+            "type":       "ColorRect",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [20,75],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "size":   [1240, 615],
+                    "scroll": [0,0]
+                },
+                "visible": true,
+                "color":   [5,5,10]
+            },
+            "script_properties": {},
+            "name":              "Panel",
+            "script":            null,
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "TextPleaseSel": {
+            "type":       "Label",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [40,25],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "size":   [0,0],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "Please pick a package:",
+                "font_size": 20
+            },
+            "script_properties": {},
+            "name":              "PanelText",
+            "script":            null,
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "BtnAddNew": {
+            "type":       "Button",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [40,25],
+                    "rot":    0,
+                    "anchor": "right",
+                    "layer":  0,
+                    "alpha":  1,
+                    "size":   [0,0],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "+ Add",
+                "font_size": 20,
+                "color":     [20, 20, 30]
+            },
+            "script_properties": {},
+            "name":              "PanelText",
+            "script":            null,
+            "path":              "Back",
+            "runtimedata":       0
+        }
+    }
+}

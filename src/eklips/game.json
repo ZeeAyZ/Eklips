@@ -2,7 +2,7 @@
     "project-ver":   "1.0",
     "eklips-ver":    "4.0A",
 
-    "game_name":     "Eklips Test App",
+    "game_name":     "Eklips Editor",
 
     "keys": {
         "cursorup": {
@@ -74,7 +74,7 @@
         },
         "master-scene": {
             "type": "string",
-            "default": "res://data/master.scn",
+            "default": "res://data/scenes/master.scn",
             "description": "Scene to be loaded at the start."
         },
         "con": {
@@ -87,10 +87,15 @@
             "default": 450,
             "description": "The speed of the console dropdown."
         },
+        "con_size": {
+            "type": "int or str",
+            "default": "df",
+            "description": "Height of the console dropdown. (df = half of the screen height)"
+        },
         "con_rate": {
             "type": "int",
-            "default": 5,
-            "description": "Blink rate of the console host cursor in milliseconds."
+            "default": 2,
+            "description": "Blink rate of the console host cursor. (x / 1 second)"
         },
         "ui_labelpoolamount": {
             "type": "int",
@@ -104,5 +109,11 @@
         }
     },
 
-    "cmd": {}
+    "cmd": {
+        "help":        "@pointer=root://internal/help.ekl\n# This dialog box",
+        "con_clear":   "engine.console.console_text.clear()\n# Clear the console",
+        "sv_list":     "\n# List all CVars",
+        "eng_chproj":  "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file.\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
+        "eng_reload":  "engine.reload_engine()\n# Reload the engine"
+    }
 }

@@ -25,9 +25,9 @@ class ConHost:
         self.shown        = False
         self.ui           = singleton.interface
         self.input_text   = ""
-        self.h            = self.ui.screen.height / 2
+        self.h            = "df"
         self.w            = self.ui.screen.width
-        self.y            = -self.h
+        self.y            = None
         self.showing      = False
         self.hiding       = False
         self.blink_timer  = 0
@@ -38,17 +38,32 @@ class ConHost:
         self.speed        = self.cvars.get("con_speed")
         self.bl_rate      = self.cvars.get("con_rate")
         self.shifted      = False
+        self.ll           = (len(self.ui.layers)//2)-1
+        self.mk_panel()
+    
+    def mk_panel(self):
+        self.h     = self.cvars.get("con_size", "df")
+        if self.h == "df":
+            self.h = self.ui.screen.height // 2
+        if self.y == None:
+            self.y = -self.h
         self.con_panel    = pg.shapes.Rectangle(
             x=0,
             y=self.y,
             width=self.w,
             height=self.h,
-            color=(0,0,0,127),
+            color=(0,0,0,197),
+            group=self.ui.layers[self.ll-1],
             batch=self.ui.batch
         )
     
     def toggle(self):
         """Toggle the console visibility."""
+        self.speed   = self.cvars.get("con_speed")
+        self.bl_rate = self.cvars.get("con_rate")
+        if self.cvars.get("con_size", self.con_panel.width) != self.con_panel.width:
+            self.mk_panel()
+        
         if not (self.showing or self.hiding):
             self.shown = not self.shown
 
@@ -88,8 +103,10 @@ class ConHost:
             self.con_panel.y = self.ui.screen.get_size()[1] - self.h - self.y
             self.con_panel.draw()
             
-            if len(self.console_text) > (self.h/25)-1:
-                self.console_text.pop(0)
+            amchirncon=(self.h//25)-1
+            if len(self.console_text) > amchirncon:
+                for i in range(int(len(self.console_text)-amchirncon)):
+                    self.console_text.pop(0)
         
             con_y = self.y
             for i in self.console_text:
@@ -97,7 +114,7 @@ class ConHost:
                     i,
                     [10,con_y],
                     "main",
-                    15,
+                    self.ll,
                     ""
                 )
                 con_y += 25
@@ -123,7 +140,7 @@ class ConHost:
             
             self.hold_timer += self.ui.delta
 
-            self.ui.render(f"] {self.input_text}{blk_g}", [10,self.y+self.h-35], "main", 15)
+            self.ui.render(f"] {self.input_text}{blk_g}", [10,self.y+self.h-35], "main", self.ll)
     
     def _prockey(self, key):
         """Process a key input."""
@@ -173,25 +190,26 @@ class ConHost:
                 if len(args) > 0:
                     self.cvars.set(cvar, convenience._turntypeatfirstglance(args[0]))
                 self.list_cvar(cvar)
-        elif opc == "con_clear":
-            self.console_text.clear()
         elif opc == "eng_chproj":
-            exec(f"Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)
-            exec(f"Data.directory = '{args[0]}'", self.eng_gl, self.eng_gl)
-            exec(f"reload_engine('{args[0]}')", self.eng_gl, self.eng_gl)
-        elif opc == "eng_reload":
-            exec("reload_engine()", self.eng_gl, self.eng_gl)
+            exec(f"singleton.Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)
+            exec(f"singleton.Data.directory = '{args[0]}'", self.eng_gl, self.eng_gl)
+            exec(f"singleton.reload_engine('{args[0]}')", self.eng_gl, self.eng_gl)
         else:
             try:
-                g=self.eng_gl.copy()
-                g["args"] = args
-                if self.data.game_bdata["cmd"][opc].startswith("@pointer="):
-                    pointer_file = self.data.game_bdata["cmd"][opc].lstrip("@pointer=")
-                    exec(singleton.resource_loader.load(pointer_file), g,g)
+                g           = self.eng_gl.copy()
+                g["args"]   = args
+                g["engine"] = singleton
+                pline       = self.data.game_bdata["cmd"][opc].splitlines()[0]
+                if pline.startswith("@pointer="):
+                    pointer_file = pline[9:]
+                    exec(singleton.resource_loader.load(pointer_file).get(), g,g)
                 else:
                     exec(self.data.game_bdata["cmd"][opc], g,g)
-            except:
-                printf(f"Illegal command: {opc}")
+            except Exception as error:
+                if opc in self.data.game_bdata["cmd"]:
+                    printf(f"Command error: {error}")
+                else:
+                    printf(f"Illegal command: {opc}")
     
     def input(self, text):
         """Input text to the console."""

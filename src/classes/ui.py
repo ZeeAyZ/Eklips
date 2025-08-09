@@ -65,8 +65,6 @@ class Interface:
                     new_pos[1]+=surf_h/2
                 new_pos=[round(new_pos[0]),round(new_pos[1])]
                 self.anchors[anchor_id]=new_pos
-                print(pos, win_w, win_h, anchor, surf_w, surf_h, rot, new_pos)
-                print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             else:
                 new_pos = self.anchors[anchor_id]
         return new_pos
@@ -157,7 +155,7 @@ class Interface:
             self.draw_queue[id_] = spr
             self.sprite_used.append(spr_id)
     
-    def render(self, text, pos, blit_in="main", layer=5, anchor=""):
+    def render(self, text, pos, blit_in="main", layer=5, anchor="", size=15):
         # Todo: make good3
         id           = len(self.label_queue)
         if blit_in  == "main":
@@ -207,6 +205,8 @@ class Interface:
             lbl.x = new_pos[0]
         if not lbl.y == new_pos[1]:
             lbl.y = new_pos[1]
+        if not lbl.font_size == size:
+            lbl.font_size = size
 
         self.label_pool[id].visible = True
         self.label_used.append(id)

@@ -17,8 +17,8 @@
                     "size":   [1280, 720],
                     "scroll": [0,0]
                 },
-                "visible":1,
-                "color":  [20, 20, 30]
+                "visible": true,
+                "color":   [20, 20, 30]
             },
             "script_properties": {},
             "name":              "Back",

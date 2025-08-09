@@ -51,11 +51,12 @@ class Object:
     ## Script related
     def call(self, method, *args):
         if self.script:
-            mobj = types.MethodType(self.script[method], self)
-            if len(args) == 0:
-                return mobj()
-            else:
-                return mobj(*args)
+            if method in self.script:
+                mobj = types.MethodType(self.script[method], self)
+                if len(args) == 0:
+                    return mobj()
+                else:
+                    return mobj(*args)
 
     def call_deferred(self, method, args):
         self.call_deferr_list.append([method, args])
@@ -386,6 +387,7 @@ class Loader:
         type        = "mm"
         location    = f"<EklipsObject:{path}:{singleton.VER}>"
         actual_path = location
+        name        = path.split("/")[-1].split(".")[0]
         if can_cache:
             if location in self.resource_tree:
                 asset = self.resource_tree[location]
@@ -415,8 +417,8 @@ class Loader:
                             },
                             "script": None
                         })
-                    elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","flac","avi","mpeg"):
-                        asset    = pg.resource.media(actual_path)
+                    elif actual_path.split(".")[-1].lower() in ("ttf","otf"):
+                        asset    = pg.resource.add_font(actual_path)
                         assetres = Media({
                             "prop":   {},
                             "data":   {
@@ -429,7 +431,21 @@ class Loader:
                             },
                             "script": None
                         })
-                    elif actual_path.split(".")[-1].lower() in ("res"):
+                    elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","flac","avi","mpeg"):
+                        asset    = pg.font.load(name)
+                        assetres = Media({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Media"
+                            },
+                            "script": None
+                        })
+                    elif actual_path.split(".")[-1].lower() in ("res", "import"):
                         asset    = pg.resource.file(actual_path, "rb")
                         assetres = self.load_from_resf(asset)
                     else:
@@ -458,6 +474,20 @@ class Loader:
                             "meta":   {
                                 "kind": "Resource",
                                 "name": "Image"
+                            },
+                            "script": None
+                        })
+                    elif actual_path.split(".")[-1].lower() in ("ttf","otf"):
+                        asset    = pg.font.load(name)
+                        assetres = Media({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Media"
                             },
                             "script": None
                         })

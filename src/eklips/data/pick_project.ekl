@@ -1,0 +1,5 @@
+from classes import singleton as engine
+
+def _clicked(self):
+    engine.project_info = projdata
+    engine.load_new_scene("res://data/scenes/curr_project.scn")

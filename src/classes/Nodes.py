@@ -39,6 +39,8 @@ class Scene:
         current_path = ""
 
         for directory in directories:
+            if len(current_path) == 0:
+                continue
             existing = self.get_node_from_path(current_path.lstrip("/"), directory)
             current_path += f"/{directory}"
             if not existing:
@@ -70,6 +72,8 @@ class Scene:
             "name": node_data["name"],
             "base_data": node_data
         }
+
+        return self.nodes[id]["object"]
 
     def load(self):
         self.empty()
@@ -132,11 +136,11 @@ class Node(Object, NodeMixin):
         self.parent      = parent
         self.screen      = singleton.interface
         self.resourceman = singleton.resource_loader
+        self.window_id   = singleton.interface.main_surf_id
         super().__init__(data)
 
     def _init_script(self):
         if self.scriptpath:
-            print("ScriptLoading")
             script_glb           = locals()
             script_glb["engine"] = singleton
             for i in self.properties:
@@ -223,8 +227,7 @@ class OptionDialog(Node):
             func=askretrycancel(self.properties["caption"], self.properties["message"])
         if self.properties["optionindex"] == 4:
             func=askyesnocancel(self.properties["caption"], self.properties["message"])
-        self.fate = func
-        return self.fate
+        self.call("_popup_answer", func)
 
 class AudioPlayer(Node):
     """
@@ -262,6 +265,7 @@ class AudioPlayer(Node):
         self.is_playedyet = 0
     
     def play(self, volume=1):
+        self.call("_player_started")
         what = self.audio_data
         if not what:
             what = self.resourceman.load(self.properties["media"]).get()
@@ -270,6 +274,7 @@ class AudioPlayer(Node):
         self.player.play()
 
     def pause(self):
+        self.call("_player_paused")
         self.player.pause()
     
     def update(self, delta):
@@ -279,77 +284,11 @@ class AudioPlayer(Node):
         
         super().update(delta)
 
-class VideoPlayer(AudioPlayer):
-    """
-    ## A Media Node to render video and play it's audio.
-     
-    Self-explanatory.
-    """
-
-    node_base_data = {
-        "prop":   {
-            "media":       "res://media/load.mp3",
-            "loop":        False,
-            "where":       0,
-            "autostart":   False,
-
-            "transform":  {
-                "scale":  [1,1],
-                "pos":    [0,0],
-                "anchor": "top left",
-                "layer":  0,
-                "alpha":  1,
-                "scroll": [0,0]
-            }
-        },
-        "data":   {},
-        "meta":   {
-            "kind": "Node",
-            "name": "Node"
-        },
-        "script": None
-    }
-
-    def __init__(self, data=node_base_data, parent=None):
-        global player_global
-        super().__init__(data,parent)
-
-        self.audio_data   = 0
-        self.as_playedyet = 0
-
-        self.runtime_data["rendererpos"] = self.properties["transform"]["pos"]
-    
-    def update(self, delta):
-        global camera_pos
-        if not self.is_playedyet and self.properties["autostart"]:
-            self.play()
-            self.is_playedyet = 1
-        
-        self.runtime_data["rendererpos"] = [
-            self.properties["transform"]["pos"][0] + camera_pos[0],
-            self.properties["transform"]["pos"][1] + camera_pos[1]
-        ]
-        if self.player.playing:
-            self.screen.blit(
-                pg.sprite.Sprite(
-                    self.player.texture
-                ),                                   
-                self.runtime_data["rendererpos"],             
-                anchor  = self.properties["transform"]["anchor"],
-                scale   = self.properties["transform"]["scale"],
-                layer   = self.properties["transform"]["layer"],
-                rot     = self.properties["transform"]["rot"],
-                opacity = self.properties["transform"]["alpha"],
-                scroll  = self.properties["transform"]["scroll"]
-            )
-        
-        super().update(delta)
-
 class CanvasItem(Node):
     """
     ## A Canvas Node.
     
-    This is a Node that has parameters for transformation, and is meant for rendering items in the window.
+    This is a Node that has properties for transformation, and is meant for rendering items in the window.
     This has no properties for Cameras, which makes it good for rendering UI elements. Which is it's purpose.
     For Nodes in a 2D world, use Node2D.
 
@@ -394,7 +333,7 @@ class CanvasItem(Node):
     
     def get_relative_anchor(self):
         if self.parent and hasattr(self.parent, "anchor"):
-            return self.parent.parameters["transform"]["anchor"]
+            return self.parent.properties["transform"]["anchor"]
         return self.properties["transform"]["anchor"]
     
     def draw(self):
@@ -405,9 +344,9 @@ class CanvasItem(Node):
     def get_if_mouse_hovering(self):
         mpos = singleton.mpos
         is_it = (
-            mpos[0] < self.properties["transform"]["pos"][0] + self.properties["transform"]["size"][0] and
-            mpos[0] + 20 > self.properties["transform"]["pos"][0]                                      and
-            mpos[1] < self.properties["transform"]["pos"][1] + self.properties["transform"]["size"][1] and
+            mpos[0] < self.properties["transform"]["pos"][0] + self.w and
+            mpos[0] + 20 > self.properties["transform"]["pos"][0]     and
+            mpos[1] < self.properties["transform"]["pos"][1] + self.h and
             mpos[1] + 20 > self.properties["transform"]["pos"][1]
         )
         return is_it
@@ -428,11 +367,78 @@ class CanvasItem(Node):
         self.anchor                      = self.properties["transform"]["anchor"]
         rel_pos, parent_pos              = self.get_relative_pos()
 
+        if self.get_if_mouse_hovering():
+            self.call("_hover")
+            if singleton.mpressed[0]:
+                self.call("_clicked")
+
         # World-space relative position
         self.runtime_data["relativepos"] = rel_pos
         self.runtime_data["rendererpos"] = rel_pos
         
         super().update(delta)
+
+class VideoPlayer(CanvasItem, AudioPlayer):
+    """
+    ## A Media Node to render video and play it's audio.
+     
+    Self-explanatory.
+    """
+
+    node_base_data = {
+        "prop":   {
+            "media":       "res://media/load.mp3",
+            "loop":        False,
+            "where":       0,
+            "autostart":   False,
+
+            "transform":  {
+                "scale":  [1,1],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "scroll": [0,0]
+            }
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
+    def __init__(self, data=node_base_data, parent=None):
+        global player_global
+        super().__init__(data,parent)
+
+        self.audio_data   = 0
+        self.as_playedyet = 0
+
+        self.runtime_data["rendererpos"] = self.properties["transform"]["pos"]
+    
+    def update(self, delta):
+        global camera_pos
+        super().update(delta)
+        
+        if self.player.playing:
+            self.draw(
+                Resources.Image(
+                    {
+                        "prop":   {},
+                        "data":   {
+                            "object": self.player.texture,
+                            "path":   f"player{self.properties['media']}"
+                        },
+                        "meta":   {
+                            "kind": "Resource",
+                            "name": "Media"
+                        },
+                        "script": None
+                    }
+                )
+            )
     
 class Timer(Node):
     """
@@ -550,7 +556,8 @@ class Label(CanvasItem):
 
             anchor  = self.anchor,
             layer   = self.properties["transform"]["layer"],
-            blit_in = self.window_id
+            blit_in = self.window_id,
+            size    = self.properties["font_size"],
         )
     
     def update(self, delta):
@@ -659,20 +666,24 @@ class Button(ColorRect):
     def update(self, delta):
         super().update(delta)
         hovering = self.get_if_mouse_hovering()
-        clicked  = singleton.mclk[0]            
+        clicked  = singleton.mpressed[0]            
 
         self.clicked = (hovering and clicked)
-        
+
         if not self.clicked:
             self.draw()
+    
+    def _draw_onto_screen(self, img):
         self.screen.render(
             self.properties["text"],
             [
                 self.runtime_data["rendererpos"][0]+7.5,
                 self.runtime_data["rendererpos"][1]
             ],
-            anchor=self.properties["transform"]["anchor"]
+            anchor=self.properties["transform"]["anchor"],
+            size = self.properties["font_size"]
         )
+        return super()._draw_onto_screen(img)
 
 class Treeview(CanvasItem):
     # TODO: Make visually pleasing
@@ -751,15 +762,15 @@ class PhysicsBody2D(Node2D):
             node = i
             if self.colliderect(node):
                 # You little shit
-                if self.properties["transform"]["pos"][1] + self.properties["transform"]["size"][1] <= node.parameters["transform"]["pos"][1]:
+                if self.properties["transform"]["pos"][1] + self.properties["transform"]["size"][1] <= node.properties["transform"]["pos"][1]:
                     self._onf = True
                     # Ow
                     if bounce_mode:
                         self.motion[1] = -self.motion[1] / self.weight
                     else:
                         self.motion[1] = 0
-                elif (self.properties["transform"]["pos"][0] + self.properties["transform"]["size"][0] > node.parameters["transform"]["pos"][0] and
-                      self.properties["transform"]["pos"][0] < node.parameters["transform"]["pos"][0] + node.parameters["transform"]["size"][0]):
+                elif (self.properties["transform"]["pos"][0] + self.properties["transform"]["size"][0] > node.properties["transform"]["pos"][0] and
+                      self.properties["transform"]["pos"][0] < node.properties["transform"]["pos"][0] + node.properties["transform"]["size"][0]):
                     self._onw = True
                     print("collided_")
                     # Ow
@@ -779,10 +790,10 @@ class CollisionBox2D(PhysicsBody2D):
     def _check_overlap(self, rect1, rect2):
         # Use AABB
         return (
-            rect1.parameters["transform"]["pos"][0] < rect2.parameters["transform"]["pos"][0] + rect2.parameters["transform"]["size"][0] and
-            rect1.parameters["transform"]["pos"][0] + rect1.parameters["transform"]["size"][0] > rect2.parameters["transform"]["pos"][0] and
-            rect1.parameters["transform"]["pos"][1] < rect2.parameters["transform"]["pos"][1] + rect2.parameters["transform"]["size"][1] and
-            rect1.parameters["transform"]["pos"][1] + rect1.parameters["transform"]["size"][1] > rect2.parameters["transform"]["pos"][1]
+            rect1.properties["transform"]["pos"][0] < rect2.properties["transform"]["pos"][0] + rect2.properties["transform"]["size"][0] and
+            rect1.properties["transform"]["pos"][0] + rect1.properties["transform"]["size"][0] > rect2.properties["transform"]["pos"][0] and
+            rect1.properties["transform"]["pos"][1] < rect2.properties["transform"]["pos"][1] + rect2.properties["transform"]["size"][1] and
+            rect1.properties["transform"]["pos"][1] + rect1.properties["transform"]["size"][1] > rect2.properties["transform"]["pos"][1]
         )
 
     def __init__(self, data=Node2D.node_base_data, parent=None):
@@ -858,8 +869,8 @@ class Camera2D(Node2D):
         else:
             w,h=self.target.w,self.target.h
             self.scene.cam_pos = [
-                self.target.parameters["transform"]["pos"][0] - self.screen.screen.width  // 2 - w // 2,
-                self.target.parameters["transform"]["pos"][1] - self.screen.screen.height // 2 - h // 2
+                self.target.properties["transform"]["pos"][0] - self.screen.screen.width  // 2 - w // 2,
+                self.target.properties["transform"]["pos"][1] - self.screen.screen.height // 2 - h // 2
             ]
 
 class Sprite2D(Node2D):
@@ -985,4 +996,5 @@ class Parallax2D(Sprite2D):
         self.properties["transform"]["scroll"][0] -= self.properties["scroll_speed"]
         if self.properties["transform"]["scroll"][0] < (-self.image.get().width) + self.properties["scroll_speed"]:
             self.properties["transform"]["scroll"][0] = -(self.properties["scroll_speed"])
+            self.call("_reached_end")
         

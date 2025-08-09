@@ -10,5 +10,6 @@
         "sfx":    1,
         "music":  0.75,
         "ambien": 0
-    }
+    },
+    "projects": []
 }

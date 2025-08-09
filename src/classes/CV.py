@@ -4,6 +4,8 @@ class CvarCollection:
     
     def get(self, name, fallback=None):
         """Get a cvar's data by its name."""
+        if not name in self.cvars:
+            self.set(name, fallback, fallback, "FallbackCVar")
         return self.cvars.get(name, {"data":fallback})["data"]
 
     def get_description(self, name, fallback=None):

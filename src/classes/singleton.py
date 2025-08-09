@@ -70,12 +70,18 @@ def reload_engine(dir=None):
         )
         fps_display = pg.window.FPSDisplay(display)
         batch       = pg.graphics.Batch()
+        interface   = UI.Interface()
     else:
+        interface.fill(0)
+        interface.draw_queue.clear()
+        interface.label_queue.clear()
+        interface.sprite_used.clear()
+        display.clear()
         display.set_size(savefile.get("display/resolution")[0], savefile.get("display/resolution")[1])
         display.set_caption(Data.game_name)
     icon      = pg.image.load(f"{Data.data_directory}/media/icon.png")
     display.set_icon(icon)
-    interface = UI.Interface()
+    
 
     ## .. more libraries
     printf(" ~ Initializing events")
