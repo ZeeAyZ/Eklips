@@ -46,28 +46,14 @@ class Object:
         self._obj_id          = obj_ids
         self.runtime_data     = {}
         obj_ids              += 1
-        self._init_script()
+        self.init_script()
         self._onready()
     
+    def init_script(self):
+        
+        self.script = self
+    
     ## Script related
-    def make_signal_method(self, callable_name, node_path, node_name):
-        node         = self.scene.get_node_from_path(node_path, node_name)
-        callable_obj = self.script[callable_name]
-
-        node._hook(callable_name, callable_obj)
-        self.hook_script[callable_name] = callable_obj
-    
-    def call_signal_method(self, method, *args):
-        if method in self.hook_script:
-            mobj = types.MethodType(self.hook_script[method], self)
-            if len(args) == 0:
-                return mobj()
-            else:
-                return mobj(*args)
-    
-    def _hooK(self, callable_name, callable_obj):
-        self.script[callable_name] = callable_obj
-    
     def call(self, method, *args):
         if self.script:
             if method in self.script:
@@ -99,11 +85,6 @@ class Object:
         for i in self.call_deferr_list:
             self.call(i[0], i[1])
         self.call_deferr_list.clear()
-    
-    ## Signal-related
-    def get_signals(self):
-        # Get the currently attached signal methods
-        return self.hook_script
     
     ## Other
     def _free(self):
@@ -283,6 +264,19 @@ class Script(Resource):
         super().__init__(data)
         self.contents = self.data["object"]
         self.language = self.contents.splitlines()[0]
+        self.script   = {}
+        self._init_script()
+    
+    def _init_script(self):
+        if self.scriptpath:
+            script_glb           = locals()
+            script_glb["engine"] = singleton
+            for i in self.properties:
+                script_glb[i]    = self.properties[i]
+            
+            script_contents      = self.resourceman.load(self.scriptpath).get()
+            exec(script_contents, globals=script_glb,locals=script_glb)
+            self.script          = script_glb
     
     def serialize(self, path):
         # Save the resource into a file

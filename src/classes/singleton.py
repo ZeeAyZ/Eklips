@@ -1,7 +1,7 @@
 ## Import all the libraries
 import pyglet as pg
 import Data, gc
-from classes import UI, Save, Event, Signals, Nodes, Resources, CV, conhost
+from classes import UI, Save, Event, Nodes, Resources, CV, conhost
 from classes.conhost import printf
 from classes.key_entries import key_entries
 from classes.constants_ekl import *
@@ -18,7 +18,6 @@ mpos, mpressed = [0,0], [0,0,0]
 delta           : int                   = 0    
 keys_pressed, keys_nheld                = [None],[None]
 savefile        : Save.Savefile         = 0    
-signal_sys      : Signals.SignalHandler = 0    
 resource_loader : Resources.Loader      = 0    
 display         : Any                   = 0    
 batch           : pg.graphics.Batch     = 0    
@@ -37,7 +36,7 @@ fps_display     : pg.window.FPSDisplay  = 0
 
 ## Global functions
 def reload_engine(dir=None):
-    global savefile,signal_sys,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
+    global savefile,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
     """Reload/Load the engine variables."""
     
     ## Reload data and load cvars and print basic information
@@ -52,8 +51,6 @@ def reload_engine(dir=None):
     ## Load libraries
     printf(" ~ Initializing savefile")
     savefile        = Save.Savefile()
-    printf(" ~ Initializing signals")
-    signal_sys      = Signals.SignalHandler()
     printf(" ~ Initializing ResourceMan")
     resource_loader = Resources.Loader()
 

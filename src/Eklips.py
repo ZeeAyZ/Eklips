@@ -36,9 +36,9 @@ while (singleton.im_running):
             if singleton.keys_pressed_dict[i]:
                 singleton.keys_pressed.append(i)
         
-        # handle scene and signal                                                        
+        # handle scene                                                        
         try:
-            singleton.scene.update(singleton.signal_sys, singleton.delta)
+            singleton.scene.update(singleton.delta)
         except (BaseException, Exception) as error:
             ErrorHandler.error  = error     
             ErrorHandler.reason = singleton.scene.file_path

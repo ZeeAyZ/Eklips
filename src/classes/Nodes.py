@@ -16,7 +16,6 @@ class Scene:
         self.nodes            = {}
         self.cam_pos          = [0, 0]
         self.nodes_collision  = {}
-        self.signals          = None
         self.properties       = {}
         self.screen           = singleton.interface
         self.resourceman      = singleton.resource_loader
@@ -83,12 +82,11 @@ class Scene:
             node_data = scene_obj["Nodes"][node]
             self.add_node(node_data)
 
-    def update(self, signalclass, delta):
+    def update(self, delta):
         try:
             for nodeID in self.nodes:
                 node            = self.nodes[nodeID]["object"]
 
-                self.signals    = signalclass.get()
                 if node.stop_running:
                     node._free()
                     continue
@@ -139,19 +137,7 @@ class Node(Object, NodeMixin):
         self.window_id   = singleton.interface.main_surf_id
         super().__init__(data)
 
-    def _init_script(self):
-        if self.scriptpath:
-            script_glb           = locals()
-            script_glb["engine"] = singleton
-            for i in self.properties:
-                script_glb[i]    = self.properties[i]
-            
-            script_contents      = self.resourceman.load(self.scriptpath).get()
-            exec(script_contents, globals=script_glb,locals=script_glb)
-            self.script          = script_glb
-
     def update(self, delta):
-        self.signals  = self.get_signals()
         self._process(delta)
 
 class TkWindow(Node):
@@ -340,13 +326,12 @@ class CanvasItem(Node):
     
     def get_if_mouse_hovering(self):
         mpos = singleton.mpos
-        is_it = (
+        return (
             mpos[0] < self.properties["transform"]["pos"][0] + self.w and
             mpos[0] + 20 > self.properties["transform"]["pos"][0]     and
             mpos[1] < self.properties["transform"]["pos"][1] + self.h and
             mpos[1] + 20 > self.properties["transform"]["pos"][1]
         )
-        return is_it
     
     def _draw_onto_screen(self, img):
         return self.screen.blit(
@@ -743,19 +728,18 @@ class PhysicsBody2D(Node2D):
         self._onf = False
         self._onw = False
 
-        for i in collided:
-            node = i
-            if self.colliderect(node):
+        for node in collided:
+            if self.colliderect(node) and node.get_class() == "Area2D":
                 # You little shit
-                if self.properties["transform"]["pos"][1] + self.properties["transform"]["size"][1] <= node.properties["transform"]["pos"][1]:
+                if self.properties["transform"]["pos"][1] + self.h <= node.properties["transform"]["pos"][1]:
                     self._onf = True
                     # Ow
                     if bounce_mode:
                         self.motion[1] = -self.motion[1] / self.weight
                     else:
                         self.motion[1] = 0
-                elif (self.properties["transform"]["pos"][0] + self.properties["transform"]["size"][0] > node.properties["transform"]["pos"][0] and
-                      self.properties["transform"]["pos"][0] < node.properties["transform"]["pos"][0] + node.properties["transform"]["size"][0]):
+                elif (self.properties["transform"]["pos"][0] + self.w > node.properties["transform"]["pos"][0] and
+                      self.properties["transform"]["pos"][0] < node.properties["transform"]["pos"][0] + node.w):
                     self._onw = True
                     print("collided_")
                     # Ow
@@ -766,13 +750,20 @@ class PhysicsBody2D(Node2D):
             
         self.properties["transform"]["pos"][0] += self.motion[0]
         self.properties["transform"]["pos"][1] += self.motion[1]
-        if bounce_mode:
-            self.motion[1] = -self.motion[1]
-        else:
-            if self.should_stop:
+        
+        if self.should_stop:
+            if bounce_mode:
+                self.motion[1] = -self.motion[1]
+            else:
                 self.motion = [0,0]
 
 class CollisionBox2D(PhysicsBody2D):
+    """
+    ## A Collision Box.
+    
+    This node has a rectangular hitbox, which will stop any moving bodies if collided with.
+    """
+
     def _check_overlap(self, rect1, rect2):
         # Use AABB
         return (
@@ -833,6 +824,12 @@ class CollisionBox2D(PhysicsBody2D):
         super().free()
 
 class Area2D(CollisionBox2D):
+    """
+    ## An Area node.
+
+    This is the same as a CollisionBox2D node, but it doesn't stop any moving bodies if collided with.
+    """
+    
     def update(self, delta):
         self.should_stop = False
         super().update(delta)
@@ -987,4 +984,3 @@ class Parallax2D(Sprite2D):
         if self.properties["transform"]["scroll"][0] < (-self.image.get().width) + self.properties["scroll_speed"]:
             self.properties["transform"]["scroll"][0] = -(self.properties["scroll_speed"])
             self.call("_reached_end")
-        
