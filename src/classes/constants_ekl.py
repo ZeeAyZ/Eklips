@@ -1,6 +1,6 @@
 ## Constants
 ENGINE_NAME     = "Eklips"
-BUILD_DATE      = "00/00/2025"
+BUILD_DATE      = "15/08/2025" ## ddmmyy
 MAJOR_VER       = 4             # 1 (Lost), 2-3 (Arch)
 MEDIU_VER       = 0             # 4.0
 MINOR_VER       = "A"           # 4.0A
