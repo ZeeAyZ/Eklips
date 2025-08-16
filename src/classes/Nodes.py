@@ -48,6 +48,8 @@ class Scene:
                 parent = existing
 
         # Construct node data
+        print(f"{node_data['type']} {node_data['name']} = {node_data["script"]}")
+
         node_obj_data = {
             "prop":   node_data["properties"],
             "data":   {},

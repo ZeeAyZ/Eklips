@@ -15,6 +15,7 @@ events         = []
 mpos, mpressed = [0,0], [0,0,0]
 
 ## Global variables
+obj_ids         : int                   = 10
 delta           : int                   = 0    
 keys_pressed, keys_nheld                = [None],[None]
 savefile        : Save.Savefile         = 0    

@@ -1,130 +1,9 @@
 ## Import all the libraries
 import pyglet as pg, gc, struct, types
 from anytree import NodeMixin
+from classes.object import Object
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
 import classes.singleton as singleton
-
-## Objects
-obj_ids = 10
-racism  = [None, "Resource"] # I know this variable sounds bad.. But if your kind is in this list, then you get immediately discarded when free() is called..
-                             # That sounded way better in my head
-class Object:
-    """
-    This is the class that is inherited by every Node, and Resource.
-    This class is pretty simple, it stores data, the class name and properties.
-    It comes with no default data, so everything has to be specified on its own.
-
-    Properties commented "virtual" must be edited to have any effect.
-    """
-
-    obj_base_data = {
-        "prop":   {},
-        "data":   {
-            "object": None,
-            "path":   "res://"
-        },
-        "meta":   {
-            "kind": None,
-            "name": "Object"
-        },
-        "script": None
-    }
-
-    def __init__(self, data=obj_base_data):
-        global obj_ids
-
-        self.scene            = singleton.scene
-        self._data_all        = data
-        self.data             = data["data"]
-        self.metadata         = data["meta"]
-        self.properties       = data["prop"]
-        self.scriptpath       = data["script"]
-        self.stop_running     = False
-        self.script           = {}
-        self.hook_script      = {}
-        self.call_deferr_list = []
-        self._obj_id          = obj_ids
-        self.runtime_data     = {}
-        obj_ids              += 1
-        self.init_script()
-        self._onready()
-    
-    def init_script(self):
-        
-        self.script = self
-    
-    ## Script related
-    def call(self, method, *args):
-        if self.script:
-            if method in self.script:
-                mobj = types.MethodType(self.script[method], self)
-                if len(args) == 0:
-                    return mobj()
-                else:
-                    return mobj(*args)
-
-    def call_deferred(self, method, args):
-        self.call_deferr_list.append([method, args])
-    
-    def _init_script(self):
-        if self.scriptpath:
-            return
-    
-    def _onready(self):
-        self.call("_onready")
-    
-    def _process(self, delta):
-        # Whoops!
-        if self.stop_running:
-            return
-        
-        # Call the process function
-        self.call("_process", delta)
-
-        # Call any deferred functions
-        for i in self.call_deferr_list:
-            self.call(i[0], i[1])
-        self.call_deferr_list.clear()
-    
-    ## Other
-    def _free(self):
-        del self.data, self.properties
-        del self
-        gc.collect()
-    
-    def free(self):
-        self.stop_running = True
-        try:
-            if self.meta["kind"] in racism:
-                self._free()
-        except:
-            pass
-
-    def get_class(self):
-        return self.__class__.__name__
-    
-    def get_instance_id(self):
-        return self._obj_id
-
-    ## Get/Set
-    def to_string(self):
-        return f"<{self.get_class()}:{self.get_instance_id()}>"
-    
-    def get(self, property, default=None):
-        return self.properties.get(property, default)
-    
-    def set(self, property, value):
-        self.properties[property] = value
-    
-    ## Get engine singleton
-    def get_engine_singleton(self):
-        return self.scene.engine_singleton
-
-    ## Virtual
-    def serialize(self, path):
-        # Save the resource into a file
-        with open(path, "wb") as f:
-            f.write(b"OBJ")
 
 ## Resources
 global_res_len = 0
@@ -251,32 +130,35 @@ class Script(Resource):
     scr_base_data = {
         "prop":   {},
         "data":   {
-            "object": "# python 3.13",
+            "object": "# python 3.13\n",
             "path":   "res://"
         },
         "meta":   {
             "kind": "Resource",
-            "name": "Script/PlainText"
+            "name": "Script/Python/EklipsContext"
         },
         "script": None
     }
     def __init__(self, data=scr_base_data):
         super().__init__(data)
-        self.contents = self.data["object"]
-        self.language = self.contents.splitlines()[0]
-        self.script   = {}
-        self._init_script()
+        self.scriptpath = self.data["path"]
+        self.contents   = self.data["object"]
+        self.language   = self.contents.splitlines()[0]
+        self.namespace = {}
     
-    def _init_script(self):
-        if self.scriptpath:
+    def init_param(self, properties):
+        if self.scriptpath and self.data.get("lang","ekl").lower() != "plaintext":
             script_glb           = locals()
             script_glb["engine"] = singleton
-            for i in self.properties:
-                script_glb[i]    = self.properties[i]
+            for i in properties:
+                script_glb[i]    = properties[i]
             
-            script_contents      = self.resourceman.load(self.scriptpath).get()
+            script_contents      = self.contents
             exec(script_contents, globals=script_glb,locals=script_glb)
-            self.script          = script_glb
+            self.namespace       = script_glb
+    
+    def _init_script(self):
+        pass
     
     def serialize(self, path):
         # Save the resource into a file
@@ -461,12 +343,28 @@ class Loader:
                     elif actual_path.split(".")[-1].lower() in ("res", "import"):
                         asset    = pg.resource.file(actual_path, "rb")
                         assetres = self.load_from_resf(asset)
+                    elif actual_path.split(".")[-1].lower() in ("ekl", "py"):
+                        asset    = open(actual_path).read()
+                        assetres = Script({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "lang":   "python/ekl",
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Script/PlainText"
+                            },
+                            "script": None
+                        })
                     else:
                         asset    = pg.resource.file(actual_path, "r").read()
                         assetres = Script({
                             "prop":   {},
                             "data":   {
                                 "object": asset,
+                                "lang":   "plaintext",
                                 "path":   path
                             },
                             "meta":   {
@@ -521,12 +419,28 @@ class Loader:
                     elif actual_path.split(".")[-1].lower() in ("res", "import"):
                         asset    = open(actual_path,"rb")
                         assetres = self.load_from_resf(asset)
+                    elif actual_path.split(".")[-1].lower() in ("ekl", "py"):
+                        asset    = open(actual_path).read()
+                        assetres = Script({
+                            "prop":   {},
+                            "data":   {
+                                "object": asset,
+                                "lang":   "python/ekl",
+                                "path":   path
+                            },
+                            "meta":   {
+                                "kind": "Resource",
+                                "name": "Script/PlainText"
+                            },
+                            "script": None
+                        })
                     else:
                         asset    = open(actual_path).read()
                         assetres = Script({
                             "prop":   {},
                             "data":   {
                                 "object": asset,
+                                "lang":   "plaintext",
                                 "path":   path
                             },
                             "meta":   {
