@@ -10,33 +10,33 @@ from PIL import Image, ImageTk
 import classes.Singleton as singleton
 
 ## Import nodes
-from classes.node.node       import Node
+from classes.node.node                   import Node
 
-from classes.node.gui.button      import *
-from classes.node.gui.canvasitem  import *
-from classes.node.gui.color_rect  import *
-from classes.node.gui.label       import *
-from classes.node.gui.progressbar import *
-from classes.node.gui.treeview    import *
+from classes.node.gui.button             import *
+from classes.node.gui.canvasitem         import *
+from classes.node.gui.color_rect         import *
+from classes.node.gui.label              import *
+from classes.node.gui.progressbar        import *
+from classes.node.gui.treeview           import *
 
 from classes.node.gui.media.audio_player import *
 from classes.node.gui.media.video_player import *
 
-from classes.node.etc.option_dialog import *
-from classes.node.etc.tk_window     import *
-from classes.node.etc.timer         import *
+from classes.node.etc.option_dialog      import *
+from classes.node.etc.tk_window          import *
+from classes.node.etc.timer              import *
 
-from classes.node.twod.node2d           import *
-from classes.node.twod.sprite2d         import *
-from classes.node.twod.animatedsprite2d import *
-from classes.node.twod.area2d           import *
-from classes.node.twod.camera2d         import *
-from classes.node.twod.physicsbody2d    import *
-from classes.node.twod.collisionbox2d   import *
-from classes.node.twod.parallax2d       import *
+from classes.node.twod.node2d            import *
+from classes.node.twod.sprite2d          import *
+from classes.node.twod.animatedsprite2d  import *
+from classes.node.twod.area2d            import *
+from classes.node.twod.camera2d          import *
+from classes.node.twod.physicsbody2d     import *
+from classes.node.twod.collisionbox2d    import *
+from classes.node.twod.parallax2d        import *
 
 ## Scene class
-class Scene:
+class Scene(Object):
     def __init__(self, file_path):
         self.file_path        = file_path
         self.nodes            = {}

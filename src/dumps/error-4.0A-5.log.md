@@ -4,8 +4,8 @@ Here's this crash log!
 Quick Fix for users: N/A (Not Available)
 Cause of error: bad coding skillz
 
-Error Type: AttributeError
-Error: 'Progressbar' object has no attribute 'fg_img'. Did you mean: 'bg_img'?
+Error Type: KeyError
+Error: ''
 
 FrameSummary #1:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
@@ -25,12 +25,22 @@ FrameSummary #3:
 FrameSummary #4:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\progressbar.py
   | Line: self.draw()
-  | Line #: 128
+  | Line #: 136
 
 FrameSummary #5:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\progressbar.py
   | Line: self._draw_onto_screen(self.bg_img, self.fg_img, int(self.properties["transform"]["size"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"]))))
   | Line #: 96
+
+FrameSummary #6:
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\progressbar.py
+  | Line: self.screen.render(
+  | Line #: 124
+
+FrameSummary #7:
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\UI.py
+  | Line: screen       = self.surfaces[blit_in]["screen"]
+  | Line #: 164
 
 
 Please send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. 

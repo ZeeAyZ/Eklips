@@ -1,31 +1,36 @@
 Oops! Eklips just crashed;
 Here's this crash log!
 
-Quick Fix for users: You pressed Ctrl+C/Delete. Don't do that next time okay?
+Quick Fix for users: N/A (Not Available)
 Cause of error: bad coding skillz
 
-Error Type: KeyboardInterrupt
-Error: 
+Error Type: AttributeError
+Error: 'Progressbar' object has no attribute 'image'
 
 FrameSummary #1:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
-  | Line: singleton.interface.fill(singleton.delta)
-  | Line #: 24
+  | Line: singleton.scene.update(singleton.delta)
+  | Line #: 41
 
 FrameSummary #2:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\UI.py
-  | Line: screen.clear()
-  | Line #: 249
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
+  | Line: raise error
+  | Line #: 124
 
 FrameSummary #3:
-  | Filename: C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyglet\window\__init__.py
-  | Line: gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-  | Line #: 646
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
+  | Line: node.update(delta)
+  | Line #: 121
 
 FrameSummary #4:
-  | Filename: C:\Users\Admin\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyglet\gl\lib.py
-  | Line: error = gl.glGetError()
-  | Line #: 70
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\progressbar.py
+  | Line: self.draw()
+  | Line #: 106
+
+FrameSummary #5:
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\progressbar.py
+  | Line: if self.image and self.properties["visible"]:
+  | Line #: 72
 
 
 Please send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. 
