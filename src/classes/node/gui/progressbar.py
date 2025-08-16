@@ -96,7 +96,7 @@ class Progressbar(CanvasItem):
             self._draw_onto_screen(self.bg_img, self.fg_img, int(self.properties["transform"]["size"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"]))))
     
     def _draw_onto_screen(self, img, fg, width):
-        bg = self.screen.blit(
+        img_size = self.screen.blit(
             img,                                   
             self.runtime_data["rendererpos"],             
             anchor  = self.properties["transform"]["anchor"],
@@ -132,7 +132,7 @@ class Progressbar(CanvasItem):
             color  = self.properties.get("txcolor", [255,255,255])
         )
 
-        return bg
+        return img_size
 
     def update(self, delta):
         super().update(delta)
