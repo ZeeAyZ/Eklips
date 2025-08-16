@@ -9,11 +9,11 @@ for i in cmds:
     if longest < len(i):
         longest = len(i)
 for i in engine.cvars.cvars:
-    if longest < len(i):
-        longest = len(i)
+    if longest < len(f"sv_{i}"):
+        longest = len(f"sv_{i}")
 
 for i in engine.cvars.cvars:
     engine.printf(f" sv_{i}:{" "*(longest-len(f"sv_{i}"))} Set/Get this CVar (CVar description: {engine.cvars.get_description(i)})")
 for i in cmds:
     help = cmds[i].splitlines()[1]
-    engine.printf(f" {i}{" "*(longest-len(f"sv_{i}"))} {help.lstrip("# ")}")
+    engine.printf(f" {i}:{" "*(longest-len(f"{i}"))} {help.lstrip("# ")}")
