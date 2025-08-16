@@ -2,7 +2,7 @@
 import pyglet as pg, gc, struct, types
 from anytree import NodeMixin
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
-import classes.singleton as singleton
+import classes.Singleton as singleton
 
 ## Ummmmmmmmmm
 racism  = [None, "Resource"] # I know this variable sounds bad.. But if your kind is in this list, then you get immediately discarded when free() is called..

@@ -1,6 +1,6 @@
 from tkinter.messagebox import *
 import traceback, os, webbrowser, requests
-from classes.constants_ekl import *
+from classes.Constants import *
 try:
     from github import Github
     from github import Auth
@@ -17,6 +17,7 @@ reason = None
 
 def report(error_info, errorobj):
     auth   = Auth.Token(open("../../../../t").read()) # Token.. i'm not putting this in the repo, silly
+                                                      # Don't ask what the hell this is
     g      = Github(auth=auth)
     repo   = g.get_repo("Za9-118/Eklips")
     issuel = 0

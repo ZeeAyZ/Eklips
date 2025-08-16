@@ -1,6 +1,6 @@
 ## Import all the libraries
 import pyglet as pg
-import classes.singleton as singleton
+import classes.Singleton as singleton
 
 ## UI Class.
 class Interface:

@@ -1,9 +1,9 @@
 ## Import all the libraries
 import pyglet as pg, gc, struct, types
 from anytree import NodeMixin
-from classes.object import Object
+from classes.Object import Object
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
-import classes.singleton as singleton
+import classes.Singleton as singleton
 
 ## Resources
 global_res_len = 0

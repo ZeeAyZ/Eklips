@@ -2,7 +2,7 @@
 import json, os
 from functools import reduce
 import operator
-import classes.singleton as singleton
+import classes.Singleton as singleton
 
 ## Savefile class
 class Savefile:

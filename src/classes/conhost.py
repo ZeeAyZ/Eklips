@@ -1,9 +1,9 @@
 ## Import all the libraries
 import pyglet as pg
-from classes import UI, CV, convenience
-from classes.key_entries import key_entries
-from classes.constants_ekl import *
-import classes.singleton as singleton
+from classes import UI, CV, Convenience
+from classes.KeyEntries import key_entries
+from classes.Constants import *
+import classes.Singleton as singleton
 
 shared_console_text = []
 def printf(*args):
@@ -157,7 +157,7 @@ class ConHost:
             self.input_text += key_entries[key]
         else:
             if self.shifted: # or self.is_upper:
-                nk = convenience._shift_k(chr(key))
+                nk = Convenience._shift_k(chr(key))
                 self.input_text += nk if 0 <= key < 256 else ""
                 if not key in [pg.window.key.LSHIFT, pg.window.key.RSHIFT]:
                     self.shifted = False
@@ -188,7 +188,7 @@ class ConHost:
                     self.list_cvar(cvar_name)
             else:
                 if len(args) > 0:
-                    self.cvars.set(cvar, convenience._turntypeatfirstglance(args[0]))
+                    self.cvars.set(cvar, Convenience._turntypeatfirstglance(args[0]))
                 self.list_cvar(cvar)
         elif opc == "eng_chproj":
             exec(f"singleton.Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)

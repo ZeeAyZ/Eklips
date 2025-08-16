@@ -1,4 +1,4 @@
-from classes import singleton as engine
+from classes import Singleton as engine
 
 cmds    = engine.Data.game_bdata["cmd"].copy()
 longest = 10

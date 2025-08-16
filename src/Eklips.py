@@ -2,9 +2,9 @@
 import pyglet as pg
 import ErrorHandler, json, Data, gc, time, os
 import requests
-import classes.singleton as singleton
-from classes.conhost import printf
-from classes.constants_ekl import *
+import classes.Singleton as singleton
+from classes.ConHost import printf
+from classes.Constants import *
 
 ## No initialization code is here. Look at classes/singleton.py
 

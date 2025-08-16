@@ -1,10 +1,10 @@
-## Import all the libraries
+## Import all the libraries 
 import pyglet as pg
 import Data, gc
-from classes import UI, Save, Event, Nodes, Resources, CV, conhost
-from classes.conhost import printf
-from classes.key_entries import key_entries
-from classes.constants_ekl import *
+from classes            import UI, Save, Event, Resources, CV, Scene, ConHost
+from classes.ConHost    import printf
+from classes.KeyEntries import key_entries
+from classes.Constants  import *
 from typing import Any
 
 ## Print engine info
@@ -30,8 +30,8 @@ event           : Event.Event           = 0
 im_running      : bool                  = True 
 ticks           : int                   = 0    
 clock           : pg.clock.Clock        = 0    
-scene           : Nodes.Scene           = 0    
-console         : conhost.ConHost       = 0    
+scene           : Scene.Scene           = 0    
+console         : ConHost.ConHost       = 0    
 cvars           : CV.CvarCollection     = 0    
 fps_display     : pg.window.FPSDisplay  = 0    
 
@@ -85,13 +85,13 @@ def reload_engine(dir=None):
     printf(" ~ Initializing events")
     event         = Event.Event()
     clock         = pg.clock.Clock()
-    console       = conhost.ConHost()
+    console       = ConHost.ConHost()
     global_stream = pg.media.Player()
 
     ## Scene data
     printf(f" ~ Initializing loading scene")
     scene_file = cvars.get("loading-scene")
-    scene      = Nodes.Scene(scene_file)
+    scene      = Scene.Scene(scene_file)
     scene.load()
     
     ## hacking

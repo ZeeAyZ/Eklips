@@ -1,7 +1,7 @@
 ## Import all the libraries
 import pyglet as pg
-import classes.singleton as singleton
-from classes.constants_ekl import *
+import classes.Singleton as singleton
+from classes.Constants import *
 
 ## Event class
 class Event:
