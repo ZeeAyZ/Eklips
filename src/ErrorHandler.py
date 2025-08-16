@@ -33,8 +33,11 @@ def report(error_info, errorobj):
 
 def get_info(error, running, save_logs):
     global VER
-    try:    os.mkdir("dumps")
-    except: None
+    try:
+        os.mkdir("dumps")
+    except:
+        pass
+
     fn = f"dumps/error-{VER}-{len(os.listdir('dumps'))+1}.log.md"
     if error:
         error_obj=traceback.TracebackException.from_exception(error)
