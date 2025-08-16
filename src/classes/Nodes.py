@@ -734,34 +734,35 @@ class PhysicsBody2D(Node2D):
                 if self.properties["transform"]["pos"][1] + self.h <= node.properties["transform"]["pos"][1]:
                     self._onf = True
                     # Ow
-                    if bounce_mode:
-                        self.motion[1] = -self.motion[1] / self.weight
-                    else:
-                        self.motion[1] = 0
+                    self._handle_bump_y(bounce_mode)
                 elif (self.properties["transform"]["pos"][0] + self.w > node.properties["transform"]["pos"][0] and
                       self.properties["transform"]["pos"][0] < node.properties["transform"]["pos"][0] + node.w):
                     self._onw = True
-                    print("collided_")
                     # Ow
-                    if bounce_mode:
-                        self.motion[0] = -self.motion[0] / self.weight
-                    else:
-                        self.motion[0] = 0
-            
+                    self._handle_bump_x(bounce_mode)
+        
+        self._handle_motion(bounce_mode)
+    
+    def _handle_motion(self, bounce_mode=False):
         self.properties["transform"]["pos"][0] += self.motion[0]
         self.properties["transform"]["pos"][1] += self.motion[1]
         
-        if self.should_stop:
-            if bounce_mode:
-                self.motion[1] = -self.motion[1]
-            else:
-                self.motion = [0,0]
-
-class CollisionBox2D(PhysicsBody2D):
-    """
-    ## A Collision Box.
+        self._handle_motion_end(bounce_mode)
     
-    This node has a rectangular hitbox, which will stop any moving bodies if collided with.
+    def _handle_motion_end(self, bounce_mode): # visual
+        pass
+    
+    def _handle_bump_x(self, bounce_mode): # visual
+        pass
+    
+    def _handle_bump_y(self, bounce_mode): # visual
+        pass
+
+class Area2D(PhysicsBody2D):
+    """
+    ## An Area node.
+    
+    This node has a rectangular hitbox, which won't stop if collided with any bodies. Useful for things like triggers.
     """
 
     def _check_overlap(self, rect1, rect2):
@@ -823,16 +824,30 @@ class CollisionBox2D(PhysicsBody2D):
         self.scene.nodes_collision.pop(self.id)
         super().free()
 
-class Area2D(CollisionBox2D):
+class CollisionBox2D(Area2D):
     """
-    ## An Area node.
+    ## A rectangular hitbox node.
 
-    This is the same as a CollisionBox2D node, but it doesn't stop any moving bodies if collided with.
+    This node has a rectangular hitbox, which will stop if collided with any bodies. Useful for things like.. boxes.
     """
     
-    def update(self, delta):
-        self.should_stop = False
-        super().update(delta)
+    def _handle_motion_end(self, bounce_mode):
+        if bounce_mode:
+            self.motion[1] = -self.motion[1]
+        else:
+            self.motion = [0,0]
+    
+    def _handle_bump_x(self, bounce_mode):
+        if bounce_mode:
+            self.motion[0] = -self.motion[0] + singleton.ZFF_FIX / self.weight + singleton.ZFF_FIX
+        else:
+            self.motion[0] = 0
+    
+    def _handle_bump_y(self, bounce_mode):
+        if bounce_mode:
+            self.motion[1] = -self.motion[1] + singleton.ZFF_FIX / self.weight + singleton.ZFF_FIX
+        else:
+            self.motion[1] = 0
 
 class Camera2D(Node2D):
     """
