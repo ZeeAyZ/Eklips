@@ -73,35 +73,7 @@
             },
             "script_properties": {},
             "name":              "Ring",
-            "script":            null,
-            "path":              "",
-            "runtimedata":       0
-        },
-        "Progressbar": {
-            "type":       "Progressbar",
-            "properties": {
-                "transform": {
-                    "scale":  [1,1],
-                    "pos":    [0,0],
-                    "rot":    0, 
-                    "anchor": "",
-                    "layer":  19,
-                    "alpha":  1, 
-                    "size":   [300, 25],
-                    "scroll": [0,0]
-                },
-                "visible": true,
-                "fgcolor": [0,   0,   127],
-                "bgcolor": [20,  20,  20 ],
-                "txcolor": [255, 255, 255],
-
-                "maximum": 100,
-                "minimum": 0,
-                "value":   25
-            },
-            "script_properties": {},
-            "name":              "Back",
-            "script":            "res://data/main_populate_tree.ekl",
+            "script":            "root://internal/spin.ekl",
             "path":              "",
             "runtimedata":       0
         }
