@@ -3,7 +3,7 @@ from classes.node.twod.node2d import Node2D
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class PhysicsBody2D(Node2D):

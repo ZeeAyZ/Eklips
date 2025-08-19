@@ -3,7 +3,7 @@ from classes.node.twod.area2d import Area2D
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class CollisionBox2D(Area2D):
@@ -21,12 +21,12 @@ class CollisionBox2D(Area2D):
     
     def _handle_bump_x(self, bounce_mode):
         if bounce_mode:
-            self.motion[0] = -self.motion[0] + singleton.ZFF_FIX / self.weight + singleton.ZFF_FIX
+            self.motion[0] = -self.motion[0] + engine.ZFF_FIX / self.weight + engine.ZFF_FIX
         else:
             self.motion[0] = 0
     
     def _handle_bump_y(self, bounce_mode):
         if bounce_mode:
-            self.motion[1] = -self.motion[1] + singleton.ZFF_FIX / self.weight + singleton.ZFF_FIX
+            self.motion[1] = -self.motion[1] + engine.ZFF_FIX / self.weight + engine.ZFF_FIX
         else:
             self.motion[1] = 0

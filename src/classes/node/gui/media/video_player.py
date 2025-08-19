@@ -4,7 +4,7 @@ from classes.node.gui.media.audio_player import AudioPlayer
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 from classes import Resources
 
 ## Node

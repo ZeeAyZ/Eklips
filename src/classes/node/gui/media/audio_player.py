@@ -3,7 +3,8 @@ from classes.node.node import Node
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import pygame as pyg
+import classes.Singleton as engine
 
 ## Node
 class AudioPlayer(Node):
@@ -17,8 +18,7 @@ class AudioPlayer(Node):
         "prop":   {
             "media":       "res://media/load.mp3",
             "loop":        False,
-            "autostart":   False,
-            "play_global": False
+            "autostart":   False
         },
         "data":   {},
         "meta":   {
@@ -32,22 +32,15 @@ class AudioPlayer(Node):
         global player_global
         super().__init__(data,parent)
 
-        if self.properties["play_global"]:
-            self.player = singleton.global_stream
-        else:
-            self.player = pg.media.Player()
-
-        self.audio_data   = 0
+        self.audio_data   = None
         self.is_playedyet = 0
     
     def play(self, volume=1):
         self.call("_player_started")
-        what = self.audio_data
-        if not what:
-            what = self.resourceman.load(self.properties["media"]).get()
-        self.player.queue(what)
-        self.player.volume = volume
-        self.player.play()
+        if not self.audio_data:
+            self.audio_data = self.resourceman.load(self.properties["media"]).get()
+        self.audio_data.set_volume(volume)
+        self.audio_data.play()
 
     def pause(self):
         self.call("_player_paused")

@@ -3,7 +3,7 @@ from classes.node.twod.sprite2d import Sprite2D
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class AnimatedSprite2D(Sprite2D):

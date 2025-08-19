@@ -2,7 +2,7 @@
 import pyglet as pg, gc, struct, types
 from anytree import NodeMixin
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Ummmmmmmmmm
 racism  = [None, "Resource"] # I know this variable sounds bad.. But if your kind is in this list, then you get immediately discarded when free() is called..
@@ -34,7 +34,7 @@ class Object:
     def __init__(self, data=obj_base_data):
         global obj_ids
 
-        self.scene            = singleton.scene
+        self.scene            = engine.scene
         self._data_all        = data
         self.data             = data["data"]
         self.metadata         = data["meta"]
@@ -43,9 +43,9 @@ class Object:
         self.stop_running     = False
         self.hook_script      = {}
         self.call_deferr_list = []
-        self._obj_id          = singleton.obj_ids
+        self._obj_id          = engine.obj_ids
         self.runtime_data     = {}
-        singleton.obj_ids    += 1
+        engine.obj_ids    += 1
         self.script           = None
         self._init_script()
         self._onready()
@@ -65,7 +65,7 @@ class Object:
     
     def _init_script(self):
         if self.scriptpath:
-            self.script = singleton.resource_loader.load(self.scriptpath)
+            self.script = engine.resource_loader.load(self.scriptpath)
             self.script.init_param(self.properties)
     
     def _onready(self):
@@ -115,8 +115,8 @@ class Object:
         self.properties[property] = value
     
     ## Get engine singleton
-    def get_engine_singleton(self):
-        return self.scene.engine_singleton
+    def get_engine_engine(self):
+        return self.scene.engine_engine
 
     ## Virtual
     def serialize(self, path):

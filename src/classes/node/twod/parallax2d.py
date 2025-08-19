@@ -1,9 +1,9 @@
 ## Import inherited
 from classes.node.twod.sprite2d import Sprite2D
 
-## Import engine singleton and others
+## Import engine singleton singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class Parallax2D(Sprite2D):

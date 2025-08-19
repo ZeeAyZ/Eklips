@@ -1,7 +1,7 @@
 from pyglet.window.key import *
 from pyglet.window import key
 
-## Don't touch this code
+## Pyglet does not have a character -> code function, so why not build our own? ;)
 key_entries_l = [
     BACKSPACE,
     TAB,

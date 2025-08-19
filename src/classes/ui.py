@@ -1,6 +1,6 @@
 ## Import all the libraries
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## UI Class.
 class Interface:
@@ -18,9 +18,9 @@ class Interface:
     def __init__(self):
         self.mpos            = [0,0]
         self.mclk            = [0,0,0]
-        self.cvars           = singleton.cvars
-        self.screen          = singleton.display
-        self.batch           = singleton.batch
+        self.cvars           = engine.cvars
+        self.screen          = engine.display
+        self.batch           = engine.batch
         self.delta           = 0
         self.surfaces        = {}
         self.making_surface  = False

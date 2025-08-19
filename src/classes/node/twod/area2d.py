@@ -4,7 +4,7 @@ from classes.node.gui.canvasitem import CanvasItem
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class Area2D(PhysicsBody2D):

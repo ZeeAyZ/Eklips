@@ -7,7 +7,7 @@ from classes.Object import Object
 from pyglet import gl
 from anytree import NodeMixin
 from PIL import Image, ImageTk
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Import nodes
 from classes.node.node                   import Node
@@ -43,8 +43,8 @@ class Scene(Object):
         self.cam_pos          = [0, 0]
         self.nodes_collision  = {}
         self.properties       = {}
-        self.screen           = singleton.interface
-        self.resourceman      = singleton.resource_loader
+        self.screen           = engine.interface
+        self.resourceman      = engine.resource_loader
     
     def empty(self):
         self.nodes_collision = {}

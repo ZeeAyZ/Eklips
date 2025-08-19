@@ -1,3 +1,4 @@
+## I feel like YandereDev rn
 def _turntypeatfirstglance(text):
     """Turn a text input into a type at first glance."""
     try:
@@ -13,7 +14,6 @@ def _turntypeatfirstglance(text):
             else:
                 return text
 
-# wtf
 def _shift_k(key):
     nk = key.upper()
     if nk == "1": nk = "!"

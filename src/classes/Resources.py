@@ -1,9 +1,14 @@
 ## Import all the libraries
-import pyglet as pg, gc, struct, types
+import pyglet as pg, gc, struct, types, sys
+import pygame as pyg
+from pygame.mixer import Sound
 from anytree import NodeMixin
 from classes.Object import Object
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
-import classes.Singleton as singleton
+import classes.Singleton as engine
+
+## Mixer
+pyg.mixer.init()
 
 ## Resources
 global_res_len = 0
@@ -149,7 +154,7 @@ class Script(Resource):
     def init_param(self, properties):
         if self.scriptpath and self.data.get("lang","ekl").lower() != "plaintext":
             script_glb           = locals()
-            script_glb["engine"] = singleton
+            script_glb["engine"] = engine
             for i in properties:
                 script_glb[i]    = properties[i]
             
@@ -187,8 +192,8 @@ def img_to_sheet(img, clip = 0):
 ## Loader class
 class Loader:
     def __init__(self):
-        self.game_data     = singleton.cvars
-        self.save          = singleton.savefile
+        self.game_data     = engine.cvars
+        self.save          = engine.savefile
         self.resource_tree = {}
     
     def load_from_resf(self,data):
@@ -280,7 +285,7 @@ class Loader:
 
         asset       = 0
         type        = "mm"
-        location    = f"<EklipsObject:{path}:{singleton.VER}>"
+        location    = f"<EklipsObject:{path}:{engine.VER}>"
         actual_path = location
         name        = path.split("/")[-1].split(".")[0]
         if can_cache:
@@ -327,7 +332,7 @@ class Loader:
                             "script": None
                         })
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","flac","avi","mpeg"):
-                        asset    = pg.font.load(name)
+                        asset    = Sound(f"{sys._MEIPASS}/{actual_path}")
                         assetres = Media({
                             "prop":   {},
                             "data":   {
@@ -403,7 +408,7 @@ class Loader:
                             "script": None
                         })
                     elif actual_path.split(".")[-1].lower() in ("mp3","ogg","wav","mp4","webm","avi","mpeg"):
-                        asset    = pg.media.load(actual_path)
+                        asset    = Sound(actual_path)
                         assetres = Media({
                             "prop":   {},
                             "data":   {

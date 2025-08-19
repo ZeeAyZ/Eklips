@@ -1,7 +1,7 @@
 ## Import all the libraries 
 import pyglet as pg
 import Data, gc
-from classes            import UI, Save, Event, Resources, CV, Scene, ConHost
+from classes            import UI, Save, Event, Resources, CV, Scene, ConHost, Clock
 from classes.ConHost    import printf
 from classes.KeyEntries import key_entries
 from classes.Constants  import *
@@ -15,25 +15,29 @@ events         = []
 mpos, mpressed = [0,0], [0,0,0]
 
 ## Global variables
-obj_ids         : int                   = 10
-delta           : int                   = 0    
-keys_pressed, keys_nheld                = [None],[None]
-savefile        : Save.Savefile         = 0    
-resource_loader : Resources.Loader      = 0    
-display         : Any                   = 0    
-batch           : pg.graphics.Batch     = 0    
-icon            : pg.image.BufferImage  = 0    
-global_stream   : pg.media.Player       = 0    
-interface       : UI.Interface          = 0    
-initialized     : bool                  = False
-event           : Event.Event           = 0    
-im_running      : bool                  = True 
-ticks           : int                   = 0    
-clock           : pg.clock.Clock        = 0    
-scene           : Scene.Scene           = 0    
-console         : ConHost.ConHost       = 0    
-cvars           : CV.CvarCollection     = 0    
-fps_display     : pg.window.FPSDisplay  = 0    
+
+pacing          : int                   = 1             # delta = (calculate delta here) * pacing
+old_pacing      : int                   = pacing        # Run it back
+obj_ids         : int                   = 10            
+delta           : int                   = 0             
+truedelta       : int                   = 0             
+keys_pressed, keys_nheld                = [None],[None] 
+savefile        : Save.Savefile         = 0             
+resource_loader : Resources.Loader      = 0             
+display         : Any                   = 0             
+batch           : pg.graphics.Batch     = 0             
+icon            : pg.image.BufferImage  = 0             
+global_stream   : pg.media.Player       = 0             
+interface       : UI.Interface          = 0             
+initialized     : bool                  = False         
+event           : Event.Event           = 0             
+im_running      : bool                  = True          
+ticks           : int                   = 0             
+clock           : Clock.Time            = 0             
+scene           : Scene.Scene           = 0             
+console         : ConHost.ConHost       = 0             
+cvars           : CV.CvarCollection     = 0             
+fps_display     : pg.window.FPSDisplay  = 0             
 
 ## Global functions
 def reload_engine(dir=None):
@@ -70,13 +74,19 @@ def reload_engine(dir=None):
         batch       = pg.graphics.Batch()
         interface   = UI.Interface()
     else:
+        # Empty the screen
         interface.fill(0)
+
+        # Remove all sprites
         interface.draw_queue.clear()
         interface.label_queue.clear()
         interface.sprite_used.clear()
+
+        # Clear display and reset everything
         display.clear()
         display.set_size(savefile.get("display/resolution")[0], savefile.get("display/resolution")[1])
         display.set_caption(Data.game_name)
+    
     icon      = pg.image.load(f"{Data.data_directory}/media/icon.png")
     display.set_icon(icon)
     
@@ -84,7 +94,7 @@ def reload_engine(dir=None):
     ## .. more libraries
     printf(" ~ Initializing events")
     event         = Event.Event()
-    clock         = pg.clock.Clock()
+    clock         = Clock.Time()
     console       = ConHost.ConHost()
     global_stream = pg.media.Player()
 
@@ -94,7 +104,7 @@ def reload_engine(dir=None):
     scene      = Scene.Scene(scene_file)
     scene.load()
     
-    ## hacking
+    ## Ouch
     Data.game_bdata["keys"]["eng_cheats"] = {
         "keys": ["`","~"],
         "holdable": False
@@ -118,8 +128,8 @@ def suicide():
     global im_running, interface, savefile, i_have_died
     """Kill the engine"""
     interface.close()
-    im_running  = 0
-    i_have_died = 1
+    im_running  = False
+    i_have_died = True
     savefile.save_data()
 
 def is_key_pressed(key_name):

@@ -1,73 +1,71 @@
 ## Import all the libraries
 import pyglet as pg
 import ErrorHandler, json, Data, gc, time, os
-import requests
-import classes.Singleton as singleton
+import classes.Singleton as engine
 from classes.ConHost import printf
 from classes.Constants import *
 
-## No initialization code is here. Look at classes/singleton.py
+## No initialization code is here. Look at classes/engine.py
 
 ## Run the engine
 last_dt = time.time()
-while (singleton.im_running):
-    events = []
+while (engine.im_running):
+    engine.events = []
     try:
-        # calculate delta time
-        current_dt = time.time()
-        singleton.delta = current_dt - last_dt # <- Delta time variable (0.1....)
-        last_dt = current_dt
-
         # fill the interface if allowed
-        if singleton.cvars.get("can_fill_screen?"):
+        if engine.cvars.get("can_fill_screen?"):
             # empty screen if allowed to
-            singleton.interface.fill(singleton.delta)
+            engine.interface.fill(engine.delta)
+        
+        # calculate delta time
+        engine.clock.get_delta() # Delta time variables
+                                 #  engine.truedelta = can't be manipulated by game speed, good for ui
+                                 #  engine.delta     = can
 
         # get events
-        singleton.display.dispatch_events()
-        singleton.events                   = singleton.event.get_and_handle()
-        singleton.mpos, singleton.mpressed = singleton.event.get_mouse()
-        singleton.keys_nheld               = singleton.event.key_once_map
-        singleton.keys_pressed_dict        = singleton.event.key_map
-        singleton.keys_pressed             = []
+        engine.display.dispatch_events()
+        engine.events                   = engine.event.get_and_handle()
+        engine.mpos, engine.mpressed = engine.event.get_mouse()
+        engine.keys_nheld               = engine.event.key_once_map
+        engine.keys_pressed_dict        = engine.event.key_map
+        engine.keys_pressed             = []
 
         # add key presses from dictionary to a list that only shows currently pressed keys
-        for i in singleton.keys_pressed_dict:
-            if singleton.keys_pressed_dict[i]:
-                singleton.keys_pressed.append(i)
+        for i in engine.keys_pressed_dict:
+            if engine.keys_pressed_dict[i]:
+                engine.keys_pressed.append(i)
         
         # handle scene                                                        
         try:
-            singleton.scene.update(singleton.delta)
+            engine.scene.update(engine.delta)
         except (BaseException, Exception) as error:
             ErrorHandler.error  = error     
-            ErrorHandler.reason = singleton.scene.file_path
-            singleton.events.append(PREMATURE_DEATH)  
+            ErrorHandler.reason = engine.scene.file_path
+            engine.events.append(PREMATURE_DEATH)  
         
         # handle events (most of them)                                                    
-        if SOFT_QUIT in singleton.events:
-            singleton.suicide()
-            singleton.savefile.save_data()
+        if SOFT_QUIT in engine.events:
+            engine.suicide()
+            engine.savefile.save_data()
             break
         
         # handle console                                                                  
-        if singleton.is_key_pressed("eng_cheats"):
-            singleton.console.toggle()
+        if engine.is_key_pressed("eng_cheats"):
+            engine.console.toggle()
 
         # flip the screen
-        singleton.clock.tick()
-        if singleton.savefile.get("display/showfps", True):
-            singleton.fps_display.draw()
-        singleton.console.update(singleton.keys_nheld, singleton.keys_pressed, globals())
-        singleton.interface.flip()
-        singleton.event.key_once_map = []
+        if engine.savefile.get("display/showfps", True):
+            engine.fps_display.draw()
+        engine.console.update(engine.keys_nheld, engine.keys_pressed, globals())
+        engine.interface.flip()
+        engine.event.key_once_map = []
     except (BaseException, Exception) as error:
         ErrorHandler.error  = error
         ErrorHandler.reason = "death_from_engine"
-        singleton.events.append(PREMATURE_DEATH)
+        engine.events.append(PREMATURE_DEATH)
     
     # handle crashes
-    if PREMATURE_DEATH in singleton.events:
-        singleton.suicide()
+    if PREMATURE_DEATH in engine.events:
+        engine.suicide()
         ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, "bad coding skillz")
         break

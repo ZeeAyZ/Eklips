@@ -3,7 +3,7 @@ import pyglet as pg
 from classes import UI, CV, Convenience
 from classes.KeyEntries import key_entries
 from classes.Constants import *
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 shared_console_text = []
 def printf(*args):
@@ -19,11 +19,11 @@ class ConHost:
 
     def __init__(self):
         global shared_console_text
-        self.cvars        = singleton.cvars
-        self.data         = singleton.Data
+        self.cvars        = engine.cvars
+        self.data         = engine.Data
         self.console_text = shared_console_text
         self.shown        = False
-        self.ui           = singleton.interface
+        self.ui           = engine.interface
         self.input_text   = ""
         self.h            = "df"
         self.w            = self.ui.screen.width
@@ -34,6 +34,8 @@ class ConHost:
         self.eng_gl       = {}
         self.is_upper     = False
         self.hold_timer   = 0
+        self.cmd_historyp = 0
+        self.cmd_history  = []
         self.klp          = None
         self.speed        = self.cvars.get("con_speed")
         self.bl_rate      = self.cvars.get("con_rate")
@@ -153,6 +155,19 @@ class ConHost:
             self.input_text = self.input_text[:-1]
         elif key == pg.window.key.RETURN:
             self.input(self.input_text)
+            self.cmd_historyp = 0
+        elif key == pg.window.key.UP:
+            self.cmd_historyp += 1
+            try:
+                self.input_text = self.cmd_history[-self.cmd_historyp]
+            except:
+                self.cmd_historyp -= 1
+        elif key == pg.window.key.DOWN:
+            self.cmd_historyp -= 1
+            try:
+                self.input_text = self.cmd_history[-self.cmd_historyp]
+            except:
+                self.cmd_historyp += 1
         elif key in key_entries:
             self.input_text += key_entries[key]
         else:
@@ -191,18 +206,18 @@ class ConHost:
                     self.cvars.set(cvar, Convenience._turntypeatfirstglance(args[0]))
                 self.list_cvar(cvar)
         elif opc == "eng_chproj":
-            exec(f"singleton.Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)
-            exec(f"singleton.Data.directory = '{args[0]}'", self.eng_gl, self.eng_gl)
-            exec(f"singleton.reload_engine('{args[0]}')", self.eng_gl, self.eng_gl)
+            exec(f"engine.Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)
+            exec(f"engine.Data.directory = '{args[0]}'", self.eng_gl, self.eng_gl)
+            exec(f"engine.reload_engine('{args[0]}')", self.eng_gl, self.eng_gl)
         else:
             try:
                 g           = self.eng_gl.copy()
                 g["args"]   = args
-                g["engine"] = singleton
+                g["engine"] = engine
                 pline       = self.data.game_bdata["cmd"][opc].splitlines()[0]
                 if pline.startswith("@pointer="):
                     pointer_file = pline[9:]
-                    exec(singleton.resource_loader.load(pointer_file).get(), g,g)
+                    exec(engine.resource_loader.load(pointer_file).get(), g,g)
                 else:
                     exec(self.data.game_bdata["cmd"][opc], g,g)
             except Exception as error:
@@ -218,6 +233,7 @@ class ConHost:
             self.input_text = ""
             self.klp        = None
             self.hold_timer = 0
+            self.cmd_history.append(text)
             try:
                 self._proccmd(text)
             except Exception as error:

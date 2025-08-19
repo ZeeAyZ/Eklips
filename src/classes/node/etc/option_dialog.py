@@ -4,7 +4,7 @@ from classes.node.node import Node
 ## Import engine singleton and others
 import pyglet as pg
 from tkinter.messagebox import *
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class OptionDialog(Node):

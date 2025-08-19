@@ -3,7 +3,7 @@ import pyglet as pg
 from tkinter.messagebox import *
 from classes.Object import Object
 from anytree import NodeMixin
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class Node(Object, NodeMixin):
@@ -35,9 +35,9 @@ class Node(Object, NodeMixin):
 
     def __init__(self, data=node_base_data, parent=None):
         self.parent      = parent
-        self.screen      = singleton.interface
-        self.resourceman = singleton.resource_loader
-        self.window_id   = singleton.interface.main_surf_id
+        self.screen      = engine.interface
+        self.resourceman = engine.resource_loader
+        self.window_id   = engine.interface.main_surf_id
         super().__init__(data)
 
     def update(self, delta):

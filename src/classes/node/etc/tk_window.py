@@ -5,7 +5,7 @@ from classes.node.node import Node
 import tkinter as tk
 from PIL import Image, ImageTk
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class TkWindow(Node):

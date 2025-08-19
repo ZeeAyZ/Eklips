@@ -3,7 +3,7 @@ from classes.node.gui.color_rect import ColorRect
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class Button(ColorRect):
@@ -40,7 +40,7 @@ class Button(ColorRect):
     def update(self, delta):
         super().update(delta)
         hovering = self.get_if_mouse_hovering()
-        clicked  = singleton.mpressed[0]            
+        clicked  = engine.mpressed[0]            
 
         self.clicked = (hovering and clicked)
 

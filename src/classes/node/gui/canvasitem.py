@@ -3,7 +3,7 @@ from classes.node.node import Node
 
 ## Import engine singleton and others
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 
 ## Node
 class CanvasItem(Node):
@@ -64,7 +64,7 @@ class CanvasItem(Node):
             self._draw_onto_screen(self.image)
     
     def get_if_mouse_hovering(self):
-        mpos = singleton.mpos
+        mpos = engine.mpos
         return (
             mpos[0] < self.properties["transform"]["pos"][0] + self.w and
             mpos[0] + 20 > self.properties["transform"]["pos"][0]     and
@@ -90,7 +90,7 @@ class CanvasItem(Node):
 
         if self.get_if_mouse_hovering():
             self.call("_hover")
-            if singleton.mpressed[0]:
+            if engine.mpressed[0]:
                 self.call("_clicked")
 
         # World-space relative position

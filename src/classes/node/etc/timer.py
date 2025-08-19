@@ -4,7 +4,7 @@ from classes.node.node import Node
 ## Import engine singleton and others
 import pyglet as pg
 import time
-import classes.Singleton as singleton
+import classes.Singleton as engine
 from classes import Resources
 
 ## Node
@@ -35,11 +35,11 @@ class Timer(Node):
         super().__init__(data,parent)
         self.is_playedyet  = False
         self.playing       = False       #... is timing?
-        self.start_epoch   = time.time() #what the epoch was when timer started
-        self.current_epoch = time.time() #current time
+        self.start_epoch   = engine.clock.time() #what the epoch was when timer started
+        self.current_epoch = engine.clock.time() #current time
     
     def start(self):
-        self.start_epoch = time.time()
+        self.start_epoch = engine.clock.time()
         self.playing     = True
     
     def get_time_since_start(self):
@@ -53,7 +53,7 @@ class Timer(Node):
 
     def update(self, delta):
         super().update(delta)
-        self.current_epoch = time.time()
+        self.current_epoch = engine.clock.time()
         if not self.is_playedyet and self.properties["autostart"]:
             self.start()
             self.is_playedyet=True

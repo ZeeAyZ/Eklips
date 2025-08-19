@@ -1,12 +1,12 @@
 ## Import all the libraries
 import pyglet as pg
-import classes.Singleton as singleton
+import classes.Singleton as engine
 from classes.Constants import *
 
 ## Event class
 class Event:
     def __init__(self):
-        self.screen       = singleton.display
+        self.screen       = engine.display
         self.key_map      = {}
         self.key_once_map = []
         self.events       = []
@@ -23,6 +23,10 @@ class Event:
 
     def on_key_release(self, symbol, modifiers):
         self.events.append(('keyup', symbol))
+    
+    # Simulate event queue
+    def on_saved(self, successfully):
+        self.events.append(('save', successfully))
     
     # Mouse
     def on_mouse_motion(self, x, y, dx, dy):
@@ -65,6 +69,12 @@ class Event:
                     self.key_map.pop(i[1])
                 except:
                     self.key_map[i[1]] = 0
+            elif i[0] == 'save':
+                code.append(SAVE_EVENT)
+                if i[1]:
+                    code.append(SAVE_SUCESS)
+                else:
+                    code.append(SAVE_FAILED)
         return code
 
     def get_mouse(self):
