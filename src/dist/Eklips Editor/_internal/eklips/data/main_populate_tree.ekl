@@ -1,0 +1,121 @@
+from classes import Singleton as engine
+
+def get_projects():
+    return engine.savefile.get("projects", {})
+
+def _onready(self):
+    projects = get_projects()
+    scene    = engine.scene
+    
+    x = 0
+    y = 0
+    for i in projects:
+        name, version, ekl_ver, path = i
+        print(f"Project {name}: v{version}, v{ekl_ver}, {path}")
+
+        width = 250
+        
+        scene.add_node({
+            "type":       "ColorRect",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [50+x,100+y],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  20,
+                    "alpha":  1,
+                    "size":   [5,95],
+                    "scroll": [0,0]
+                },
+                "visible": True,
+                "color":   [255,255,255]
+            },
+            "script_properties": {},
+            "name":              f"ProjectPointRec{i}",
+            "script":            None,
+            "path":              "",
+            "runtimedata":       0
+        })
+        lbl_name = scene.add_node({
+            "type":       "Label",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [60+x,85+y],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  11,
+                    "alpha":  1,
+                    "size":   [5,95],
+                    "scroll": [0,0]
+                },
+                "visible":   True,
+                "text":      name,
+                "color":     [255,255,255],
+                "font_size": 28
+            },
+            "script_properties": {},
+            "name":              f"Text{i}{name}",
+            "script":            None,
+            "path":              "",
+            "runtimedata":       0
+        })
+        lbl_ver = scene.add_node({
+            "type":       "Label",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [60+x,132+y],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  11,
+                    "alpha":  1,
+                    "size":   [5,95],
+                    "scroll": [0,0]
+                },
+                "visible":   True,
+                "text":      f"{version} @ Ekl v{ekl_ver}",
+                "color":     [255,255,255],
+                "font_size": 15
+            },
+            "script_properties": {},
+            "name":              f"Text{i}{version}{ekl_ver}",
+            "script":            None,
+            "path":              "",
+            "runtimedata":       0
+        })
+
+        lbl_name.draw()
+        lbl_ver.draw()
+        j           = lbl_name.w - lbl_ver.w
+        if j > 0: j = 0
+        width = int(lbl_name.w + j + 25)
+
+        scene.add_node({
+            "type":       "Button",
+            "properties": {
+                "transform": {
+                    "scale":  [1,     1],
+                    "pos":    [50+x,  100+y],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  -10,
+                    "alpha":  1,
+                    "size":   [width, 365],
+                    "scroll": [0,     0]
+                },
+                "visible":   True,
+                "color":     [0,0,0],
+                "text":      "",
+                "font_size": 20,
+                "projdata":  i
+            },
+            "script_properties": {},
+            "name":              f"ProjectPoint{i}{x}",
+            "script":            "res://data/pick_project.ekl",
+            "path":              "",
+            "runtimedata":       0
+        })
+
+        x+=width

@@ -5,7 +5,7 @@ a = Analysis(
     ['Eklips.py'],
     pathex=[],
     binaries=[],
-    datas=[('Data.py', '.'), ('ErrorHandler.py','.'),('classes','classes'),('internal','internal'),('SpecialIsResourceDataLoadable.py','.')],
+    datas=[('Data.py', '.'), ('ErrorHandler.py','.'), (data_directory, data_directory), ('classes','classes'),('internal','internal'),('SpecialIsResourceDataLoadable.py','.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -41,5 +41,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='Eklips',
+    name=game_name,
 )

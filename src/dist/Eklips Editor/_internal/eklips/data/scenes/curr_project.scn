@@ -1,0 +1,30 @@
+{
+    "Properties": {
+        "instanced":     false,
+        "instancedWith": ""
+    },
+    "Nodes":      {
+        "Background": {
+            "type":       "ColorRect",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [0,0],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  0,
+                    "alpha":  1,
+                    "size":   [1280, 720],
+                    "scroll": [0,0]
+                },
+                "visible": true,
+                "color":   [20, 20, 30]
+            },
+            "script_properties": {},
+            "name":              "Back",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        }
+    }
+}
