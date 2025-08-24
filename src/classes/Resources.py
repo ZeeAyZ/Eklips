@@ -302,7 +302,6 @@ class Loader:
                     actual_path = self.game_data.get("directory") + "/" + path.lstrip("res://")
                 else:
                     actual_path = path
-                print(actual_path)
                 if IS_EXECUTABLE:
                     if actual_path.split(".")[-1].lower() in ("png","jpg","jpeg","webp","bmp"):
                         asset    = pg.resource.image(actual_path)

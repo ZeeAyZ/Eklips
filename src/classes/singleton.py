@@ -88,7 +88,6 @@ def reload_engine(dir=None):
         display.set_caption(Data.game_name)
     
     icon_path = cvars.get("icon_file", "memory://unknown")
-    print(icon_path)
     icon      = resource_loader.load(icon_path).get()
     display.set_icon(icon)
 
