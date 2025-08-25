@@ -4,8 +4,8 @@ Here's this crash log!
 Quick Fix for users: N/A (Not Available)
 Cause of error: bad coding skillz
 
-Error Type: NameError
-Error: name 'engineos' is not defined. Did you mean: 'engine'?
+Error Type: AttributeError
+Error: 'NoneType' object has no attribute 'active'
 
 FrameSummary #1:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
@@ -23,24 +23,9 @@ FrameSummary #3:
   | Line #: 121
 
 FrameSummary #4:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\twod\sprite2d.py
-  | Line: super().update(delta)
-  | Line #: 44
-
-FrameSummary #5:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\twod\node2d.py
-  | Line: super().update(delta)
-  | Line #: 27
-
-FrameSummary #6:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\canvasitem.py
-  | Line: if self.get_if_mouse_hovering():
-  | Line #: 91
-
-FrameSummary #7:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\canvasitem.py
-  | Line: mpos = engineos
-  | Line #: 67
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\media\video_player.py
+  | Line: if self.vid.active:
+  | Line #: 70
 
 
 Please send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. 

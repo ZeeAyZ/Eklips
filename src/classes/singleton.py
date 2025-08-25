@@ -15,7 +15,6 @@ events         = []
 mpos, mpressed = [0,0], [0,0,0]
 
 ## Global variables
-
 pacing          : int                   = 1             # delta = (calculate delta here) * pacing
 old_pacing      : int                   = pacing        # Run it back
 obj_ids         : int                   = 10            
@@ -70,9 +69,18 @@ def reload_engine(dir=None):
             file_drops = cvars.get("file_drops"),
             resizable  = True
         )
-        fps_display = pg.window.FPSDisplay(display)
         batch       = pg.graphics.Batch()
         interface   = UI.Interface()
+        fps_display = pg.window.FPSDisplay(display)
+        fps_display.label = pg.text.Label(
+            '0 FPS',
+            x=10,
+            y=10,
+            font_size=24,
+            weight='bold',
+            color=(127, 127, 127, 127),
+            group=interface.layers[interface.layer_amount-1]
+        )
     else:
         # Empty the screen
         interface.fill(0)

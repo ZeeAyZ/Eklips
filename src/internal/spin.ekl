@@ -4,7 +4,7 @@ def _process(self, delta):
     rs = delta * 150
     transform["rot"] += rs
 
-    if transform["rot"] > 720:
+    if transform["rot"] > 360:
         transform["alpha"] -= delta
         ekl = engine.scene.get_node_from_path("","Eclipse")
         ekl.properties["transform"]["alpha"] = transform["alpha"]

@@ -44,7 +44,7 @@ class AudioPlayer(Node):
 
     def pause(self):
         self.call("_player_paused")
-        self.player.pause()
+        self.audio_data.pause()
     
     def update(self, delta):
         if not self.is_playedyet and self.properties["autostart"]:

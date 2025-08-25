@@ -13,7 +13,7 @@ with open("Eklips.spec", "w") as f:
 print(f" ~ Modifying Eklips setting")
 og_eklfile = open("SpecialIsResourceDataLoadable.py").read()
 with open("SpecialIsResourceDataLoadable.py", "w") as f:
-    f.write(f"IS_IT = True # This variable is so that the game can detect if it's an EXE or not (which are pretty much only onefile")
+    f.write(f"IS_IT = True # This variable is so that the game can detect if it's an EXE or not (which are pretty much only onefile)")
 
 print(f" ~ Compiling Eklips build")
 shutil.rmtree("dist", ignore_errors=1)

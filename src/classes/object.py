@@ -4,9 +4,10 @@ from anytree import NodeMixin
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
 import classes.Singleton as engine
 
-## Ummmmmmmmmm
-racism  = [None, "Resource"] # I know this variable sounds bad.. But if your kind is in this list, then you get immediately discarded when free() is called..
-                             # That sounded way better in my head
+# I know this variable sounds bad.. But if your kind is in this list
+# then you get immediately discarded when free() is called.. Since other kinds
+# (Nodes) are constantly running and can't immediately be discarded.
+racism  = [None, "Resource"]
 
 ## Object class
 class Object:
@@ -116,7 +117,7 @@ class Object:
     
     ## Get engine singleton
     def get_engine_engine(self):
-        return self.scene.engine_engine
+        return engine
 
     ## Virtual
     def serialize(self, path):

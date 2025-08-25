@@ -69,11 +69,14 @@ class Interface:
                 new_pos = self.anchors[anchor_id]
         return new_pos
 
-    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in="main", can_cache = 1, rot = 0):
-        # the origin for the position is topleft. surface is a sprite.
+    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in="main", can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None):
         new_pos     = list(pos)[:]
-        path        = surface.get_path()
-        img         = surface.get()
+        if use_pyglet_resource_directly:
+            path    = custom_id
+            img     = surface
+        else:
+            path    = surface.get_path()
+            img     = surface.get()
         new_opacity = int(opacity * 255)
         new_clip    = clip
 

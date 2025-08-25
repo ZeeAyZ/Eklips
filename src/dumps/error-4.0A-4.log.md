@@ -4,8 +4,8 @@ Here's this crash log!
 Quick Fix for users: N/A (Not Available)
 Cause of error: bad coding skillz
 
-Error Type: pygame.error
-Error: mixer not initialized
+Error Type: AttributeError
+Error: 'VideoPlayer' object has no attribute 'is_playedyet'. Did you mean: 'as_playedyet'?
 
 FrameSummary #1:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
@@ -23,19 +23,9 @@ FrameSummary #3:
   | Line #: 121
 
 FrameSummary #4:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\media\audio_player.py
-  | Line: self.play()
-  | Line #: 51
-
-FrameSummary #5:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\media\audio_player.py
-  | Line: self.audio_data = self.resourceman.load(self.properties["media"]).get()
-  | Line #: 41
-
-FrameSummary #6:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Resources.py
-  | Line: asset    = Sound(actual_path)
-  | Line #: 407
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\media\video_player.py
+  | Line: if not self.is_playedyet and self.properties["autostart"]:
+  | Line #: 68
 
 
 Please send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. 

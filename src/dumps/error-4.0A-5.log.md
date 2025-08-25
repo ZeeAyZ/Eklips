@@ -1,36 +1,31 @@
 Oops! Eklips just crashed;
 Here's this crash log!
 
-Quick Fix for users: You pressed Ctrl+C/Delete. Don't do that next time okay?
+Quick Fix for users: N/A (Not Available)
 Cause of error: bad coding skillz
 
-Error Type: KeyboardInterrupt
-Error: 
+Error Type: KeyError
+Error: 'autostart'
 
 FrameSummary #1:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
-  | Line: engine.interface.flip()
-  | Line #: 61
+  | Line: engine.scene.update(engine.delta)
+  | Line #: 40
 
 FrameSummary #2:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\UI.py
-  | Line: surf["batch"].draw()
-  | Line #: 233
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
+  | Line: raise error
+  | Line #: 124
 
 FrameSummary #3:
-  | Filename: C:\Users\ZeeAy\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyglet\graphics\__init__.py
-  | Line: func()
-  | Line #: 558
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
+  | Line: node.update(delta)
+  | Line #: 121
 
 FrameSummary #4:
-  | Filename: C:\Users\ZeeAy\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyglet\text\layout\base.py
-  | Line: glBindTexture(self.texture.target, self.texture.id)
-  | Line #: 772
-
-FrameSummary #5:
-  | Filename: C:\Users\ZeeAy\AppData\Local\Programs\Python\Python313\Lib\site-packages\pyglet\gl\lib.py
-  | Line: def errcheck(result: Any, func: Callable, arguments: Sequence) -> Any:
-  | Line #: 55
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\media\video_player.py
+  | Line: if not self.is_playedyet and self.properties["autostart"]:
+  | Line #: 68
 
 
 Please send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. 

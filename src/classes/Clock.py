@@ -27,7 +27,7 @@ class Time:
     def get_time_gap(self, past, present):
         return abs(present-past)
     
-    def _get_m_s(self, seconds):
+    def _get_m_s(self, seconds): # Seconds (180) -> 3, 0 (Minute, Second)
         mins, secs = 0, 0
         for i in range(seconds):
             secs += 1

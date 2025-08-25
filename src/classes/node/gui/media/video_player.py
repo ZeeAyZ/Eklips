@@ -3,12 +3,12 @@ from classes.node.gui.canvasitem         import CanvasItem
 from classes.node.gui.media.audio_player import AudioPlayer
 
 ## Import engine singleton and others
-import pyglet as pg
-import classes.Singleton as engine
+import pyglet as pg, pyvidplayer2 as vid
+import classes.Singleton as engine, io, os
 from classes import Resources
 
 ## Node
-class VideoPlayer(CanvasItem, AudioPlayer):
+class VideoPlayer(CanvasItem):
     """
     ## A Media Node to render video and play it's audio.
      
@@ -17,7 +17,7 @@ class VideoPlayer(CanvasItem, AudioPlayer):
 
     node_base_data = {
         "prop":   {
-            "media":       "res://media/load.mp3",
+            "media":       "res://media/load.mp4",
             "loop":        False,
             "where":       0,
             "autostart":   False,
@@ -43,29 +43,77 @@ class VideoPlayer(CanvasItem, AudioPlayer):
         global player_global
         super().__init__(data,parent)
 
-        self.audio_data   = 0
-        self.as_playedyet = 0
+        self.old_size     = [0,0]
+        self.og_px_size   = [0,0]
+        self.vid          = None
+        self.is_playedyet = 0
+        self.media_id     = None
 
         self.runtime_data["rendererpos"] = self.properties["transform"]["pos"]
     
+    def play(self, volume=1):
+        self.call("_player_started")
+        if not self.vid:
+            # XXX this sucks
+
+            tmp_bytes, id = self.resourceman.load(self.properties["media"], force_type="bin", return_identifier = 1)
+            tmp_file_path = f"tmp/{id}"
+            self.media_id = id
+
+            with open(tmp_file_path, "wb") as f:
+                f.write(tmp_bytes)
+            
+            self.vid        = vid.VideoPyglet(tmp_file_path)
+            self.og_px_size = self.vid.current_size
+
+        self.vid.set_volume(volume)
+        self.vid.play()
+
+    def pause(self):
+        self.call("_player_paused")
+        self.vid.pause()
+    
+    def resume(self):
+        self.call("_player_resumed")
+        self.vid.resume()
+    
     def update(self, delta):
         global camera_pos
-        super().update(delta)
+        if not self.is_playedyet and self.properties["autostart"]:
+            self.play()
+            self.is_playedyet = 1
         
-        if self.player.playing:
-            self.draw(
-                Resources.Image(
-                    {
-                        "prop":   {},
-                        "data":   {
-                            "object": self.player.texture,
-                            "path":   f"player{self.properties['media']}"
-                        },
-                        "meta":   {
-                            "kind": "Resource",
-                            "name": "Media"
-                        },
-                        "script": None
-                    }
-                )
-            )
+        if self.vid:
+            if self.vid.active:
+                self.vid._update()
+                if self.vid.frame_surf:
+                    self.draw()
+        super().update(delta)
+    
+    def draw(self):
+        c_size = [
+            round(self.og_px_size[0] * self.properties["transform"]["scale"][0]),
+            round(self.og_px_size[1] * self.properties["transform"]["scale"][1])
+        ]
+        if self.old_size != c_size:
+            self.vid.resize(c_size)
+            self.old_size = c_size
+        
+        use_img = self.vid.frame_surf
+        if self.properties["visible"]:
+            self.w,self.h=use_img.width,use_img.height
+            self._draw_onto_screen(use_img)
+    
+    def _draw_onto_screen(self, img):
+        return self.screen.blit(
+            img,                                   
+            self.runtime_data["rendererpos"],             
+            anchor                       = self.properties["transform"]["anchor"],
+            scale                        = [1, 1],
+            layer                        = self.properties["transform"]["layer"],
+            rot                          = self.properties["transform"]["rot"],
+            opacity                      = self.properties["transform"]["alpha"],
+            scroll                       = self.properties["transform"]["scroll"],
+            use_pyglet_resource_directly = True,
+            custom_id                    = self.media_id
+        )

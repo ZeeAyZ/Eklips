@@ -5,17 +5,32 @@ Quick Fix for users: N/A (Not Available)
 Cause of error: bad coding skillz
 
 Error Type: AttributeError
-Error: 'Time' object has no attribute 'current_dt'
+Error: 'Image' object has no attribute 'width'
 
 FrameSummary #1:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
-  | Line: engine.clock.get_delta() # Delta time variables
-  | Line #: 16
+  | Line: engine.scene.update(engine.delta)
+  | Line #: 43
 
 FrameSummary #2:
-  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Clock.py
-  | Line: gap             += int(self.get_time_gap(self.current_dt, self.time()))
-  | Line #: 53
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
+  | Line: raise error
+  | Line #: 124
+
+FrameSummary #3:
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\Scene.py
+  | Line: node.update(delta)
+  | Line #: 121
+
+FrameSummary #4:
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\twod\sprite2d.py
+  | Line: self.draw()
+  | Line #: 45
+
+FrameSummary #5:
+  | Filename: D:\Code\Eklips\git\repo\Eklips\src\classes\node\gui\canvasitem.py
+  | Line: self.w,self.h=self.image.width,self.image.height
+  | Line #: 63
 
 
 Please send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. 

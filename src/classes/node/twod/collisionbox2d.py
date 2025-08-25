@@ -21,12 +21,12 @@ class CollisionBox2D(Area2D):
     
     def _handle_bump_x(self, bounce_mode):
         if bounce_mode:
-            self.motion[0] = -self.motion[0] + engine.ZFF_FIX / self.weight + engine.ZFF_FIX
+            self.motion[0] = -self.motion[0] + engine.ZDE_FIX / self.weight + engine.ZDE_FIX
         else:
             self.motion[0] = 0
     
     def _handle_bump_y(self, bounce_mode):
         if bounce_mode:
-            self.motion[1] = -self.motion[1] + engine.ZFF_FIX / self.weight + engine.ZFF_FIX
+            self.motion[1] = -self.motion[1] + engine.ZDE_FIX / self.weight + engine.ZDE_FIX
         else:
             self.motion[1] = 0

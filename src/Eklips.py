@@ -1,11 +1,14 @@
 ## Import all the libraries
 import pyglet as pg
-import ErrorHandler, json, Data, gc, time, os
+import ErrorHandler, json, Data, shutil, time, os
 import classes.Singleton as engine
 from classes.ConHost import printf
 from classes.Constants import *
 
 ## No initialization code is here. Look at classes/engine.py
+
+## Temp dir
+os.makedirs("tmp", exist_ok=True)
 
 ## Run the engine
 last_dt = time.time()
@@ -69,3 +72,6 @@ while (engine.im_running):
         engine.suicide()
         ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, "bad coding skillz")
         break
+
+## Temp removal
+shutil.rmtree("tmp", ignore_errors = True)
