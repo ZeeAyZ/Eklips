@@ -26,31 +26,6 @@
             "path":              "",
             "runtimedata":       0
         },
-        "Vid": {
-            "type":       "VideoPlayer",
-            "properties": {
-                "transform": {
-                    "scale":  [0.4, 0.4],
-                    "pos":    [0,0],
-                    "rot":    0,
-                    "anchor": "",
-                    "layer":  10,
-                    "alpha":  1,
-                    "size":   [1280, 720],
-                    "scroll": [0,0]
-                },
-                "visible": true,
-                "media": "res://media/test.mp4",
-                "loop":        false,
-                "where":       0,
-                "autostart":   true
-            },
-            "script_properties": {},
-            "name":              "Back",
-            "script":            null,
-            "path":              "",
-            "runtimedata":       0
-        },
         "Panel": {
             "type":       "ColorRect",
             "properties": {

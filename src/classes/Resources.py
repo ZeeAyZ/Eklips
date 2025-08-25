@@ -285,15 +285,12 @@ class Loader:
 
         asset       = 0
         type        = "mm"
-        location    = f"Eklips{engine.VER}Object.{path}".replace('/','.').replace(':',',')
+        location    = f"Ekl{engine.VER}{path}".replace('/','.').replace(':',',')
         actual_path = location
         name        = path.split("/")[-1].split(".")[0]
         ext         = path.split(".")[-1].lower()
         if force_type:
-            print(f" ~ Ext {ext} forced to {force_type}")
             ext = force_type
-        else:
-            print(f"~ Ext {ext} / {path}")
         if can_cache:
             if location in self.resource_tree:
                 asset = self.resource_tree[location]

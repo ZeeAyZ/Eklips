@@ -14,17 +14,19 @@ class Event:
         self.mouse_pos = (0, 0)
         self.mouse_buttons = [0, 0, 0]  # Left, Middle, Right
 
-    # Simulate event queue
     def on_close(self):
         self.events.append(('quit', None))
     
-    def on_key_press(self, symbol, modifiers):
+    # Keyboard
+    def on_key_press(self,symbol, modifiers):
         self.events.append(('keydown', symbol))
+        if symbol == pg.window.key.ESCAPE:
+            return pg.event.EVENT_HANDLED
 
     def on_key_release(self, symbol, modifiers):
         self.events.append(('keyup', symbol))
     
-    # Simulate event queue
+    # Savefile
     def on_saved(self, successfully):
         self.events.append(('save', successfully))
     
