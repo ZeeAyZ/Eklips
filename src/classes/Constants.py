@@ -10,14 +10,17 @@ MINOR_VER       = "A"           #  4. 0[A]
 VER             = f"{MAJOR_VER}.{MEDIU_VER}{MINOR_VER}"
 
 # Event constants
-SOFT_QUIT       = 0
-KEYDOWN         = 1
-KEYUP           = 2
-PREMATURE_DEATH = 3
-SAVE_EVENT      = 4
-SAVE_FAILED     = 5
-SAVE_SUCESS     = 6
-ABNORMAL_TIME   = 9
+SOFT_QUIT       = 10
+KEYDOWN         = 20
+KEYUP           = 21
+PREMATURE_DEATH = 30
+SAVE_EVENT      = 40
+SAVE_FAILED     = 41
+SAVE_SUCESS     = 42
+ABNORMAL_TIME   = 50
+MOUSEDOWN       = 61
+MOUSEUP         = 62
 
-# ZDE fix
+# Other
+MAIN_SCREEN     = "main"
 ZFF_FIX         = 0.0001

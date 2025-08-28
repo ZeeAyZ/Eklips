@@ -42,11 +42,13 @@ class Event:
         if button == 1: self.mouse_buttons[0] = 1
         if button == 2: self.mouse_buttons[1] = 1
         if button == 4: self.mouse_buttons[2] = 1
+        self.events.append(('mouse', True))
 
     def on_mouse_release(self, x, y, button, modifiers):
         if button == 1: self.mouse_buttons[0] = 0
         if button == 2: self.mouse_buttons[1] = 0
         if button == 4: self.mouse_buttons[2] = 0
+        self.events.append(('mouse', False))
     
     def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
         self.events.append(('scroll', scroll_y, scroll_x))
@@ -90,6 +92,11 @@ class Event:
                     code.append(SAVE_FAILED)
             elif i[0] == 'abnormal':
                 code.append(ABNORMAL_TIME)
+            elif i[0] == 'mouse':
+                if i[1]:
+                    code.append(MOUSEDOWN)
+                else:
+                    code.append(MOUSEUP)
         return code
 
     def get_mouse(self):

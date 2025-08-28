@@ -74,8 +74,6 @@ class Scene(Object):
                 parent = existing
 
         # Construct node data
-        print(f"{node_data['type']} {node_data['name']} = {node_data["script"]}")
-
         node_obj_data = {
             "prop":   node_data["properties"],
             "data":   {},
@@ -113,8 +111,11 @@ class Scene(Object):
     def update(self, delta):
         try:
             for nodeID in self.nodes:
-                node            = self.nodes[nodeID]["object"]
-
+                try:
+                    node = self.nodes[nodeID]["object"]
+                except:
+                    print("Node may have been removed without notice.. Skipping")
+                    continue
                 if node.stop_running:
                     node._free()
                     continue

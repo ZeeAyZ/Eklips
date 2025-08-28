@@ -4,6 +4,7 @@ from classes.node.node import Node
 ## Import engine singleton and others
 import pyglet as pg
 import classes.Singleton as engine
+from classes.Constants import *
 
 ## Node
 class CanvasItem(Node):
@@ -11,10 +12,10 @@ class CanvasItem(Node):
     ## A Canvas Node.
     
     This is a Node that has properties for transformation, and is meant for rendering items in the window.
-    This has no properties for Cameras, which makes it good for rendering UI elements. Which is it's purpose.
+    This has no effect by Cameras, which makes it good for rendering UI elements. Which is its purpose.
     For Nodes in a 2D world, use Node2D.
 
-    This has relativity only on the position and anchor.
+    This has relativity only on the position.
     """
     node_base_data = {
         "prop":   {
@@ -24,7 +25,6 @@ class CanvasItem(Node):
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
-                "size":   [100, 100],
                 "scroll": [0, 0],
                 "rot":    0
             },
@@ -40,6 +40,8 @@ class CanvasItem(Node):
 
     def __init__(self, data=node_base_data, parent=None):
         super().__init__(data,parent)
+        self.clicked                     = False
+        self.holding                     = False
         self.w,self.h                    = 0, 0
         self.anchor                      = self.properties["transform"]["anchor"]
         self.runtime_data["rendererpos"] = self.properties["transform"]["pos"][:]
@@ -65,11 +67,12 @@ class CanvasItem(Node):
     
     def get_if_mouse_hovering(self):
         mpos = engine.mpos
+        x,y  = self.screen.get_anchor(self.properties["transform"]["pos"], self.window_id, self.properties["transform"]["anchor"], self.w, self.h, True, self.properties["transform"]["rot"], True)
         return (
-            mpos[0] < self.properties["transform"]["pos"][0] + self.w and
-            mpos[0] + 20 > self.properties["transform"]["pos"][0]     and
-            mpos[1] < self.properties["transform"]["pos"][1] + self.h and
-            mpos[1] + 20 > self.properties["transform"]["pos"][1]
+            mpos[0] < x + self.w and
+            mpos[0] + 20 > x     and
+            mpos[1] < y + self.h and
+            mpos[1] + 20 > y
         )
     
     def _draw_onto_screen(self, img):
@@ -87,10 +90,16 @@ class CanvasItem(Node):
     def update(self, delta):
         self.anchor                      = self.properties["transform"]["anchor"]
         rel_pos, parent_pos              = self.get_relative_pos()
+        self.clicked                     = False
+        self.holding                     = False
 
         if self.get_if_mouse_hovering():
             self.call("_hover")
             if engine.mpressed[0]:
+                self.holding = True
+                self.call("_pressed_down")
+            if MOUSEUP in engine.events:
+                self.clicked = True
                 self.call("_clicked")
 
         # World-space relative position

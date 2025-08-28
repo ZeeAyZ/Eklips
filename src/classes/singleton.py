@@ -40,10 +40,11 @@ cvars           : CV.CvarCollection     = 0
 fps_display     : fpsdisp.FPSDisplay    = 0             
 cam_pos         : list                  = [0,0,0]
 cam_zoom        : int                   = 0
+thm             : Resources.Theme       = 0
 
 ## Global functions
 def reload_engine(dir=None):
-    global savefile,resource_loader,cvars,console,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
+    global savefile,resource_loader,cvars,console,thm,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
     """Reload/Load the engine variables."""
     
     ## Reload data and load cvars and print basic information
@@ -99,6 +100,10 @@ def reload_engine(dir=None):
     console       = ConHost.ConHost()
     global_stream = pg.media.Player()
     fps_display   = fpsdisp.FPSDisplay(display)
+
+    ## Theme
+    thm_path = cvars.get("theme_file", "mem://unknown_theme")
+    thm      = resource_loader.load(thm_path)
 
     ## Scene data
     printf(f" ~ Initializing loading scene")

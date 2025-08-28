@@ -1,6 +1,7 @@
 ## Import all the libraries
 import pyglet as pg
 import classes.Singleton as engine
+from classes.Constants import *
 
 ## UI Class.
 class Interface:
@@ -41,16 +42,23 @@ class Interface:
         for i in range(-self.layer_amount,self.layer_amount):
             self.layers[i] = pg.graphics.Group(order=i)
     
-    def get_anchor(self,pos,win_w,win_h,anchor,surf_w,surf_h,can_cache,rot):
+    def get_anchor(self,pos,blit_in,anchor,surf_w,surf_h,can_cache,rot,no_y_flip=False):
         pos         = list(pos)
-        anchor_id   = f"{anchor},win{win_w}x{win_h},surf{surf_w}x{surf_h},pos{pos},rot{True if rot else False}"
+        if blit_in == MAIN_SCREEN:
+            blit_in = self.main_surf_id
+        screen = self.surfaces[blit_in]["screen"]
+        win_w, win_h = screen.get_size()
+        anchor_id   = f"{anchor},win{win_w}x{win_h},surf{surf_w}x{surf_h},pos{pos},rot{True if rot else False}{no_y_flip}"
 
         new_pos = pos.copy()
         if can_cache:
             if not anchor_id in self.anchors:
-                if not "bottom" in anchor:
+                print(anchor_id)
+                if not "bottom" in anchor and not no_y_flip:
+                    print(" ~ Will")
                     new_pos[1] = (win_h - surf_h) - pos[1] # Pyglet uses bottom-left for 0,0 while pygame uses top-left. I'm more familliar with pygame
-                
+                else:
+                    print(f" ~ Will not {anchor} {no_y_flip}")                
                 if "right" in anchor:
                     new_pos[0] = (win_w - surf_w) - pos[0]
                 if "centerX" in anchor:
@@ -64,12 +72,13 @@ class Interface:
                     new_pos[0]+=surf_w/2
                     new_pos[1]+=surf_h/2
                 new_pos=[round(new_pos[0]),round(new_pos[1])]
+                print(new_pos)
                 self.anchors[anchor_id]=new_pos
             else:
                 new_pos = self.anchors[anchor_id]
         return new_pos
 
-    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in="main", can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None):
+    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None):
         new_pos     = list(pos)[:]
         if use_pyglet_resource_directly:
             path    = custom_id
@@ -95,14 +104,11 @@ class Interface:
                     img = self.area_cache[id]
         
         ## Anchoring
-        if blit_in  == "main":
+        if blit_in  == MAIN_SCREEN:
             blit_in =  self.main_surf_id
         
-        screen = self.surfaces[blit_in]["screen"]
-        batch  = self.surfaces[blit_in]["batch"]
-        
-        win_w, win_h = screen.get_size()
-        new_pos      = self.get_anchor(pos,win_w,win_h,anchor,img.width*scale[0],img.height*scale[1],1, rot)
+        batch        = self.surfaces[blit_in]["batch"]
+        new_pos      = self.get_anchor(pos,blit_in,anchor,img.width*scale[0],img.height*scale[1],1, rot, False)
         
         ## Detect if i'm even visible and change position
         id_ = len(self.draw_queue)
@@ -139,7 +145,6 @@ class Interface:
             if spr.image    != img:
                 if img != None:
                     try:
-                        print(img.get_texture())
                         if img.get_texture() == None:
                             print("Warning; Image texture is None")
                         else:
@@ -165,9 +170,10 @@ class Interface:
             spr.visible = True
             self.draw_queue[id_] = spr
             self.sprite_used.append(spr_id)
+        return img.width, img.height
     
     def cull(self, w, h, pos, blit_in):
-        if blit_in  == "main":
+        if blit_in  == MAIN_SCREEN:
             blit_in  =  self.main_surf_id
         scr          = self.surfaces[blit_in]["screen"]
         win_w, win_h = scr.width, scr.height
@@ -179,15 +185,14 @@ class Interface:
             pos[1] < -h
         )
 
-    def render(self, text, pos, blit_in="main", layer=5, anchor="", size=15, rot=0, alpha=1, color=[255,255,255]):
+    def render(self, text, pos, blit_in=MAIN_SCREEN, layer=5, anchor="", size=15, rot=0, alpha=1, color=[255,255,255]):
         # TODO make good
         id           = len(self.label_queue)
-        if blit_in  == "main":
+        if blit_in  == MAIN_SCREEN:
             blit_in  =  self.main_surf_id
         
         screen       = self.surfaces[blit_in]["screen"]
         batch        = self.surfaces[blit_in]["tbatch"]
-        win_w, win_h = screen.get_size()
         lbl_id       = -1
         for i in self.label_pool:
             if not i in self.label_used:
@@ -206,8 +211,7 @@ class Interface:
             lbl_id              = id
         new_pos = self.get_anchor(
             list(pos),
-            win_w,
-            win_h,
+            blit_in,
             anchor,
             lbl.content_width,
             lbl.content_height,
@@ -249,7 +253,7 @@ class Interface:
         self.label_used.append(id)
         self.label_queue[id] = lbl
 
-        return lbl.content_width, lbl.content_height
+        return round(lbl.content_width), round(lbl.content_height)
     
     def flip(self):
         ## === 1. Draw batches ===

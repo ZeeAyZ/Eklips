@@ -8,7 +8,7 @@ from classes import Resources
 
 class Progressbar(CanvasItem):
     """
-    ## A Canvas Node to render a colored Progressbar.
+    ## A Canvas Node to render a Progressbar.
      
     Self-explanatory.
     """

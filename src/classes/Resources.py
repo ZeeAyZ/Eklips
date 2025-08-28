@@ -1,8 +1,9 @@
 ## Import all the libraries
 import pyglet as pg, gc, struct, types, sys, io
-import pygame as pyg
+import pygame as pyg, json
 from pygame.mixer import Sound
 from anytree import NodeMixin
+from classes.Constants import *
 from classes.Object import Object
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
 import classes.Singleton as engine
@@ -135,8 +136,8 @@ class Script(Resource):
     scr_base_data = {
         "prop":   {},
         "data":   {
-            "object": "# python 3.13\n",
-            "path":   "res://"
+            "object": "# Empty code\n",
+            "path":   "mem://unknown.ekl"
         },
         "meta":   {
             "kind": "Resource",
@@ -148,7 +149,6 @@ class Script(Resource):
         super().__init__(data)
         self.scriptpath = self.data["path"]
         self.contents   = self.data["object"]
-        self.language   = self.contents.splitlines()[0]
         self.namespace = {}
     
     def init_param(self, properties):
@@ -171,7 +171,214 @@ class Script(Resource):
             f.write(b"SCR")
             f.write(struct.pack("<I", len(self.get())))
             f.write(self.get().encode())
+
+class Theme(Resource):
+    thm_base_data = {
+        "prop":   {},
+        "data":   {
+            "object": {
+                "themed": {
+                    "font": {
+                        "family": "base",
+                        "weight": "normal",
+                        "size":   15
+                    },
+                    "button": {
+                        "margin":   5,
+                        "atlaspos": [0,0,    50,50]
+                    },
+                    "progressbar": {
+                        "margin":     5,
+                        "atlaspos":   [0,50, 50,50],
+                        "fgatlaspos": [0,100,50,50]
+                    },
+                    "treeview": {
+                        "extendpos": [0,150,50,50],
+                        "pluspos":   [0,200,50,50]
+                    }
+                },
+                "atlas": "root://internal/atlas.png"
+            },
+            "path":   "res://"
+        },
+        "meta":   {
+            "kind": "Resource",
+            "name": "Theme"
+        },
+        "script": None
+    }
+    def __init__(self, data=thm_base_data):
+        super().__init__(data)
+        self.atlas = engine.resource_loader.load(self.get()["atlas"])
     
+    def serialize(self, path):
+        # Save the resource into a file
+        with open(path, "wb") as f:
+            f.write(b"THM")
+            obj = json.dumps(self.get())
+            f.write(struct.pack("<I", len(obj)))
+            f.write(obj.encode())
+    
+    def draw_marginable_thing(self, name, pos, size, blit_in, anchor, layer, rot=0):
+        thing  = self.get()["themed"][name]
+        margin = thing["margin"]
+        tpos   = thing["atlaspos"][:2]
+        dpos   = thing["atlaspos"][2:]
+        if size[0] < margin:
+            size[0] = margin*2
+        if size[1] < margin:
+            size[1] = margin*2
+
+        ppos = pos[:]
+        pos  = engine.interface.get_anchor(ppos, blit_in, anchor, size[0]+margin, size[1]+margin, True, rot, True)
+        
+        # Fill
+        fl = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0]+margin,
+                pos[1]+margin
+            ],
+            clip=[
+                tpos[0]+margin,
+                tpos[1]+margin,
+                1,
+                1
+            ],
+            blit_in=blit_in,
+            layer=layer,
+            scale=size
+        )
+
+        # Sides
+        ts = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0]+margin,
+                pos[1]
+            ],
+            clip=[
+                tpos[0]+margin,
+                tpos[1],
+                1,
+                margin
+            ],
+            blit_in=blit_in,
+            layer=layer,
+            scale=[size[0],1]
+        )
+        bs = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0]+margin,
+                pos[1]+size[1]
+            ],
+            clip=[
+                tpos[0]+margin,
+                tpos[1]+dpos[1]-margin,
+                1,
+                margin
+            ],
+            blit_in=blit_in,
+            layer=layer,
+            scale=[size[0],1]
+        )
+
+        ls = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0],
+                pos[1]+margin
+            ],
+            clip=[
+                tpos[0],
+                tpos[1]+margin,
+                margin,
+                1
+            ],
+            blit_in=blit_in,
+            layer=layer,
+            scale=[1,size[1]]
+        )
+        rs = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0]+size[0],
+                pos[1]+margin
+            ],
+            clip=[
+                tpos[0]+dpos[0]-margin,
+                tpos[1]+margin,
+                margin,
+                1
+            ],
+            blit_in=blit_in,
+            layer=layer,
+            scale=[1,size[1]]
+        )
+
+        # Corners
+        tlcorner = engine.interface.blit(
+            self.atlas,
+            pos,
+            clip=[
+                tpos[0],
+                tpos[1],
+                margin,
+                margin
+            ],
+            blit_in=blit_in,
+            layer=layer
+        )
+        trcorner = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0]+size[0],
+                pos[1]
+            ],
+            clip=[
+                tpos[0]+dpos[0]-margin,
+                tpos[1],
+                margin,
+                margin
+            ],
+            blit_in=blit_in,
+            layer=layer
+        )
+
+        blcorner = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0],
+                pos[1]+size[1]
+            ],
+            clip=[
+                tpos[0],
+                tpos[1]+dpos[1]-margin,
+                margin,
+                margin
+            ],
+            blit_in=blit_in,
+            layer=layer
+        )
+        brcorner = engine.interface.blit(
+            self.atlas,
+            [
+                pos[0]+size[0],
+                pos[1]+size[1]
+            ],
+            clip=[
+                tpos[0]+dpos[0]-margin,
+                tpos[1]+dpos[1]-margin,
+                margin,
+                margin
+            ],
+            blit_in=blit_in,
+            layer=layer
+        )
+
+        return size
+
 ## Functions
 def img_to_sheet(img, clip = 0):
     """Convert a spritesheet image to only a part of it."""
@@ -221,7 +428,6 @@ class Loader:
 
         with data as f:
             type = f.read(3)
-            print(type)
 
             if type == b"MED": return Media()
             if type == b"SCR":
@@ -231,7 +437,7 @@ class Loader:
                     "prop":   {},
                     "data":   {
                         "object": dat,
-                        "path":   "res://"
+                        "path":   "resfile://scr"
                     },
                     "meta":   {
                         "kind": "Resource",
@@ -244,7 +450,7 @@ class Loader:
                     "prop":   {},
                     "data":   {
                         "object": None,
-                        "path":   "res://"
+                        "path":   "resfile://res"
                     },
                     "meta":   {
                         "kind": "Resource",
@@ -253,15 +459,20 @@ class Loader:
                     "script": None
                 })
             if type == b"THM":
-                # Themed types:
-                #  - Button
-                #  - Progressbar
-                #  - Treeview
-                #  - Label
-                
-                amoftyp = struct.unpack("<I", f.read(4))
-                typ     = struct.unpack(f"<{'I'*amoftyp}", f.read(amoftyp*4))
-                
+                datlen = struct.unpack("<I", f.read(4))[0]
+                dat    = json.loads(f.read(datlen).decode())
+                obj    = Theme({
+                    "prop":   {},
+                    "data":   {
+                        "object": dat,
+                        "path":   "resfile://thm"
+                    },
+                    "meta":   {
+                        "kind": "Resource",
+                        "name": "Image"
+                    },
+                    "script": None
+                })
             if type == b"IMG":
                 w,h = struct.unpack("<II", f.read(8))
                 dal = struct.unpack("<I", f.read(4))[0] # Data length
@@ -305,10 +516,19 @@ class Loader:
         return obj
     
     def load(self, path, can_cache=1, force_type = None, return_identifier = False):
-        ## Load a resource. Specify path "`user://..`", "`res://..`" or `root://..`"
-        ## User:// = save directory
-        ## Res://  = project directory
-        ## Root:// = directory that the binary is in
+        """
+        Load a resource. Specify path "`user://..`", "`res://..`" or `root://..`"
+        - User:// = save directory
+        - Res://  = project directory
+        - Root:// = directory that the binary is in
+
+        # force_type = None
+        Force the file to be handled as if the file extension is `force_type`.
+        Default : None
+
+        # return_identifier = False
+        If True, this function will return the Resource object and its ID in the Loader class.
+        """
 
         asset       = 0
         typeres     = "mem"

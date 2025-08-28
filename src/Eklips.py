@@ -73,5 +73,5 @@ while (engine.im_running):
         ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, "bad coding skillz")
         break
 
-## Temp removal
+## Temp folder removal
 shutil.rmtree("tmp", ignore_errors = True)
