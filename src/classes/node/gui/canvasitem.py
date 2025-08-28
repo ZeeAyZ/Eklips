@@ -60,7 +60,7 @@ class CanvasItem(Node):
     
     def draw(self):
         if self.image and self.properties["visible"]:
-            self.w,self.h=self.image.width,self.image.height
+            self.w,self.h         = self.image.width,self.image.height
             self._draw_onto_screen(self.image)
     
     def get_if_mouse_hovering(self):

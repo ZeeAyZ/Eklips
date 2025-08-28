@@ -1,7 +1,7 @@
 ## Import all the libraries 
 import pyglet as pg
 import Data, gc
-from classes            import UI, Save, Event, Resources, CV, Scene, ConHost, Clock
+from classes            import UI, Save, Event, Resources, CV, Scene, ConHost, Clock, fpsdisp
 from classes.ConHost    import printf
 from classes.KeyEntries import key_entries
 from classes.Constants  import *
@@ -31,12 +31,15 @@ interface       : UI.Interface          = 0
 initialized     : bool                  = False         
 event           : Event.Event           = 0             
 im_running      : bool                  = True          
+ignore_os       : bool                  = False
 ticks           : int                   = 0             
 clock           : Clock.Time            = 0             
 scene           : Scene.Scene           = 0             
 console         : ConHost.ConHost       = 0             
 cvars           : CV.CvarCollection     = 0             
-fps_display     : pg.window.FPSDisplay  = 0             
+fps_display     : fpsdisp.FPSDisplay    = 0             
+cam_pos         : list                  = [0,0,0]
+cam_zoom        : int                   = 0
 
 ## Global functions
 def reload_engine(dir=None):
@@ -71,16 +74,6 @@ def reload_engine(dir=None):
         )
         batch       = pg.graphics.Batch()
         interface   = UI.Interface()
-        fps_display = pg.window.FPSDisplay(display)
-        fps_display.label = pg.text.Label(
-            '0 FPS',
-            x=10,
-            y=10,
-            font_size=24,
-            weight='bold',
-            color=(127, 127, 127, 127),
-            group=interface.layers[interface.layer_amount-1]
-        )
     else:
         # Empty the screen
         interface.fill(0)
@@ -95,7 +88,7 @@ def reload_engine(dir=None):
         display.set_size(savefile.get("display/resolution")[0], savefile.get("display/resolution")[1])
         display.set_caption(Data.game_name)
     
-    icon_path = cvars.get("icon_file", "memory://unknown")
+    icon_path = cvars.get("icon_file", "mem://unknown")
     icon      = resource_loader.load(icon_path).get()
     display.set_icon(icon)
 
@@ -105,6 +98,7 @@ def reload_engine(dir=None):
     clock         = Clock.Time()
     console       = ConHost.ConHost()
     global_stream = pg.media.Player()
+    fps_display   = fpsdisp.FPSDisplay(display)
 
     ## Scene data
     printf(f" ~ Initializing loading scene")
@@ -135,7 +129,10 @@ def load_new_scene(file):
 def suicide():
     global im_running, interface, savefile, i_have_died
     """Kill the engine"""
-    interface.close()
+    try:
+        interface.close()
+    except:
+        print("Error; the app could not be closed")
     im_running  = False
     i_have_died = True
     savefile.save_data()
@@ -153,6 +150,9 @@ def is_key_pressed(key_name):
                 if keyd in keys_nheld and not key_data["holdable"]:
                     return True
     return False
+
+def get_mouse_scroll():
+    return event.mouse_scroll
 
 ## Load the engine
 reload_engine()

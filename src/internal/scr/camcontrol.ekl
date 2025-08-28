@@ -1,0 +1,15 @@
+# ver=4.0A / py=3.12
+from classes import Singleton as engine
+
+def _process(self, delta):
+    rs = delta * 450
+    rz = delta * 5
+    if engine.is_key_pressed("moveup"):
+        transform["pos"][1] -= rs
+    if engine.is_key_pressed("movedown"):
+        transform["pos"][1] += rs
+    if engine.is_key_pressed("moveleft"):
+        transform["pos"][0] -= rs
+    if engine.is_key_pressed("moveright"):
+        transform["pos"][0] += rs
+    self.zoom += rz * engine.get_mouse_scroll()

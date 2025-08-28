@@ -7,20 +7,21 @@ from classes.Constants import *
 class Event:
     def __init__(self):
         self.screen       = engine.display
-        self.key_map      = {}
-        self.key_once_map = []
-        self.events       = []
+        self.key_map       = {}
+        self.key_once_map  = []
+        self.events        = []
         self.screen.push_handlers(self)
-        self.mouse_pos = (0, 0)
+        self.mouse_pos     = (0, 0)
         self.mouse_buttons = [0, 0, 0]  # Left, Middle, Right
-
+        self.mouse_scroll  = 0
+    
     def on_close(self):
         self.events.append(('quit', None))
     
     # Keyboard
     def on_key_press(self,symbol, modifiers):
         self.events.append(('keydown', symbol))
-        if symbol == pg.window.key.ESCAPE:
+        if symbol == pg.window.key.ESCAPE: # Stop the app from closing
             return pg.event.EVENT_HANDLED
 
     def on_key_release(self, symbol, modifiers):
@@ -47,6 +48,13 @@ class Event:
         if button == 2: self.mouse_buttons[1] = 0
         if button == 4: self.mouse_buttons[2] = 0
     
+    def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
+        self.events.append(('scroll', scroll_y, scroll_x))
+    
+    # Etc
+    def on_abnormal_time(self, gap):
+        self.events.append(('abnormal', gap))
+    
     def get(self):
         # Return and clear the queue
         events_copy = self.events[:]
@@ -58,6 +66,7 @@ class Event:
         # 0 - quit. 1 - keydown. 2 - keyup.
         events = self.get()
         code = []
+        self.mouse_scroll = 0
         for i in events:
             if i[0] == 'quit':
                 code.append(SOFT_QUIT)
@@ -71,12 +80,16 @@ class Event:
                     self.key_map.pop(i[1])
                 except:
                     self.key_map[i[1]] = 0
+            elif i[0] == 'scroll':
+                self.mouse_scroll = i[1]
             elif i[0] == 'save':
                 code.append(SAVE_EVENT)
                 if i[1]:
                     code.append(SAVE_SUCESS)
                 else:
                     code.append(SAVE_FAILED)
+            elif i[0] == 'abnormal':
+                code.append(ABNORMAL_TIME)
         return code
 
     def get_mouse(self):

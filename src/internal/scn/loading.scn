@@ -43,7 +43,7 @@
         "aud": {
             "type":       "AudioPlayer",
             "properties": {
-                "media":       "root://internal/load.mp3",
+                "media":       "root://internal/sfx/load.mp3",
                 "autostart":   true,
                 "loop":        false,
                 "where":       0,
@@ -73,7 +73,7 @@
             },
             "script_properties": {},
             "name":              "Ring",
-            "script":            "root://internal/spin.ekl",
+            "script":            "root://internal/scr/spin.ekl",
             "path":              "",
             "runtimedata":       0
         }

@@ -62,7 +62,7 @@ while (engine.im_running):
         engine.console.update(engine.keys_nheld, engine.keys_pressed, globals())
         engine.interface.flip()
         engine.event.key_once_map = []
-    except (BaseException, Exception) as error:
+    except Exception as error:
         ErrorHandler.error  = error
         ErrorHandler.reason = "death_from_engine"
         engine.events.append(PREMATURE_DEATH)

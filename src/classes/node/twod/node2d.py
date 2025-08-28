@@ -21,7 +21,8 @@ class Node2D(CanvasItem):
 
         # World-space relative position
         self.runtime_data["relativepos"] = rel_pos
-        cam = self.scene.cam_pos
-        self.runtime_data["rendererpos"] = [rel_pos[0] - cam[0], rel_pos[1] - cam[1]]
-        
+        self.runtime_data["rendererpos"] = [
+            rel_pos[0] + engine.cam_pos[0],
+            rel_pos[1] + engine.cam_pos[1]
+        ]
         super().update(delta)

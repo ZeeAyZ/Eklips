@@ -62,7 +62,7 @@
                     "scroll": [0,0]
                 },
                 "visible":   true,
-                "text":      "Please pick a package:",
+                "text":      "Please pick a project:",
                 "color":     [255,255,255],
                 "font_size": 20
             },

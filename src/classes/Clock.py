@@ -41,7 +41,7 @@ class Time:
         return f"{'0' if minutes < 10 else ''}{minutes}:{'0' if secs < 10 else ''}{secs}"
     
     def _play(self):
-        sound = engine.resource_loader.load("root://internal/dswrld.mp3").get()
+        sound = engine.resource_loader.load("root://internal/sfx/dswrld.mp3").get()
         sound.play()
         self.playingvfx = True
         self.framec     = 1
@@ -66,12 +66,15 @@ class Time:
         gap              = self.get_time_gap(self.last_dt, current_dtt)
         tzgap            = self.get_time_gap(gap,          self.get_time_gap(self.ldg, current_dt))
 
+        if round(tzgap) > 0:
+            engine.event.on_abnormal_time(tzgap)
+        
         engine.delta     = gap * engine.pacing + tzgap # <- Delta time variable (0.1....)
         engine.truedelta = gap                 + tzgap # <- True deltaTime variable (not affected by things like pacing, etc)
         
         self._time      += gap * engine.pacing
-        self.last_dt     = current_dtt
-        self.ldg         = current_dt
+        self.last_dt     = current_dtt        
+        self.ldg         = current_dt         
 
         if self.playingvfx:
             self.ftimer += gap * engine.pacing

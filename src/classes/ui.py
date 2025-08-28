@@ -77,8 +77,9 @@ class Interface:
         else:
             path    = surface.get_path()
             img     = surface.get()
-        new_opacity = int(opacity * 255)
-        new_clip    = clip
+        img.subpixel = True
+        new_opacity  = int(opacity * 255)
+        new_clip     = clip
 
         if clip:
             ## Clipping
@@ -105,16 +106,14 @@ class Interface:
         
         ## Detect if i'm even visible and change position
         id_ = len(self.draw_queue)
-        if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -img.width or new_pos[1] < -img.height:
-            pass
-        else:
+        if not self.cull(img.width, img.height, new_pos, blit_in):
             if not layer in self.layers: layer = 0
             if scroll != [0, 0]:
                 img = img.get_region(
-                    scroll[0] % img.width, 
-                    scroll[1] % img.height,
-                    img.width,             
-                    img.height             
+                    int(scroll[0] % img.width), 
+                    int(scroll[1] % img.height),
+                    img.width,                  
+                    img.height                  
                 )
 
             spr_id       = -1
@@ -127,7 +126,8 @@ class Interface:
             if spr_id == -1:
                 spr = pg.sprite.Sprite(
                     self.boilerimg,
-                    batch=batch
+                    batch    = batch,
+                    subpixel = True
                 )
                 id = len(self.sprite_pool)
                 self.sprite_pool[id] = spr
@@ -137,7 +137,15 @@ class Interface:
             if spr.y        != new_pos[1]:
                 spr.y        = new_pos[1]
             if spr.image    != img:
-                spr.image    = img
+                if img != None:
+                    try:
+                        print(img.get_texture())
+                        if img.get_texture() == None:
+                            print("Warning; Image texture is None")
+                        else:
+                            spr.image = img
+                    except Exception as e:
+                        print(f"Failed to assign sprite image: {e}")
             if spr.z        != layer:
                 spr.z        = layer
                 spr.group    = self.layers[layer]
@@ -158,8 +166,21 @@ class Interface:
             self.draw_queue[id_] = spr
             self.sprite_used.append(spr_id)
     
+    def cull(self, w, h, pos, blit_in):
+        if blit_in  == "main":
+            blit_in  =  self.main_surf_id
+        scr          = self.surfaces[blit_in]["screen"]
+        win_w, win_h = scr.width, scr.height
+
+        return (
+            pos[0] > win_w or
+            pos[1] > win_h or
+            pos[0] < -w    or
+            pos[1] < -h
+        )
+
     def render(self, text, pos, blit_in="main", layer=5, anchor="", size=15, rot=0, alpha=1, color=[255,255,255]):
-        # Todo: make good3
+        # TODO make good
         id           = len(self.label_queue)
         if blit_in  == "main":
             blit_in  =  self.main_surf_id
@@ -195,16 +216,17 @@ class Interface:
         )
         color_new = [color[0],color[1],color[2],255]
 
-        if new_pos[0] > win_w or new_pos[1] > win_h or new_pos[0] < -lbl.content_width or new_pos[1] < -lbl.content_height:
+        if not lbl.text == text:
+            lbl.text = text
+        
+        if self.cull(lbl.content_width, lbl.content_height, new_pos, blit_in):
             self.label_pool[id].visible = False
-            return
+            return lbl.content_width, lbl.content_height
 
         if not lbl.z    == layer:
             if not layer in self.layers: layer = 0
             lbl.z       = layer
             lbl.group   = self.layers[layer]
-        if not lbl.text == text:
-            lbl.text = text
         if not lbl.x == new_pos[0]:
             lbl.x = new_pos[0]
         if not lbl.y == new_pos[1]:

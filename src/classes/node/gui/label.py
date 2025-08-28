@@ -36,13 +36,12 @@ class Label(CanvasItem):
 
     def draw(self):
         if self.properties["visible"]:
-            pos = self.runtime_data["rendererpos"]
-            self.w,self.h=self._draw_onto_screen(pos)
+            self.w,self.h = self._draw_onto_screen(self.properties["text"])
         
-    def _draw_onto_screen(self, pos):
+    def _draw_onto_screen(self, text):
         return self.screen.render(
-            text    = self.properties["text"],
-            pos     = pos,
+            text    = text,
+            pos     = self.runtime_data["rendererpos"],
 
             anchor  = self.anchor,
             layer   = self.properties["transform"]["layer"],

@@ -84,10 +84,10 @@ FrameSummary #{fsid}:
     
     if save_logs:
         with open(fn, "w") as f:
-            f.write("Oops! Eklips just crashed;\nHere's this crash log!\n\n")
+            f.write(f"Oops! {ENGINE_NAME} just crashed;\nHere's this crash log!\n\n")
             f.write(f"Quick Fix for users: {quick_fix}\nCause of error: {running}\n\n")
             f.write(error_info)
-            f.write("\n\nPlease send this file to the developers of Eklips at https://github.com/Za9-118/Eklips/issues. \nYour feedback is important!")
+            f.write(f"\n\nPlease send this file to the developers of {ENGINE_NAME} at https://github.com/Za9-118/Eklips/issues. \nYour feedback is important!")
     
     return error_info, quick_fix, error_obj
 
@@ -95,15 +95,15 @@ def raise_error(error, event="unknown", cause_of_event=None, save_logs=True):
     error_info, quick_fix, error_obj = get_info(error, running=cause_of_event, save_logs=save_logs)
     if can_use_git:
         should_i_report = askyesno(
-            "Eklips",
-            f"Eklips has crashed!\n\n{error_info}\n\nFix (if available): {quick_fix}\nAlleged suspect: {event}\nCause of suspicion: {cause_of_event}\n\nWould you like to report this error?"
+            f"{ENGINE_NAME}",
+            f"{ENGINE_NAME} has crashed!\n\n{error_info}\n\nFix (if available): {quick_fix}\nAlleged suspect: {event}\nCause of suspicion: {cause_of_event}\n\nWould you like to report this error?"
         )
         if should_i_report:
             report(error_info, error_obj)
     else:
         showerror(
-            "Eklips",
-            f"Eklips has crashed!\n\n{error_info}\n\nFix (if available): {quick_fix}\nAlleged suspect: {event}\nCause of suspicion: {cause_of_event}"
+            f"{ENGINE_NAME}",
+            f"{ENGINE_NAME} has crashed!\n\n{error_info}\n\nFix (if available): {quick_fix}\nAlleged suspect: {event}\nCause of suspicion: {cause_of_event}"
         )
 
 if __name__ == "__main__":

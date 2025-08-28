@@ -7,7 +7,7 @@ ignore_dirparam = False
 try:
     project_file = sys.argv[1]
 except:
-    project_file = "eklips/game.json" # Change this for your project file
+    project_file = "terre/game.json" # Change this for your project file
 if "--ignore-dirparam" in sys.argv:
     ignore_dirparam = True
 
