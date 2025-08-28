@@ -53,12 +53,8 @@ class Interface:
         new_pos = pos.copy()
         if can_cache:
             if not anchor_id in self.anchors:
-                print(anchor_id)
                 if not "bottom" in anchor and not no_y_flip:
-                    print(" ~ Will")
                     new_pos[1] = (win_h - surf_h) - pos[1] # Pyglet uses bottom-left for 0,0 while pygame uses top-left. I'm more familliar with pygame
-                else:
-                    print(f" ~ Will not {anchor} {no_y_flip}")                
                 if "right" in anchor:
                     new_pos[0] = (win_w - surf_w) - pos[0]
                 if "centerX" in anchor:
@@ -72,7 +68,6 @@ class Interface:
                     new_pos[0]+=surf_w/2
                     new_pos[1]+=surf_h/2
                 new_pos=[round(new_pos[0]),round(new_pos[1])]
-                print(new_pos)
                 self.anchors[anchor_id]=new_pos
             else:
                 new_pos = self.anchors[anchor_id]
