@@ -27,9 +27,6 @@ class Progressbar(CanvasItem):
             },
 
             "visible": True,
-            "bgcolor": [128, 128, 128],
-            "fgcolor": [128, 0,   0  ],
-            "txcolor": [255, 255, 255],
 
             "minimum": 0,
             "maximum": 100,
@@ -45,95 +42,32 @@ class Progressbar(CanvasItem):
 
     def __init__(self, data=node_base_data, parent=None):
         super().__init__(data,parent)
-        
-        r, g, b = self.properties["bgcolor"]
-        raw_data = bytes([r, g, b] * self.properties["transform"]["size"][0] * self.properties["transform"]["size"][1])
-        self.bg_img = Resources.Image(
-            {
-                "prop":   {},
-                "data":   {
-                    "object": pg.image.ImageData(
-                        self.properties["transform"]["size"][0],
-                        self.properties["transform"]["size"][1],
-                        'RGB',
-                        raw_data
-                    ),
-                    "path":   f"{r}{g}{b}{self.properties["transform"]["size"]}.mm"
-                },
-                "meta":   {
-                    "kind": "Resource",
-                    "name": "Image"
-                },
-                "script": None
-            }
-        )
-        
-        r, g, b = self.properties["fgcolor"]
-        raw_data = bytes([r, g, b] * 1 * self.properties["transform"]["size"][1])
-        self.fg_img = Resources.Image(
-            {
-                "prop":   {},
-                "data":   {
-                    "object": pg.image.ImageData(
-                        1,
-                        self.properties["transform"]["size"][1],
-                        'RGB',
-                        raw_data
-                    ),
-                    "path":   f"{r}{g}{b}{self.properties["transform"]["size"]}.mm"
-                },
-                "meta":   {
-                    "kind": "Resource",
-                    "name": "Image"
-                },
-                "script": None
-            }
-        )
     
     def draw(self):
-        if self.bg_img and self.properties["visible"]:
-            self.w,self.h=self.bg_img.width,self.bg_img.height
-            self._draw_onto_screen(self.bg_img, self.fg_img, int(self.properties["transform"]["size"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"]))))
+        if self.properties["visible"]:
+            self.w,self.h=self._draw_onto_screen(self.properties["transform"]["size"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"])))
     
-    def _draw_onto_screen(self, img, fg, width):
-        img_size = self.screen.blit(
-            img,                                   
-            self.runtime_data["rendererpos"],             
-            anchor  = self.properties["transform"]["anchor"],
-            scale   = self.properties["transform"]["scale"],
-            layer   = self.properties["transform"]["layer"],
-            rot     = self.properties["transform"]["rot"],
-            opacity = self.properties["transform"]["alpha"],
-            scroll  = self.properties["transform"]["scroll"]
-        )
+    def _draw_onto_screen(self, width):
+        img_size = engine.thm.draw_marginable_thing("progressbar", self.runtime_data["rendererpos"], self.properties["transform"]["size"], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"])
+        pb       = engine.thm.draw_marginable_thing("progrfill", self.runtime_data["rendererpos"], [width, self.properties["transform"]["size"][1]], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"])
 
-        self.screen.blit(
-            fg,                                   
-            self.runtime_data["rendererpos"],             
-            anchor  = self.properties["transform"]["anchor"],
-            scale   = [
-                width * self.properties["transform"]["scale"][0],
-                self.properties["transform"]["scale"][1]
-            ],
-            layer   = self.properties["transform"]["layer"],
-            rot     = self.properties["transform"]["rot"],
-            opacity = self.properties["transform"]["alpha"],
-            scroll  = self.properties["transform"]["scroll"]
-        )
-
-        self.screen.render(
-            f"{round(self.properties['value']/self.properties['maximum'])*100}%",
+        lw, lh, l = self.screen.render(
+            f"{round(self.properties['value']/self.properties['maximum']*100)}%",
             [
                 self.runtime_data["rendererpos"][0],
                 self.runtime_data["rendererpos"][1]
             ],                     
-            anchor = self.properties["transform"]["anchor"],              
-            layer  = self.properties["transform"]["layer"],       
-            color  = self.properties.get("txcolor", [255,255,255])
+            anchor     = self.properties["transform"]["anchor"],              
+            layer      = self.properties["transform"]["layer"],       
+            color      = self.properties.get("txcolor", [255,255,255]),
+            return_obj = True
         )
+        l.x = self.runtime_data["rendererpos"][0] + (self.properties["transform"]["size"][0]/2 - lw/2)
 
         return img_size
 
     def update(self, delta):
         super().update(delta)
+        if self.properties["value"] > self.properties["maximum"]:
+            self.properties["value"] = self.properties["maximum"]
         self.draw()    

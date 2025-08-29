@@ -54,13 +54,13 @@ class Button(CanvasItem):
                 self.runtime_data["rendererpos"][1]
             ],
             anchor = self.properties["transform"]["anchor"],
-            color  = engine.thm.get()["themed"][typ]["fontcol"]
+            color  = engine.thm.get_thing(typ)["fontcol"]
         )
 
         # Check if size property is smaller than it should be
         sz     = self.properties["transform"]["size"]
         if sz[0] < lbl[0]:
-            sz[0] = lbl[0]+(engine.thm.get()["themed"][typ]["margin"]*5)
+            sz[0] = lbl[0]+(engine.thm.get_thing(typ)["margin"]*5)
         if sz[1] < lbl[1]:
             sz[1] = lbl[1]+7.5
 

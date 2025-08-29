@@ -73,7 +73,7 @@ class Interface:
                 new_pos = self.anchors[anchor_id]
         return new_pos
 
-    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None):
+    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None, return_obj=False):
         new_pos     = list(pos)[:]
         if use_pyglet_resource_directly:
             path    = custom_id
@@ -165,7 +165,11 @@ class Interface:
             spr.visible = True
             self.draw_queue[id_] = spr
             self.sprite_used.append(spr_id)
-        return img.width, img.height
+            if return_obj:
+                return img.width*scale[0], img.height*scale[1], spr
+        if return_obj:
+            return img.width*scale[0], img.height*scale[1], None
+        return img.width*scale[0], img.height*scale[1]
     
     def cull(self, w, h, pos, blit_in):
         if blit_in  == MAIN_SCREEN:
@@ -180,7 +184,7 @@ class Interface:
             pos[1] < -h
         )
 
-    def render(self, text, pos, blit_in=MAIN_SCREEN, layer=5, anchor="", size=15, rot=0, alpha=1, color=[255,255,255]):
+    def render(self, text, pos, blit_in=MAIN_SCREEN, layer=5, anchor="", size=15, rot=0, alpha=1, color=[255,255,255], return_obj=False):
         # TODO make good
         id           = len(self.label_queue)
         if blit_in  == MAIN_SCREEN:
@@ -248,7 +252,10 @@ class Interface:
         self.label_used.append(id)
         self.label_queue[id] = lbl
 
-        return round(lbl.content_width), round(lbl.content_height)
+        if return_obj:
+            return round(lbl.content_width), round(lbl.content_height), lbl
+        else:
+            return round(lbl.content_width), round(lbl.content_height)
     
     def flip(self):
         ## === 1. Draw batches ===

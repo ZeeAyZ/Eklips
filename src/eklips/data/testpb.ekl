@@ -1,0 +1,6 @@
+# ver=4.0A / py=3.12
+from classes import Singleton as engine
+
+def _process(self, delta):
+    rz = delta * 50
+    self.properties["value"] += rz * engine.get_mouse_scroll()

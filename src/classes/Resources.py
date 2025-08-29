@@ -219,8 +219,10 @@ class Theme(Resource):
             f.write(struct.pack("<I", len(obj)))
             f.write(obj.encode())
     
+    def get_thing(self, name): return self.get()["themed"][name]
+    
     def draw_marginable_thing(self, name, pos, size, blit_in, anchor, layer, rot=0):
-        thing  = self.get()["themed"][name]
+        thing  = self.get_thing(name)
         margin = thing["margin"]
         tpos   = thing["atlaspos"][:2]
         dpos   = thing["atlaspos"][2:]
@@ -260,28 +262,28 @@ class Theme(Resource):
             clip=[
                 tpos[0]+margin,
                 tpos[1],
-                1,
+                margin,
                 margin
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[size[0],1]
+            scale=[(size[0])/margin,1]
         )
         bs = engine.interface.blit(
             self.atlas,
             [
                 pos[0]+margin,
-                pos[1]+size[1]
+                pos[1]+size[1]+margin
             ],
             clip=[
                 tpos[0]+margin,
                 tpos[1]+dpos[1]-margin,
-                1,
+                margin,
                 margin
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[size[0],1]
+            scale=[(size[0])/margin,1]
         )
 
         ls = engine.interface.blit(
@@ -294,27 +296,27 @@ class Theme(Resource):
                 tpos[0],
                 tpos[1]+margin,
                 margin,
-                1
+                margin
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[1,size[1]]
+            scale=[1,(size[1])/margin]
         )
         rs = engine.interface.blit(
             self.atlas,
             [
-                pos[0]+size[0],
+                pos[0]+size[0]+margin,
                 pos[1]+margin
             ],
             clip=[
                 tpos[0]+dpos[0]-margin,
                 tpos[1]+margin,
                 margin,
-                1
+                margin
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[1,size[1]]
+            scale=[1,(size[1])/margin]
         )
 
         # Corners
@@ -333,7 +335,7 @@ class Theme(Resource):
         trcorner = engine.interface.blit(
             self.atlas,
             [
-                pos[0]+size[0],
+                pos[0]+size[0]+margin,
                 pos[1]
             ],
             clip=[
@@ -350,7 +352,7 @@ class Theme(Resource):
             self.atlas,
             [
                 pos[0],
-                pos[1]+size[1]
+                pos[1]+size[1]+margin
             ],
             clip=[
                 tpos[0],
@@ -364,8 +366,8 @@ class Theme(Resource):
         brcorner = engine.interface.blit(
             self.atlas,
             [
-                pos[0]+size[0],
-                pos[1]+size[1]
+                pos[0]+size[0]+margin,
+                pos[1]+size[1]+margin
             ],
             clip=[
                 tpos[0]+dpos[0]-margin,

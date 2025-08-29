@@ -17,6 +17,7 @@ from classes.node.gui.canvasitem         import *
 from classes.node.gui.color_rect         import *
 from classes.node.gui.label              import *
 from classes.node.gui.progressbar        import *
+from classes.node.gui.slider             import *
 from classes.node.gui.treeview           import *
 
 from classes.node.gui.media.audio_player import *

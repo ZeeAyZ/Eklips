@@ -11,9 +11,7 @@ class Node(Object, NodeMixin):
     ## An empty Node.
 
     Nodes are the building block of Eklips (well, Eklips 4+ atleast). Every Node is inherited off this node class.
-    A tree of Nodes make a Scene, A node is stored as `myself.scene` or `scene`.
-
-    All Nodes must have an unique name.
+    A tree of Nodes make a Scene, A scene is stored as `engine.scene`.
     
     You can make a script have an `_onready(self)` function. This will only run when a Node is fully loaded.
     You can make a script have an `_process(self, delta)` function. This will run every frame after `on_ready()`. The argument `delta` is the delta time variable.
