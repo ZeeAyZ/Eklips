@@ -1,7 +1,17 @@
 from classes import Singleton as engine
+import json
+
+def get_curr_project_data(info, only_path_text=True):
+    gamejsloc = info[4]
+    gamejs    = json.loads(open(gamejsloc).read())
+    title     = gamejs["game_name"]
+    ver       = gamejs["project-ver"]
+    eklver    = gamejs["eklips-ver"]
+    path      = info[3]
+    return path,title,ver,eklver
 
 def get_projects():
-    return engine.savefile.get("projects", {})
+    return engine.savefile.get("projects", [])
 
 def _onready(self):
     projects = get_projects()
@@ -10,8 +20,7 @@ def _onready(self):
     x = 0
     y = 0
     for i in projects:
-        name, version, ekl_ver, path = i
-        print(f"Project {name}: v{version}, v{ekl_ver}, {path}")
+        path, name, version, ekl_ver = get_curr_project_data(i)
 
         width = 250
         
@@ -19,14 +28,14 @@ def _onready(self):
             "type":       "ColorRect",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
+                    "scale":  [1,1],       
                     "pos":    [50+x,100+y],
-                    "rot":    0,
-                    "anchor": "",
-                    "layer":  20,
-                    "alpha":  1,
-                    "size":   [5,95],
-                    "scroll": [0,0]
+                    "rot":    0,           
+                    "anchor": "",          
+                    "layer":  10,          
+                    "alpha":  1,           
+                    "size":   [5,95],      
+                    "scroll": [0,0]        
                 },
                 "visible": True,
                 "color":   [255,255,255]
@@ -75,8 +84,8 @@ def _onready(self):
                     "scroll": [0,0]
                 },
                 "visible":   True,
-                "text":      f"{version} @ Ekl v{ekl_ver}",
-                "color":     [255,255,255],
+                "text":      f"App {version} | Ekl {ekl_ver}",
+                "color":     [40,40,60],
                 "font_size": 15
             },
             "script_properties": {},

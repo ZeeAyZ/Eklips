@@ -539,7 +539,8 @@ class Loader:
         name        = path.split("/")[-1].split(".")[0]
         ext         = path.split(".")[-1].lower()
         if force_type:
-            ext = force_type
+            ext      = force_type
+            location = f"Ekl{engine.VER}{path}::forced::{ext}".replace('/','.').replace(':',',')
         if can_cache:
             if location in self.resource_tree:
                 asset = self.resource_tree[location]
@@ -619,6 +620,9 @@ class Loader:
                         elif ext == "bin":
                             asset    = pg.resource.file(actual_path, "rb").read()
                             assetres = asset
+                        elif ext == "std":
+                            asset    = pg.resource.file(actual_path, "rb")
+                            assetres = asset
                         else:
                             asset    = pg.resource.file(actual_path, "r").read()
                             assetres = asset
@@ -685,6 +689,9 @@ class Loader:
                             })
                         elif ext == "bin":
                             asset    = open(actual_path, "rb").read()
+                            assetres = asset
+                        elif ext == "std":
+                            asset    = open(actual_path, "rb")
                             assetres = asset
                         else:
                             asset    = open(actual_path).read()

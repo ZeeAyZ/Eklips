@@ -18,7 +18,7 @@
                     "scroll": [0,0]
                 },
                 "visible": true,
-                "color":   [20, 20, 30]
+                "color":   [20,20,30]
             },
             "script_properties": {},
             "name":              "Back",
@@ -53,7 +53,7 @@
             "properties": {
                 "transform": {
                     "scale":  [1,1],
-                    "pos":    [40,25],
+                    "pos":    [40,17],
                     "rot":    0,
                     "anchor": "",
                     "layer":  0,
@@ -62,7 +62,7 @@
                     "scroll": [0,0]
                 },
                 "visible":   true,
-                "text":      "Please pick a project:",
+                "text":      "Projects:",
                 "color":     [255,255,255],
                 "font_size": 20
             },
@@ -72,15 +72,39 @@
             "path":              "Back",
             "runtimedata":       0
         },
+        "TxtPnt": {
+            "type":       "Label",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [0,-100],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  10,
+                    "alpha":  1,
+                    "size":   [0,0],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "->",
+                "color":     [255,255,255],
+                "font_size": 15
+            },
+            "script_properties": {},
+            "name":              "TxtPnt",
+            "script":            null,
+            "path":              "Back",
+            "runtimedata":       0
+        },
         "BtnAddNew": {
             "type":       "Button",
             "properties": {
                 "transform": {
                     "scale":  [1,1],
-                    "pos":    [40,25],
+                    "pos":    [1180,25],
                     "rot":    0,
-                    "anchor": "right",
-                    "layer":  0,
+                    "anchor": "",
+                    "layer":  2,
                     "alpha":  1,
                     "size":   [0,0],
                     "scroll": [0,0]
@@ -88,11 +112,11 @@
                 "visible":   true,
                 "text":      "+ Add",
                 "font_size": 20,
-                "color":     [20, 20, 30]
+                "color":     [20,20,30]
             },
             "script_properties": {},
             "name":              "PanelText",
-            "script":            null,
+            "script":            "res://data/btnaddnewpj.ekl",
             "path":              "Back",
             "runtimedata":       0
         }

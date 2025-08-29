@@ -5,6 +5,7 @@ from classes            import UI, Save, Event, Resources, CV, Scene, ConHost, C
 from classes.ConHost    import printf
 from classes.KeyEntries import key_entries
 from classes.Constants  import *
+from tkinter.messagebox import *
 from typing import Any
 
 ## Print engine info

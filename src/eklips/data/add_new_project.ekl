@@ -1,0 +1,34 @@
+from classes import Singleton as engine
+import os, json, shutil
+
+def _clicked(self):
+    mygjs            = json.loads(engine.resource_loader.load("res://game.json"))
+    pathval, nameval = "None", "None"
+    pathval          = pathval.replace("\\","/")
+    gjsl             = f"{pathval}/game.json"
+
+    try:
+        os.makedirs(pathval)
+    except:
+        if engine.askyesno("Eklips Editor","Do you want to overwrite this project?"):
+            shutil.rmtree(pathval)
+            os.makedirs(pathval)
+        else:
+            return 1
+    
+    with open(gjsl,"w") as f:
+       mygjs["game_name"] = nameval
+       mygjs["project-ver"] = "1.0"
+       mygjs["cvars"]["directory"]["default"] = pathval.split("/")[-1]
+       f.write(json.dumps(mygjs,indent=4))
+    os.makedirs(f"{pathval}/data/scenes")
+    os.makedirs(f"{pathval}/media")
+    with open(f"{pathval}/media/icon.png", "wb") as f:
+        f.write(engine.resource_loader.load(engine.cvars.get('icon_file'), force_type="bin"))
+    with open(f"{pathval}/data/scenes/master.scn", "w") as f:
+        scnm = {"Properties": {"instanced": False, "instancedWith": ""}, "Nodes": {}}
+        f.write(json.dumps(scnm))
+    prjs = engine.savefile.get("projects")
+    prjs.append([nameval,mygjs['project-ver'],mygjs['eklips-ver'], pathval, gjsl])
+    engine.savefile.set("projects", prjs)
+    return 0

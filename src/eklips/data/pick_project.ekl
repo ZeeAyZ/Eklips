@@ -3,3 +3,10 @@ from classes import Singleton as engine
 def _clicked(self):
     engine.project_info = projdata
     engine.load_new_scene("res://data/scenes/curr_project.scn")
+
+def _hover(self):
+    pointer : engine.Scene.Label = engine.scene.get_node_from_path("Back", "TxtPnt")
+    pointer.properties["transform"]["pos"] = [
+        self.properties["transform"]["pos"][0] + -10,
+        self.properties["transform"]["pos"][1]
+    ]

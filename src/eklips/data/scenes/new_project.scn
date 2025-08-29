@@ -22,7 +22,7 @@
             },
             "script_properties": {},
             "name":              "Back",
-            "script":            "res://data/workflow.ekl",
+            "script":            null,
             "path":              "",
             "runtimedata":       0
         },
@@ -46,7 +46,31 @@
             },
             "script_properties": {},
             "name":              "PanelText",
-            "script":            "res://data/backmain_.ekl",
+            "script":            "res://data/backmain.ekl",
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "TextAddNew": {
+            "type":       "Label",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [70,17],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  2,
+                    "alpha":  1,
+                    "size":   [0,0],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "Add new project:",
+                "color":     [255,255,255],
+                "font_size": 20
+            },
+            "script_properties": {},
+            "name":              "PanelText",
+            "script":            null,
             "path":              "Back",
             "runtimedata":       0
         },
@@ -72,50 +96,50 @@
             "path":              "Back",
             "runtimedata":       0
         },
-        "TextProjectName": {
+        "Name": {
             "type":       "Label",
             "properties": {
                 "transform": {
                     "scale":  [1,1],
-                    "pos":    [70,10],
+                    "pos":    [50,85],
                     "rot":    0,
                     "anchor": "",
-                    "layer":  2,
+                    "layer":  3,
                     "alpha":  1,
                     "size":   [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
-                "text":      "NAME",
+                "text":      "Project name:",
                 "color":     [255,255,255],
-                "font_size": 18
+                "font_size": 20
             },
             "script_properties": {},
-            "name":              "PanelTextNm",
+            "name":              "PanelTextN",
             "script":            null,
             "path":              "Back",
             "runtimedata":       0
         },
-        "TextProjectPath": {
+        "Path": {
             "type":       "Label",
             "properties": {
                 "transform": {
                     "scale":  [1,1],
-                    "pos":    [70,39],
+                    "pos":    [50,125],
                     "rot":    0,
                     "anchor": "",
-                    "layer":  2,
+                    "layer":  3,
                     "alpha":  1,
                     "size":   [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
-                "text":      "PATH",
-                "color":     [90,90,120],
-                "font_size": 12
+                "text":      "Project path:",
+                "color":     [255,255,255],
+                "font_size": 20
             },
             "script_properties": {},
-            "name":              "PanelTextPh",
+            "name":              "PanelTextP",
             "script":            null,
             "path":              "Back",
             "runtimedata":       0
@@ -125,7 +149,7 @@
             "properties": {
                 "transform": {
                     "scale":  [1,1],
-                    "pos":    [1200,25],
+                    "pos":    [1210,670],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
@@ -134,13 +158,13 @@
                     "scroll": [0,0]
                 },
                 "visible":   true,
-                "text":      "Play",
+                "text":      "Make",
                 "font_size": 20,
                 "color":     [20,20,30]
             },
             "script_properties": {},
             "name":              "PanelText",
-            "script":            "res://data/run_app.ekl",
+            "script":            "res://data/add_new_project.ekl",
             "path":              "Back",
             "runtimedata":       0
         }

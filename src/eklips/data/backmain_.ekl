@@ -1,0 +1,5 @@
+from classes import Singleton as engine
+
+def _clicked(self):
+    if engine.askyesno("Eklips Editor", "Are you sure you want to exit? Your data may be lost!"):
+        engine.load_new_scene("res://data/scenes/master.scn")

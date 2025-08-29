@@ -1,5 +1,5 @@
 {
-    "project-ver":   "1.0",
+    "project-ver":   "2.0",
     "eklips-ver":    "4.0A",
 
     "game_name":     "Eklips Editor",
@@ -131,6 +131,8 @@
         "eng_chproj":  "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file.\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
         "eng_reload":  "engine.reload_engine()\n# Reload the engine",
         "eng_skip":    "@pointer=root://internal/scr/cmd/dswrld.ekl\n# This command basi and thats it.",
+        "eng_memcl":    "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets.",
+        "memcl":    "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets. (Shift friendly)",
         "chproj":      "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file. (Shift friendly)\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
         "reload":      "engine.reload_engine()\n# Reload the engine (Shift friendly)"
     }

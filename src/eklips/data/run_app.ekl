@@ -1,0 +1,4 @@
+from classes import Singleton as engine
+
+def _clicked(self):
+    pass
