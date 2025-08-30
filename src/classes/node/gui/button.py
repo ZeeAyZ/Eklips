@@ -33,6 +33,7 @@ class Button(CanvasItem):
         super().__init__(data,parent)
         self.clicked             = False
         self.image               = 0
+        self.thmbatch            = pg.graphics.Batch()
     
     def update(self, delta):
         super().update(delta)

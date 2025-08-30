@@ -42,14 +42,16 @@ class Progressbar(CanvasItem):
 
     def __init__(self, data=node_base_data, parent=None):
         super().__init__(data,parent)
-    
+        self.barbatch  = pg.graphics.Batch()
+        self.barfbatch = pg.graphics.Batch()
+        
     def draw(self):
         if self.properties["visible"]:
             self.w,self.h=self._draw_onto_screen(self.properties["transform"]["size"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"])))
     
     def _draw_onto_screen(self, width):
-        img_size = engine.thm.draw_marginable_thing("progressbar", self.runtime_data["rendererpos"], self.properties["transform"]["size"], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"])
-        pb       = engine.thm.draw_marginable_thing("progrfill", self.runtime_data["rendererpos"], [width, self.properties["transform"]["size"][1]], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"])
+        img_size = engine.thm.draw_marginable_thing("progressbar", self.runtime_data["rendererpos"], self.properties["transform"]["size"], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barbatch)
+        pb       = engine.thm.draw_marginable_thing("progrfill", self.runtime_data["rendererpos"], [width, self.properties["transform"]["size"][1]], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barfbatch)
 
         lw, lh, l = self.screen.render(
             f"{round(self.properties['value']/self.properties['maximum']*100)}%",
@@ -71,3 +73,6 @@ class Progressbar(CanvasItem):
         if self.properties["value"] > self.properties["maximum"]:
             self.properties["value"] = self.properties["maximum"]
         self.draw()    
+    
+    def _free(self):
+        return super()._free()

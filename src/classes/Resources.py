@@ -221,7 +221,7 @@ class Theme(Resource):
     
     def get_thing(self, name): return self.get()["themed"][name]
     
-    def draw_marginable_thing(self, name, pos, size, blit_in, anchor, layer, rot=0):
+    def draw_marginable_thing(self, name, pos, size, blit_in, anchor, layer, rot=0,batch=None):
         thing  = self.get_thing(name)
         margin = thing["margin"]
         tpos   = thing["atlaspos"][:2]
@@ -249,7 +249,8 @@ class Theme(Resource):
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=size
+            scale=size,
+            batchxt=batch
         )
 
         # Sides
@@ -267,7 +268,8 @@ class Theme(Resource):
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[(size[0])/margin,1]
+            scale=[(size[0])/margin,1],
+            batchxt=batch
         )
         bs = engine.interface.blit(
             self.atlas,
@@ -283,7 +285,8 @@ class Theme(Resource):
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[(size[0])/margin,1]
+            scale=[(size[0])/margin,1],
+            batchxt=batch
         )
 
         ls = engine.interface.blit(
@@ -300,7 +303,8 @@ class Theme(Resource):
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[1,(size[1])/margin]
+            scale=[1,(size[1])/margin],
+            batchxt=batch
         )
         rs = engine.interface.blit(
             self.atlas,
@@ -316,7 +320,8 @@ class Theme(Resource):
             ],
             blit_in=blit_in,
             layer=layer,
-            scale=[1,(size[1])/margin]
+            scale=[1,(size[1])/margin],
+            batchxt=batch
         )
 
         # Corners
@@ -330,7 +335,8 @@ class Theme(Resource):
                 margin
             ],
             blit_in=blit_in,
-            layer=layer
+            layer=layer,
+            batchxt=batch
         )
         trcorner = engine.interface.blit(
             self.atlas,
@@ -345,7 +351,8 @@ class Theme(Resource):
                 margin
             ],
             blit_in=blit_in,
-            layer=layer
+            layer=layer,
+            batchxt=batch
         )
 
         blcorner = engine.interface.blit(
@@ -361,7 +368,8 @@ class Theme(Resource):
                 margin
             ],
             blit_in=blit_in,
-            layer=layer
+            layer=layer,
+            batchxt=batch
         )
         brcorner = engine.interface.blit(
             self.atlas,
@@ -376,7 +384,8 @@ class Theme(Resource):
                 margin
             ],
             blit_in=blit_in,
-            layer=layer
+            layer=layer,
+            batchxt=batch
         )
 
         return size

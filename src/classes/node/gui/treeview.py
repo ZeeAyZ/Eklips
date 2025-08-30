@@ -35,8 +35,6 @@ class Treeview(CanvasItem):
         id        = 0
         _pos      = pos.copy()
         for i in data:
-            node_p    = f"{self.node_path_da}/{self.name}"
-            nm        = f"Label{id}"
             _have_kid = "v " if len(data[i]) else ""
             self.screen.render(
                 text    = f"{'| '*layer}{_have_kid}{i}",
@@ -47,7 +45,8 @@ class Treeview(CanvasItem):
             )
             id      += 1
             _pos[1] += 25
-            _pos     = self._rlayer(data[i], _pos, layer+1)
+            if i in self.revealed:
+                _pos     = self._rlayer(data[i], _pos, layer+1)
         return _pos
 
     def update(self, delta):

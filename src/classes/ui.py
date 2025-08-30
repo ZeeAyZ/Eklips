@@ -73,7 +73,7 @@ class Interface:
                 new_pos = self.anchors[anchor_id]
         return new_pos
 
-    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None, return_obj=False):
+    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None, return_obj=False, batchxt=None):
         new_pos     = list(pos)[:]
         if use_pyglet_resource_directly:
             path    = custom_id
@@ -103,6 +103,8 @@ class Interface:
             blit_in =  self.main_surf_id
         
         batch        = self.surfaces[blit_in]["batch"]
+        if batchxt:
+            batch    = batchxt
         new_pos      = self.get_anchor(pos,blit_in,anchor,img.width*scale[0],img.height*scale[1],1, rot, False)
         
         ## Detect if i'm even visible and change position
