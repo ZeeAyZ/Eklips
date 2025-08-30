@@ -41,6 +41,7 @@ class ConHost:
         self.bl_rate      = self.cvars.get("con_rate")
         self.shifted      = False
         self.ll           = (len(self.ui.layers)//2)-1
+        self.contxtbatch  = pg.graphics.Batch()
         self.mk_panel()
     
     def mk_panel(self):
@@ -117,7 +118,8 @@ class ConHost:
                     [10,con_y],
                     "main",
                     self.ll,
-                    ""
+                    "",
+                    batchxt=self.contxtbatch
                 )
                 con_y += 25
             
@@ -142,7 +144,7 @@ class ConHost:
             
             self.hold_timer += self.ui.delta
 
-            self.ui.render(f"] {self.input_text}{blk_g}", [10,self.y+self.h-35], "main", self.ll)
+            self.ui.render(f"] {self.input_text}{blk_g}", [10,self.y+self.h-35], "main", self.ll, batchxt=self.contxtbatch)
     
     def _prockey(self, key):
         """Process a key input."""

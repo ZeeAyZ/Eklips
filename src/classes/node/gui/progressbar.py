@@ -62,7 +62,8 @@ class Progressbar(CanvasItem):
             anchor     = self.properties["transform"]["anchor"],              
             layer      = self.properties["transform"]["layer"],       
             color      = self.properties.get("txcolor", [255,255,255]),
-            return_obj = True
+            return_obj = True,
+            batchxt    = self.barfbatch
         )
         l.x = self.runtime_data["rendererpos"][0] + (self.properties["transform"]["size"][0]/2 - lw/2)
 
