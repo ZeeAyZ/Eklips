@@ -6,9 +6,11 @@ def _clicked(self):
     pathval, nameval = "None", "None"
     pathval          = pathval.replace("\\","/")
     gjsl             = f"{pathval}/game.json"
+    prjs             = engine.savefile.get("projects")
 
     try:
         os.makedirs(pathval)
+        prjs.append([nameval,mygjs['project-ver'],mygjs['eklips-ver'], pathval, gjsl])
     except:
         if engine.askyesno("Eklips Editor","Do you want to overwrite this project?"):
             shutil.rmtree(pathval)
@@ -28,7 +30,5 @@ def _clicked(self):
     with open(f"{pathval}/data/scenes/master.scn", "w") as f:
         scnm = {"Properties": {"instanced": False, "instancedWith": ""}, "Nodes": {}}
         f.write(json.dumps(scnm))
-    prjs = engine.savefile.get("projects")
-    prjs.append([nameval,mygjs['project-ver'],mygjs['eklips-ver'], pathval, gjsl])
     engine.savefile.set("projects", prjs)
     return 0

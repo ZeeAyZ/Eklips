@@ -5,7 +5,9 @@ from classes.KeyEntries import key_entries
 from classes.Constants import *
 import classes.Singleton as engine
 
-shared_console_text = []
+shared_console_text            = []
+shared_console_history         = []
+shared_console_history_pointer = 0
 def printf(*args):
     args_str = []
     for i in args:
@@ -34,8 +36,8 @@ class ConHost:
         self.eng_gl       = {}
         self.is_upper     = False
         self.hold_timer   = 0
-        self.cmd_historyp = 0
-        self.cmd_history  = []
+        self.cmd_historyp = shared_console_history_pointer
+        self.cmd_history  = shared_console_history
         self.klp          = None
         self.speed        = self.cvars.get("con_speed")
         self.bl_rate      = self.cvars.get("con_rate")
@@ -174,7 +176,7 @@ class ConHost:
             self.input_text += key_entries[key]
         else:
             if self.shifted: # or self.is_upper:
-                nk = Convenience._shift_k(chr(key))
+                nk = Convenience.shift_key(chr(key))
                 self.input_text += nk if 0 <= key < 256 else ""
                 if not key in [pg.window.key.LSHIFT, pg.window.key.RSHIFT]:
                     self.shifted = False
@@ -205,7 +207,7 @@ class ConHost:
                     self.list_cvar(cvar_name)
             else:
                 if len(args) > 0:
-                    self.cvars.set(cvar, Convenience._turntypeatfirstglance(args[0]))
+                    self.cvars.set(cvar, Convenience.strtotype(args[0]))
                 self.list_cvar(cvar)
         elif opc == "eng_chproj":
             exec(f"engine.Data.project_file = '{args[0]}/game.json'", self.eng_gl, self.eng_gl)

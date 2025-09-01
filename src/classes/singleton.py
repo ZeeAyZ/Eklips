@@ -1,11 +1,12 @@
 ## Import all the libraries 
 import pyglet as pg
 import Data, gc
-from classes            import UI, Save, Event, Resources, CV, Scene, ConHost, Clock, fpsdisp
-from classes.ConHost    import printf
-from classes.KeyEntries import key_entries
-from classes.Constants  import *
-from tkinter.messagebox import *
+from classes             import UI, Save, Event, Resources, CV, Scene, ConHost, Clock, fpsdisp
+from classes.ConHost     import printf
+from classes.KeyEntries  import key_entries
+from classes.Convenience import *
+from classes.Constants   import *
+from tkinter.messagebox  import *
 from typing import Any
 
 ## Print engine info
@@ -47,6 +48,10 @@ thm             : Resources.Theme       = 0
 def reload_engine(dir=None):
     global savefile,resource_loader,cvars,console,thm,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
     """Reload/Load the engine variables."""
+    
+    ## Save if possible
+    if initialized:
+        savefile.save_data()
     
     ## Reload data and load cvars and print basic information
     gc.enable()

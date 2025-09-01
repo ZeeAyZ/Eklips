@@ -1,11 +1,63 @@
 from classes import Singleton as engine
+import tkinter as tk, os
+from tkinter import ttk
+
+def __chng(self, pth,info,rat):
+    engine.printf("Change project dir")
+    path    = pth.get()
+
+    if not os.path.isdir(path):
+        return engine.showerror("Eklips Editor", "Directory must exist")
+    if not os.path.isfile(f"{path}/game.json"):
+        return engine.showerror("Eklips Editor", "Directory must have a game.json")
+    
+    info[0] = path
+    print(info)
+    gid     = projid
+    
+    prjs         = engine.savefile.get("projects")
+    prjs[gid][3] = path
+    prjs[gid][4] = f"{path}/game.json"
+
+    engine.savefile.set("projects", engine.savefile.get("projects"))
+    rat.destroy()
+
+def _change_dir(self, info):
+    rat = tk.Tk()
+    rat.title(f"Change directory for {info[0]}")
+    rat.geometry("260x100")
+    rat.resizable(False, False)
+
+    pth = tk.StringVar()
+    pth.set(info[0])    
+
+    lbln = ttk.Label(rat,  text="Project directory:")
+    lbln.place(x=5,y=5)    
+    lbln = ttk.Entry(rat,  textvariable=pth)
+    lbln.place(x=105,y=5)  
+                           
+    lbln = ttk.Button(rat, text="Apply", command=lambda: __chng(self, pth, info, rat))
+    lbln.place(x=105,y=35)
+
+    rat.mainloop()
 
 def _clicked(self):
+    engine.printf("Editing project")
+    if broken:
+        engine.printf("Error")
+        if engine.askyesno("Eklips Editor", "Project files could not be found or was not loaded properly."):
+            _change_dir(self, projdata)
+        return
     engine.project_info = projdata
+    engine.project_id   = projid
     engine.load_new_scene("res://data/scenes/curr_project.scn")
 
 def _hover(self):
     pointer : engine.Scene.Label = engine.scene.get_node_from_path("Back", "TxtPnt")
+    if broken:
+        pointer.properties["text"] = "!>"
+    else:
+        pointer.properties["text"] = "->"
     pointer.properties["transform"]["pos"] = [
         self.properties["transform"]["pos"][0] + -10,
         self.properties["transform"]["pos"][1]

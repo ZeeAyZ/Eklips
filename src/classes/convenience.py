@@ -1,5 +1,5 @@
 ## I feel like YandereDev rn
-def _turntypeatfirstglance(text):
+def strtotype(text):
     """Turn a text input into a type at first glance."""
     try:
         return float(text)
@@ -14,7 +14,12 @@ def _turntypeatfirstglance(text):
             else:
                 return text
 
-def _shift_k(key):
+def boollike_to_word(obj):
+    if obj:
+        return "Yes"
+    return "No"
+
+def shift_key(key):
     nk = key.upper()
     if nk == "1": nk = "!"
     if nk == "2": nk = "@"

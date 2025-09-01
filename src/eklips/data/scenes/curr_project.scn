@@ -17,6 +17,7 @@
                     "size":   [1280, 720],
                     "scroll": [0,0]
                 },
+                "inwork":  true,
                 "visible": true,
                 "color":   [20,20,30]
             },
@@ -139,8 +140,56 @@
                 "color":     [20,20,30]
             },
             "script_properties": {},
-            "name":              "PanelText",
+            "name":              "PanelTdext",
             "script":            "res://data/run_app.ekl",
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "SetBtn": {
+            "type":       "Button",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [1100,25],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  2,
+                    "alpha":  1,
+                    "size":   [0,0],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "Settings",
+                "font_size": 20,
+                "color":     [20,20,30]
+            },
+            "script_properties": {},
+            "name":              "PanelTeeext",
+            "script":            "res://data/settings_menu.ekl",
+            "path":              "Back",
+            "runtimedata":       0
+        },
+        "FilBtn": {
+            "type":       "Button",
+            "properties": {
+                "transform": {
+                    "scale":  [1,1],
+                    "pos":    [1030,25],
+                    "rot":    0,
+                    "anchor": "",
+                    "layer":  2,
+                    "alpha":  1,
+                    "size":   [0,0],
+                    "scroll": [0,0]
+                },
+                "visible":   true,
+                "text":      "Files",
+                "font_size": 20,
+                "color":     [20,20,30]
+            },
+            "script_properties": {},
+            "name":              "PanelTeext",
+            "script":            "res://data/open_proj_folder.ekl",
             "path":              "Back",
             "runtimedata":       0
         }

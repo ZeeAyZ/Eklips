@@ -3,12 +3,18 @@ import json
 
 def get_curr_project_data(info, only_path_text=True):
     gamejsloc = info[4]
-    gamejs    = json.loads(open(gamejsloc).read())
-    title     = gamejs["game_name"]
-    ver       = gamejs["project-ver"]
-    eklver    = gamejs["eklips-ver"]
+    broken    = False
+    try:
+        gamejs    = json.loads(open(gamejsloc).read())
+        title     = gamejs["game_name"]
+        ver       = gamejs["project-ver"]
+        eklver    = gamejs["eklips-ver"]
+    except:
+        broken     = True
+        title      = info[0]
+        ver,eklver = info[1],info[2]
     path      = info[3]
-    return path,title,ver,eklver
+    return path,title,ver,eklver,broken
 
 def get_projects():
     return engine.savefile.get("projects", [])
@@ -17,10 +23,12 @@ def _onready(self):
     projects = get_projects()
     scene    = engine.scene
     
-    x = 0
-    y = 0
+    x  = 0
+    y  = 0
+    id = -1
     for i in projects:
-        path, name, version, ekl_ver = get_curr_project_data(i)
+        id                                  += 1
+        path, name, version, ekl_ver, broken = get_curr_project_data(i)
 
         width = 250
         
@@ -100,7 +108,7 @@ def _onready(self):
         j           = lbl_name.w - lbl_ver.w
         if j > 0: j = 0
         width = int(lbl_name.w + j + 25)
-
+        
         scene.add_node({
             "type":       "Button",
             "properties": {
@@ -118,7 +126,9 @@ def _onready(self):
                 "color":     [0,0,0],
                 "text":      "",
                 "font_size": 20,
-                "projdata":  i
+                "projdata":  i,
+                "broken":    broken,
+                "projid":    id
             },
             "script_properties": {},
             "name":              f"ProjectPoint{i}{x}",
