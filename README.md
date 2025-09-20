@@ -5,6 +5,9 @@ A 2D Node hierarchy-based game engine written in Python using Pyglet.
 >This project is still in development and is very buggy and unstable, so use at your own risk.
 >Most features are yet to be completed...
 
+>[!NOTE]
+>I'm taking a break from this project.. cause school.. and life.. yayy..
+
 # Features
 For now, the features are:
  - 18 different Nodes (Window, 2D, GUI, etc..)
