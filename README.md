@@ -4,6 +4,8 @@ A 2D Node hierarchy-based game engine written in Python using Pyglet.
 >[!WARNING]
 >This project is still in development and is very buggy and unstable, so use at your own risk.
 >Most features are yet to be completed...
+>
+>Also, Do not go to the [original Eklips repository](https://github.com/Za9-118/Eklips), as i was locked out of that account.
 
 >[!NOTE]
 >I'm taking a break from this project.. cause school.. and life.. yayy..
