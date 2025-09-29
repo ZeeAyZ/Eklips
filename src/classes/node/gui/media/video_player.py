@@ -20,6 +20,7 @@ class VideoPlayer(CanvasItem):
             "media":       "res://media/load.mp4",
             "loop":        False,
             "where":       0,
+            "rot":         0,
             "autostart":   False,
 
             "transform":  {
@@ -48,6 +49,7 @@ class VideoPlayer(CanvasItem):
         self.vid          = None
         self.is_playedyet = 0
         self.media_id     = None
+        self.playing      = False
 
         self.runtime_data["rendererpos"] = self.properties["transform"]["pos"]
     
@@ -67,7 +69,9 @@ class VideoPlayer(CanvasItem):
             self.og_px_size = self.vid.current_size
 
         self.vid.set_volume(volume)
+        self.vid.seek(0)
         self.vid.play()
+        self.playing = True
 
     def pause(self):
         self.call("_player_paused")
@@ -76,6 +80,11 @@ class VideoPlayer(CanvasItem):
     def resume(self):
         self.call("_player_resumed")
         self.vid.resume()
+    
+    def stop(self):
+        self.call("_player_stopped")
+        self.vid.stop()
+        self.playing = False
     
     def update(self, delta):
         global camera_pos
@@ -88,6 +97,12 @@ class VideoPlayer(CanvasItem):
                 self.vid._update()
                 if self.vid.frame_surf:
                     self.draw()
+            else:
+                if self.playing:
+                    self.playing = False
+                    if self.properties["loop"]:
+                        self.play()
+                    
         super().update(delta)
     
     def draw(self):
@@ -115,5 +130,6 @@ class VideoPlayer(CanvasItem):
             opacity                      = self.properties["transform"]["alpha"],
             scroll                       = self.properties["transform"]["scroll"],
             use_pyglet_resource_directly = True,
-            custom_id                    = self.media_id
+            custom_id                    = self.media_id,
+            sprite                       = self.sprite
         )

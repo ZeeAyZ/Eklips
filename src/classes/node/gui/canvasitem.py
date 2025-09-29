@@ -43,6 +43,7 @@ class CanvasItem(Node):
         self.clicked                     = False
         self.holding                     = False
         self.w,self.h                    = 0, 0
+        self.sprite                      = pg.sprite.Sprite(engine.interface.boilerimg)
         self.anchor                      = self.properties["transform"]["anchor"]
         self.runtime_data["rendererpos"] = self.properties["transform"]["pos"][:]
         self.runtime_data["relativepos"] = self.properties["transform"]["pos"][:]
@@ -84,7 +85,8 @@ class CanvasItem(Node):
             layer   = self.properties["transform"]["layer"],
             rot     = self.properties["transform"]["rot"],
             opacity = self.properties["transform"]["alpha"],
-            scroll  = self.properties["transform"]["scroll"]
+            scroll  = self.properties["transform"]["scroll"],
+            sprite  = self.sprite
         )
         
     def update(self, delta):

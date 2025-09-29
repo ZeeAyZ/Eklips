@@ -73,7 +73,7 @@ class Interface:
                 new_pos = self.anchors[anchor_id]
         return new_pos
 
-    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None, return_obj=False, batchxt=None):
+    def blit(self, surface, pos, clip=0, anchor="", opacity = 1, layer = 0, scroll=[0,0], scale=[1,1], blit_in=MAIN_SCREEN, can_cache = 1, rot = 0, use_pyglet_resource_directly = False, custom_id = None, return_obj=False, batchxt=None, sprite=None):
         new_pos     = list(pos)[:]
         if use_pyglet_resource_directly:
             path    = custom_id
@@ -108,7 +108,6 @@ class Interface:
         new_pos      = self.get_anchor(pos,blit_in,anchor,img.width*scale[0],img.height*scale[1],1, rot, False)
         
         ## Detect if i'm even visible and change position
-        id_ = len(self.draw_queue)
         if not self.cull(img.width, img.height, new_pos, blit_in):
             if not layer in self.layers: layer = 0
             if scroll != [0, 0]:
@@ -121,20 +120,25 @@ class Interface:
 
             spr_id       = -1
             hsize        = [img.width//2,img.height//2]
-            for i in self.sprite_pool:
-                if not i in self.sprite_used:     
-                    spr      = self.sprite_pool[i]
-                    spr_id   = i                  
-                    break                         
-            if spr_id == -1:
-                spr = pg.sprite.Sprite(
-                    self.boilerimg,
-                    batch    = batch,
-                    subpixel = True
-                )
-                id = len(self.sprite_pool)
-                self.sprite_pool[id] = spr
-                spr_id               = id 
+            sprite       = None
+            if sprite:
+                spr                      = sprite
+                spr_id                   = len(self.sprite_pool)
+                self.sprite_pool[spr_id] = spr
+            else:
+                for i in self.sprite_pool:
+                    if not i in self.sprite_used:     
+                        spr      = self.sprite_pool[i]
+                        spr_id   = i                  
+                        break                         
+                if spr_id == -1:
+                    spr = pg.sprite.Sprite(
+                        self.boilerimg,
+                        batch    = batch,
+                        subpixel = True
+                    )
+                    spr_id                   = len(self.sprite_pool)
+                    self.sprite_pool[spr_id] = spr
             if spr.x        != new_pos[0]:
                 spr.x        = new_pos[0]
             if spr.y        != new_pos[1]:
@@ -165,7 +169,7 @@ class Interface:
                 if spr.image.anchor_y != hsize[1]:
                     spr.image.anchor_y = hsize[1]
             spr.visible = True
-            self.draw_queue[id_] = spr
+            self.draw_queue[spr_id] = spr
             self.sprite_used.append(spr_id)
             if return_obj:
                 return img.width*scale[0], img.height*scale[1], spr
