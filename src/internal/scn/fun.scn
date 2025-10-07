@@ -4,6 +4,31 @@
         "instancedWith": ""
     },
     "Nodes":      {
+        "root": {
+            "type":       "VideoPlayer",
+            "properties": {
+                "media":       "res://media/load.mp4",
+                "loop":        true,
+                "where":       0,
+                "autostart":   true,
+
+                "transform":  {
+                    "scale":  [0.7,0.7],
+                    "pos":    [0,0],
+                    "anchor": "top left",
+                    "layer":  0,
+                    "alpha":  1,
+                    "rot":    0,
+                    "scroll": [0,0]
+                },
+                "visible":    true
+            },
+            "script_properties": {},
+            "name":              "aaaa",
+            "script":            null,
+            "path":              "",
+            "runtimedata":       0
+        },
         "Ekl": {
             "type":       "Sprite2D",
             "properties": {
@@ -58,7 +83,7 @@
             },
             "script_properties": {},
             "name":              "Ring",
-            "script":            "root://internal/scr/spin.ekl",
+            "script":            null,
             "path":              "",
             "runtimedata":       0
         }
