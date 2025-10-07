@@ -10,11 +10,11 @@ class Button(CanvasItem):
     node_base_data = {
         "prop":   {
             "transform": {
+                "scale":  [10,10],
                 "pos":    [0,0],
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
-                "size":   [100, 100],
                 "scroll": [0, 0],
                 "rot":    0
             },
@@ -59,7 +59,7 @@ class Button(CanvasItem):
         )
 
         # Check if size property is smaller than it should be
-        sz     = self.properties["transform"]["size"]
+        sz     = self.properties["transform"]["scale"]
         if sz[0] < lbl[0]:
             sz[0] = lbl[0]+(engine.thm.get_thing(typ)["margin"]*5)
         if sz[1] < lbl[1]:

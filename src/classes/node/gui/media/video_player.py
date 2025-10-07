@@ -77,6 +77,12 @@ class VideoPlayer(CanvasItem):
         self.call("_player_paused")
         self.vid.pause()
     
+    def seek(self, index):
+        self.vid.seek(index)
+    
+    def seek_frame(self, index):
+        self.vid.seek_frame(index)
+    
     def resume(self):
         self.call("_player_resumed")
         self.vid.resume()
@@ -85,6 +91,11 @@ class VideoPlayer(CanvasItem):
         self.call("_player_stopped")
         self.vid.stop()
         self.playing = False
+    
+    def _free(self):
+        if self.vid:
+            self.vid.close()
+        super()._free(self)
     
     def update(self, delta):
         global camera_pos

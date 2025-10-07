@@ -21,7 +21,6 @@ class Parallax2D(Sprite2D):
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
-                "size":   [100, 100],
                 "scroll": [0, 0],
                 "rot":    0
             },

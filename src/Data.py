@@ -12,7 +12,7 @@ for i in argv:
     try:
         aftr  = argv[id+1]
     except:
-        print("?")
+        pass
     if i == "-js":
         project_file    = aftr
     if i == "-dir":

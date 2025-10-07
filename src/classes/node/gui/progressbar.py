@@ -16,12 +16,11 @@ class Progressbar(CanvasItem):
     node_base_data = {
         "prop":   {
             "transform": {
-                "scale":  [1,1],
+                "scale":  [100,25],
                 "pos":    [0,0],
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
-                "size":   [100, 100],
                 "scroll": [0, 0],
                 "rot":    0
             },
@@ -47,11 +46,11 @@ class Progressbar(CanvasItem):
         
     def draw(self):
         if self.properties["visible"]:
-            self.w,self.h=self._draw_onto_screen(self.properties["transform"]["size"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"])))
+            self.w,self.h=self._draw_onto_screen(self.properties["transform"]["scale"][0] * (self.properties["value"] / abs(self.properties["maximum"] - self.properties["minimum"])))
     
     def _draw_onto_screen(self, width):
-        img_size = engine.thm.draw_marginable_thing("progressbar", self.runtime_data["rendererpos"], self.properties["transform"]["size"], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barbatch)
-        pb       = engine.thm.draw_marginable_thing("progrfill", self.runtime_data["rendererpos"], [width, self.properties["transform"]["size"][1]], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barfbatch)
+        img_size = engine.thm.draw_marginable_thing("progressbar", self.runtime_data["rendererpos"], self.properties["transform"]["scale"], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barbatch)
+        pb       = engine.thm.draw_marginable_thing("progrfill", self.runtime_data["rendererpos"], [width, self.properties["transform"]["scale"][1]], self.window_id, self.properties["transform"]["anchor"], self.properties["transform"]["layer"], batch=self.barfbatch)
 
         lw, lh, l = self.screen.render(
             f"{round(self.properties['value']/self.properties['maximum']*100)}%",
@@ -65,7 +64,7 @@ class Progressbar(CanvasItem):
             return_obj = True,
             batchxt    = self.barfbatch
         )
-        l.x = self.runtime_data["rendererpos"][0] + (self.properties["transform"]["size"][0]/2 - lw/2)
+        l.x = self.runtime_data["rendererpos"][0] + (self.properties["transform"]["scale"][0]/2 - lw/2)
 
         return img_size
 

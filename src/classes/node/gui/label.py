@@ -16,10 +16,12 @@ class Label(CanvasItem):
     node_base_data = {
         "prop":   {
             "transform": {
+                "scale":  [100,100],
                 "pos":    [0,0],
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
+                "scroll": [0, 0],
                 "rot":    0
             },
             "visible": True,

@@ -7,6 +7,28 @@ import classes.Singleton as engine
 
 ## Node
 class PhysicsBody2D(Node2D):
+    node_base_data = {
+        "prop":   {
+            "transform": {
+                "size":   [100,100],
+                "pos":    [0,0],
+                "anchor": "top left",
+                "layer":  0,
+                "alpha":  1,
+                "scroll": [0, 0],
+                "rot":    0
+            },
+            "visible": True,
+            "color":   [128, 128, 128]
+        },
+        "data":   {},
+        "meta":   {
+            "kind": "Node",
+            "name": "Node"
+        },
+        "script": None
+    }
+
     def _phys_init(self):
         self.should_stop = True
         self._onf        = False

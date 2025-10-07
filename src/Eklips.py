@@ -75,3 +75,6 @@ while (engine.im_running):
 
 ## Temp folder removal
 shutil.rmtree("tmp", ignore_errors = True)
+if "tmp" in os.listdir():
+    shutil.rmtree("tmp", ignore_errors = True)
+engine.scene.empty()

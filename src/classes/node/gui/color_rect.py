@@ -17,12 +17,11 @@ class ColorRect(CanvasItem):
     node_base_data = {
         "prop":   {
             "transform": {
-                "scale":  [1,1],
+                "scale":  [100,100],
                 "pos":    [0,0],
                 "anchor": "top left",
                 "layer":  0,
                 "alpha":  1,
-                "size":   [100, 100],
                 "scroll": [0, 0],
                 "rot":    0
             },
@@ -41,18 +40,18 @@ class ColorRect(CanvasItem):
         super().__init__(data,parent)
         r, g, b = self.properties["color"]
         # RGB for each pixel, repeated for all pixels
-        raw_data = bytes([r, g, b] * self.properties["transform"]["size"][0] * self.properties["transform"]["size"][1])
+        raw_data = bytes([r, g, b])
         self.image = Resources.Image(
             {
                 "prop":   {},
                 "data":   {
                     "object": pg.image.ImageData(
-                        self.properties["transform"]["size"][0],
-                        self.properties["transform"]["size"][1],
+                        1,
+                        1,
                         'RGB',
                         raw_data
                     ),
-                    "path":   f"{r}{g}{b}{self.properties["transform"]["size"]}.mm"
+                    "path":   f"{r}{g}{b}{self.properties["transform"]["scale"]}.mm"
                 },
                 "meta":   {
                     "kind": "Resource",
