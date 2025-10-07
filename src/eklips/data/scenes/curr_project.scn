@@ -8,13 +8,12 @@
             "type":       "ColorRect",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [0,0],
                     "rot":    0,
                     "anchor": "",
                     "layer":  0,
                     "alpha":  1,
-                    "size":   [1280, 720],
+                    "scale":  [1280, 720],
                     "scroll": [0,0]
                 },
                 "inwork":  true,
@@ -31,13 +30,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [25,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "size":   [0,0],
+                    "scale":  [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -55,13 +53,12 @@
             "type":       "ColorRect",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [20,75],
                     "rot":    0,
                     "anchor": "",
                     "layer":  1,
                     "alpha":  1,
-                    "size":   [1240, 615],
+                    "scale":  [1240, 615],
                     "scroll": [0,0]
                 },
                 "visible": true,
@@ -77,13 +74,12 @@
             "type":       "Label",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [70,10],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "size":   [0,0],
+                    "scale":  [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -101,13 +97,12 @@
             "type":       "Label",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [70,39],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "size":   [0,0],
+                    "scale":  [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -125,13 +120,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [1200,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "size":   [0,0],
+                    "scale":  [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -149,13 +143,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [1100,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "size":   [0,0],
+                    "scale":  [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
@@ -173,13 +166,12 @@
             "type":       "Button",
             "properties": {
                 "transform": {
-                    "scale":  [1,1],
                     "pos":    [1030,25],
                     "rot":    0,
                     "anchor": "",
                     "layer":  2,
                     "alpha":  1,
-                    "size":   [0,0],
+                    "scale":  [0,0],
                     "scroll": [0,0]
                 },
                 "visible":   true,
