@@ -11,7 +11,7 @@ class OptionDialog(Node):
     """
     ## A Window node to ask for a question.
      
-    The `OptionDialog.fate` value is a boolean, It returns True if the user chose an affirmative values.
+    The `OptionDialog.popup` function returns True if the user chose an affirmative value on the dialog.
 
     The questions that can be asked are:
     # 1: Yes/No
@@ -36,7 +36,7 @@ class OptionDialog(Node):
 
     def __init__(self, data=node_base_data, parent=None):
         super().__init__(data,parent)
-        self.fate = None
+        self.result = None
     
     def popup(self):
         if self.properties["optionindex"] == 1:
@@ -48,3 +48,5 @@ class OptionDialog(Node):
         if self.properties["optionindex"] == 4:
             func=askyesnocancel(self.properties["caption"], self.properties["message"])
         self.call("_popup_answer", func)
+        self.result = func
+        return func

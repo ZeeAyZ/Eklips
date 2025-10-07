@@ -1,5 +1,5 @@
 {
-    "project-ver": "T.eST",
+    "project-ver": "7357",
     "eklips-ver": "4.0A",
     "game_name": "Test",
     "keys": {
@@ -138,7 +138,8 @@
         "icon_file": {
             "type": "string",
             "default": "res://media/icon.png",
-            "description": "Project icon path."
+            "description": "Project icon path.",
+            "directory": "point::UseGameJsonParent"
         },
         "theme_file": {
             "type": "string",
