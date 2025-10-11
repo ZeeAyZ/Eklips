@@ -105,9 +105,7 @@ class ConHost:
                 self.y -= self.ui.delta * self.speed
             else:
                 self.hiding = False
-        
-        if not self.shown:
-            self.con_panel.visible = False
+                self.con_panel.visible = False
         
         if self.y > -self.h:
             self.con_panel.y = self.ui.screen.get_size()[1] - self.h - self.y

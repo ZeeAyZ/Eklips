@@ -56,7 +56,7 @@ class VideoPlayer(CanvasItem):
     def play(self, volume=1):
         self.call("_player_started")
         if not self.vid:
-            # XXX this sucks
+            # XXX this sucks. Find way to not use temporary file
 
             tmp_bytes, id = self.resourceman.load(self.properties["media"], force_type="bin", return_identifier = 1)
             tmp_file_path = f"tmp/{id}"
