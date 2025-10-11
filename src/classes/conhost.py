@@ -69,6 +69,8 @@ class ConHost:
         if self.cvars.get("con_size", self.con_panel.width) != self.con_panel.width:
             self.mk_panel()
         
+        self.con_panel.visible = True
+
         if not (self.showing or self.hiding):
             self.shown = not self.shown
 
@@ -104,6 +106,9 @@ class ConHost:
             else:
                 self.hiding = False
         
+        if not self.shown:
+            self.con_panel.visible = False
+        
         if self.y > -self.h:
             self.con_panel.y = self.ui.screen.get_size()[1] - self.h - self.y
             self.con_panel.draw()
@@ -137,9 +142,7 @@ class ConHost:
 
             if len(keys_nheld) > 0:
                 char = keys_nheld[0]
-                if char   == pg.window.key.BACKSPACE: # Backspace
-                    self.input_text = self.input_text[:-1]
-                elif char == pg.window.key.RETURN:    # Enter
+                if char == pg.window.key.RETURN:    # Enter
                     self.input(self.input_text)
                 self._prockey(char)
                 self.hold_timer = 0

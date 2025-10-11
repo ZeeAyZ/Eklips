@@ -7,7 +7,6 @@ import classes.Singleton as engine
 
 ## Node
 class Treeview(CanvasItem):
-    # TODO: Make visually pleasing
     # XXX   Out of date and not very good
     node_base_data = {
         "prop":   {

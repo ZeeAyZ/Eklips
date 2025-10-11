@@ -23,8 +23,11 @@ def init(self):
     pathn  : engine.Scene.Label = engine.scene.get_node_from_path("Back","PanelTextPh")
 
     pathn.properties["text"], titlen.properties["text"] = get_curr_project_data()[:2]
+    engine.display.set_caption(get_curr_project_data()[1])
 
 def _process(self, delta):
     if self.ny == 0 and inwork:
         init(self)
         self.ny = 1
+    if engine.is_key_pressed("eng_editor_booty"):
+        engine.showerror("Eklips Editor", "This project is ass. Session terminated.")

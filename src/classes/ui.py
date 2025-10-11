@@ -191,7 +191,6 @@ class Interface:
         )
 
     def render(self, text, pos, blit_in=MAIN_SCREEN, layer=5, anchor="", size=15, rot=0, alpha=1, color=[255,255,255], return_obj=False, batchxt=None):
-        # TODO make good
         id           = len(self.label_queue)
         if blit_in  == MAIN_SCREEN:
             blit_in  =  self.main_surf_id

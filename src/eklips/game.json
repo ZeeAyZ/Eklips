@@ -36,6 +36,10 @@
         "moveright": {
             "keys": ["d","right"],
             "holdable": true
+        },
+        "eng_editor_booty": {
+            "keys": ["g"],
+            "holdable": false
         }
     },
                                                      

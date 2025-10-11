@@ -1,6 +1,6 @@
 ## Import all the libraries
 import pyglet as pg, gc, struct, types, sys, io
-import pygame as pyg, json
+import pygame as pyg, json, random
 from pygame.mixer import Sound
 from anytree import NodeMixin
 from classes.Constants import *
@@ -390,6 +390,33 @@ class Theme(Resource):
 
         return size
 
+    def create_null_texture(_, w="rand", color=[255,0,255]):
+        if w == "rand":
+            w = random.randint(50,150)
+        w = int(w)
+        if w % 2 != 0:
+            w += 1  # make it even
+
+        height = w
+        width = w
+
+        # Create a simple 2-color checkerboard pattern for visibility
+        raw_data = bytes()
+        for y in range(height):
+            for x in range(width):
+                if (x // (w // 2) + y // (w // 2)) % 2 == 0:
+                    raw_data += bytes(color)
+                else:
+                    raw_data += bytes([0, 0, 0])
+        
+        texture = pg.image.ImageData(
+            width,
+            height,
+            'RGB',
+            raw_data
+        )
+        return texture
+
 ## Functions
 def img_to_sheet(img, clip = 0):
     """Convert a spritesheet image to only a part of it."""
@@ -567,7 +594,10 @@ class Loader:
                 try:
                     if IS_EXECUTABLE:
                         if ext in ("png","jpg","jpeg","webp","bmp"):
-                            asset    = pg.resource.image(actual_path)
+                            try:
+                                asset    = pg.resource.image(actual_path)
+                            except:
+                                asset    = Theme.create_null_texture(Theme)
                             assetres = Image({
                                 "prop":   {},
                                 "data":   {
@@ -637,7 +667,10 @@ class Loader:
                             assetres = asset
                     else:
                         if ext in ("png","jpg","jpeg","webp","bmp","dds"):
-                            asset    = pg.image.load(actual_path)
+                            try:
+                                asset    = pg.image.load(actual_path)
+                            except:
+                                asset    = Theme.create_null_texture(Theme)
                             assetres = Image({
                                 "prop":   {},
                                 "data":   {
