@@ -38,7 +38,7 @@
             "holdable": true
         },
         "eng_editor_booty": {
-            "keys": ["g"],
+            "keys": [],
             "holdable": false
         }
     },

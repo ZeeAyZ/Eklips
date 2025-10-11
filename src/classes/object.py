@@ -53,6 +53,7 @@ class Object:
     
     ## Script related
     def call(self, method, *args):
+        """Call a method from the script"""
         if self.script:
             if method in self.script.namespace:
                 mobj = types.MethodType(self.script.namespace[method], self)
@@ -62,17 +63,21 @@ class Object:
                     return mobj(*args)
 
     def call_deferred(self, method, args):
+        """Call a method from the script after the object is done updating"""
         self.call_deferr_list.append([method, args])
     
     def _init_script(self):
+        """Initialize the script attached to the Object"""
         if self.scriptpath:
             self.script = engine.resource_loader.load(self.scriptpath)
             self.script.init_param(self.properties)
     
     def _onready(self):
+        """Call _onready function in script"""
         self.call("_onready")
     
     def _process(self, delta):
+        """Call _process function in script"""
         # Whoops!
         if self.stop_running:
             return
@@ -92,6 +97,7 @@ class Object:
         gc.collect()
     
     def free(self):
+        """Free object from memory"""
         self.stop_running = True
         try:
             if self.meta["kind"] in racism:
@@ -100,27 +106,33 @@ class Object:
             pass
 
     def get_class(self):
+        """Get name of Object class."""
         return self.__class__.__name__
     
     def get_instance_id(self):
+        """Get UID of Object."""
         return self._obj_id
 
     ## Get/Set
     def to_string(self):
+        """Get string data of name and UID."""
         return f"<{self.get_class()}:{self.get_instance_id()}>"
     
     def get(self, property, default=None):
+        """Get a property, returns default if not found."""
         return self.properties.get(property, default)
     
     def set(self, property, value):
+        """Set a property."""
         self.properties[property] = value
     
     ## Get engine singleton
-    def get_engine_engine(self):
+    def get_engine_singleton(self):
+        """Get engine singleton"""
         return engine
 
     ## Virtual
     def serialize(self, path):
-        # Save the resource into a file
+        """Save the object into a file"""
         with open(path, "wb") as f:
             f.write(b"OBJ")

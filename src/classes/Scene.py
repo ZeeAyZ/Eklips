@@ -36,6 +36,28 @@ from classes.node.twod.physicsbody2d     import *
 from classes.node.twod.collisionbox2d    import *
 from classes.node.twod.parallax2d        import *
 
+# I don't even know
+def _node_tree(kind, gen, fg, nme, l, sp=False):
+    if sp: print("|"*l+" "+nme.__name__)
+    for n in kind:
+        n : Node
+        ls = n.__subclasses__()
+        ds = {}
+        for i in ls:
+            ds[i] = {}
+        gen[n] = ds
+        gen[n] =_node_tree(ds, gen[n], gen, n, l+1, sp)
+    return gen
+
+# Get a dictionary of a tree of all the Nodes in Eklips
+def node_tree(can_print = False):
+    gens   = {Node: {}}
+    genone = Node.__subclasses__()
+
+    gens   = _node_tree(genone, gens[Node], gens, Node, 0, can_print)
+
+    return gens
+
 ## Scene class
 class Scene(Object):
     def __init__(self, file_path):

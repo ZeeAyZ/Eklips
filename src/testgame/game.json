@@ -1,5 +1,5 @@
 {
-    "project-ver": "7357",
+    "project-ver": "1.0",
     "eklips-ver": "4.0A",
     "game_name": "Test",
     "keys": {
@@ -143,7 +143,7 @@
         },
         "theme_file": {
             "type": "string",
-            "default": "root://internal/themes/default.res",
+            "default": "root://internal/themes/9xthm.res",
             "description": "Global theme path."
         }
     },
