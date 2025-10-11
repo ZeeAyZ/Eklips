@@ -108,7 +108,7 @@ class Interface:
         new_pos      = self.get_anchor(pos,blit_in,anchor,img.width*scale[0],img.height*scale[1],1, rot, False)
         
         ## Detect if i'm even visible and change position
-        if not self.cull(img.width, img.height, new_pos, blit_in):
+        if not self.cull(img.width, img.height, new_pos, blit_in, scale=scale):
             if not layer in self.layers: layer = 0
             if scroll != [0, 0]:
                 img = img.get_region(
@@ -177,11 +177,13 @@ class Interface:
             return img.width*scale[0], img.height*scale[1], None
         return img.width*scale[0], img.height*scale[1]
     
-    def cull(self, w, h, pos, blit_in):
+    def cull(self, w, h, pos, blit_in, scale=[1,1]):
         if blit_in  == MAIN_SCREEN:
             blit_in  =  self.main_surf_id
         scr          = self.surfaces[blit_in]["screen"]
         win_w, win_h = scr.width, scr.height
+        w           *= scale[0]
+        h           *= scale[1]
 
         return (
             pos[0] > win_w or
