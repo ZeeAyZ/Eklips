@@ -8,11 +8,11 @@ A 2D Node hierarchy-based game engine written in Python using Pyglet.
 >Also, Do not go to the [original Eklips repository](https://github.com/Za9-118/Eklips), as i was locked out of that account and it will not have any new commits or features.
 
 >[!NOTE]
->I'm taking a break from this project.. cause school.. and life.. yayy..
+>I'm not gonna be committing as much.. cause school.. and life.. yayy..
 
 # Features
 For now, the features are:
- - 18 different Nodes (Window, 2D, GUI, etc..)
+ - 19 different Nodes (Window, 2D, GUI, etc..)
  - Resource object support
  - Pre-built Loading
  - Custom filesystem similar to Godot (`res://`, `user://`)
