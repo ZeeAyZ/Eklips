@@ -7,10 +7,14 @@ from classes.KeyEntries  import key_entries
 from classes.Convenience import *
 from classes.Constants   import *
 from tkinter.messagebox  import *
+import ErrorHandler
 from typing import Any
 
 ## Print engine info
-printf(f"{ENGINE_NAME} v{VER} ({BUILD_DATE})")
+try:
+    printf(f"{ENGINE_NAME} v{VER} ({BUILD_DATE})")
+except:
+    printf("Eklips(?) v?.? (??/??/????)")
 
 ## Global states
 events         = []
@@ -144,6 +148,7 @@ def suicide():
         interface.close()
     except:
         print("Error; the app could not be closed")
+        ErrorHandler.raise_error(RuntimeError("The Engine was unable to close"), "Pyglet Window", "It just doesn't wanna")
     im_running  = False
     i_have_died = True
     savefile.save_data()

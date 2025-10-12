@@ -3,7 +3,7 @@
 ENGINE_NAME     = "Eklips"
 
 # Version constants
-BUILD_DATE      = "24/08/2025" ## ddmmyy
+BUILD_DATE      = "12/10/2025" ## ddmmyy
 MAJOR_VER       = 4             # [4].0 A
 MEDIU_VER       = 0             #  4.[0]A
 MINOR_VER       = "A"           #  4. 0[A]

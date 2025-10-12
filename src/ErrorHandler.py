@@ -73,9 +73,9 @@ FrameSummary #{fsid}:
         if error_obj.exc_type_str == "Preview" or len(" ".join(error_info.split())) == 0:
             quick_fix = "The Eklips Error handler recieved no data, so you got this error."
         elif (error_obj.exc_type_str == "pygame.error" and error_obj == "Out of memory") or error_obj.exc_type_str == "MemoryError":
-            quick_fix = "Eklips ran out of memory! Try giving the app more memory to work with."
+            quick_fix = f"{ENGINE_NAME} ran out of memory! Try giving the app more memory to work with."
         elif error_obj.exc_type_str in ["ImportError", "ModuleNotFoundError"]:
-            quick_fix = "Core Eklips Modules were removed/not found, try reinstalling them through Eklips' github repo."
+            quick_fix = f"Core Eklips Modules were removed/not found, try reinstalling them through {ENGINE_NAME}' github repo."
         elif error_obj.exc_type_str == "KeyboardInterrupt":
             quick_fix = "You pressed Ctrl+C/Delete. Don't do that next time okay?"
     else:
@@ -107,4 +107,4 @@ def raise_error(error, event="unknown", cause_of_event=None, save_logs=True):
         )
 
 if __name__ == "__main__":
-    raise_error(Preview("Preview"), event="User who is a silly and danger", cause_of_event="You opened ErrorHandler.py", save_logs=False)
+    raise_error(Preview("Preview"), event="User", cause_of_event="You opened ErrorHandler.py", save_logs=False)
