@@ -105,7 +105,16 @@ class Interface:
         batch        = self.surfaces[blit_in]["batch"]
         if batchxt:
             batch    = batchxt
-        new_pos      = self.get_anchor(pos,blit_in,anchor,img.width*scale[0],img.height*scale[1],1, rot, False)
+        new_pos      = self.get_anchor(
+            pos,
+            blit_in,
+            anchor,
+            img.width*scale[0],
+            img.height*scale[1],
+            1,
+            rot,
+            False
+        )
         
         ## Detect if i'm even visible and change position
         if not self.cull(img.width, img.height, new_pos, blit_in, scale=scale):

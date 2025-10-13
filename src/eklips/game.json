@@ -91,6 +91,11 @@
             "default": true,
             "description": "Enable the console."
         },
+        "showfps": {
+            "type": "bool",
+            "default": false,
+            "description": "Show the framerate at the bottom of the screen."
+        },
         "con_speed": {
             "type": "int",
             "default": 450,

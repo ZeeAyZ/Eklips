@@ -3,7 +3,7 @@
         "resolution": [1280,720],
         "fullscreen": false,
         "vsync":      false,
-        "showfps":    true
+        "showfps":    false
     },
     "sound": {
         "master": 0.75,

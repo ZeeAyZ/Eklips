@@ -73,7 +73,7 @@ while (engine.im_running):
 
         # flip the screen
         try:
-            if engine.savefile.get("display/showfps", True):
+            if engine.savefile.get("display/showfps", True) or engine.cvars.get("showfps", False):
                 engine.fps_display.draw()
             engine.console.update(engine.keys_nheld, engine.keys_pressed, globals())
             engine.interface.flip()
