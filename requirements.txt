@@ -1,0 +1,6 @@
+pyvidplayer2
+pyglet
+numpy
+requests
+anytree
+pygame
