@@ -1,4 +1,4 @@
-# XXX doesn't exist
+# XXX not implemented
 ## Import inherited
 from classes.node.gui.canvasitem import CanvasItem
 
