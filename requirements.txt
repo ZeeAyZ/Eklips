@@ -3,3 +3,4 @@ pyglet
 numpy
 requests
 anytree
+pygame
