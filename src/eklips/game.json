@@ -61,10 +61,10 @@
             "default": false,
             "description": "Cheater!"
         },
-        "can_fill_screen?": {
+        "screen_fillable": {
             "type": "bool",
             "default": true,
-            "description": "Allow the game to empty the screen."
+            "description": "Allow the game to empty the screen. (Do not change)"
         },
         "glbl_scripts": {
             "type": "list",
@@ -76,12 +76,12 @@
             "default": "eklips",
             "description": "Directory for the game files."
         },
-        "loading-scene": {
+        "loading_scene": {
             "type": "string",
             "default": "root://internal/scn/loading.scn",
             "description": "Scene to be used for the loading animation."
         },
-        "master-scene": {
+        "master_scene": {
             "type": "string",
             "default": "res://data/scenes/master.scn",
             "description": "Scene to be loaded at the start."
@@ -130,14 +130,17 @@
 
     "cmd": {
         "help":        "@pointer=root://internal/scr/cmd/help.ekl\n# This dialog box",
+        
         "con_clear":   "engine.console.console_text.clear()\n# Clear the console",
         "sv_list":     "\n# List all CVars",
         "eng_chproj":  "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file.\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
         "eng_reload":  "engine.reload_engine()\n# Reload the engine",
         "eng_skip":    "@pointer=root://internal/scr/cmd/dswrld.ekl\n# This command basi and thats it.",
-        "eng_memcl":    "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets.",
-        "memcl":    "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets. (Shift friendly)",
+        "eng_memcl":   "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets.",
+        
+        "memcl":       "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets. (Shift friendly)",
         "chproj":      "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file. (Shift friendly)\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
-        "reload":      "engine.reload_engine()\n# Reload the engine (Shift friendly)"
+        "reload":      "engine.reload_engine()\n# Reload the engine (Shift friendly)",
+        "skip":        "@pointer=root://internal/scr/cmd/dswrld.ekl\n# This command basi and thats it. (Shift friendly)"
     }
 }

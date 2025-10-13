@@ -4,11 +4,6 @@ from anytree import NodeMixin
 from SpecialIsResourceDataLoadable import IS_IT as IS_EXECUTABLE
 import classes.Singleton as engine
 
-# I know this variable sounds bad.. But if your kind is in this list
-# then you get immediately discarded when free() is called.. Since other kinds
-# (Nodes) are constantly running and can't immediately be discarded.
-racism  = [None, "Resource"]
-
 ## Object class
 class Object:
     """
@@ -99,12 +94,8 @@ class Object:
     def free(self):
         """Free object from memory"""
         self.stop_running = True
-        try:
-            if self.meta["kind"] in racism:
-                self._free()
-        except:
-            pass
-
+        self._free()
+        
     def get_class(self):
         """Get name of Object class."""
         return self.__class__.__name__

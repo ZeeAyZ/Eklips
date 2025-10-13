@@ -10,4 +10,4 @@ def _process(self, delta):
         ekl.properties["transform"]["alpha"] = transform["alpha"]
 
     if transform["alpha"] < 0:
-        engine.load_new_scene(engine.cvars.get("master-scene"))
+        engine.load_new_scene(engine.cvars.get("master_scene"))

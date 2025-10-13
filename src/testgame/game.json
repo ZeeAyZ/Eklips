@@ -80,7 +80,7 @@
             "default": false,
             "description": "Cheater!"
         },
-        "can_fill_screen?": {
+        "screen_fillable": {
             "type": "bool",
             "default": true,
             "description": "Allow the game to empty the screen."
@@ -95,12 +95,12 @@
             "default": "None",
             "description": "Directory for the game files."
         },
-        "loading-scene": {
+        "loading_scene": {
             "type": "string",
             "default": "root://internal/scn/loading.scn",
             "description": "Scene to be used for the loading animation."
         },
-        "master-scene": {
+        "master_scene": {
             "type": "string",
             "default": "res://data/scenes/master.scn",
             "description": "Scene to be loaded at the start."

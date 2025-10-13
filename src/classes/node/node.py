@@ -18,7 +18,7 @@ class Node(Object, NodeMixin):
     
     The `self` value in these functions is.. the node the script is attached to. You cannot replace Node functions with a script.
 
-    There is nothing to do with it. The only useful thing to do with it is run a script with it, and no more.
+    There is nothing to do with this Node. The only useful thing to do with it is run a script with it, and no more.
     """
     
     node_base_data = {
@@ -37,6 +37,10 @@ class Node(Object, NodeMixin):
         self.resourceman = engine.resource_loader
         self.window_id   = engine.interface.main_surf_id
         super().__init__(data)
+    
+    def free(self):
+        """Free object from memory"""
+        self.stop_running = True
 
     def update(self, delta):
         self._process(delta)

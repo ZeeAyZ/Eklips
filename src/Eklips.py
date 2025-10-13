@@ -16,7 +16,7 @@ while (engine.im_running):
     engine.events = []
     try:
         # fill the interface if allowed
-        if engine.cvars.get("can_fill_screen?"):
+        if engine.cvars.get("screen_fillable"):
             try:
                 # empty screen if allowed to
                 engine.interface.fill(engine.delta)

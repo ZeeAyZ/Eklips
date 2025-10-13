@@ -221,6 +221,27 @@ class Theme(Resource):
     
     def get_thing(self, name): return self.get()["themed"][name]
     
+    def draw_knob(self, pos, size, blit_in, anchor, layer, rot=0,batch=None):
+        thing  = self.get_thing(name)
+        margin = thing["margin"]
+        tpos   = thing["atlaspos"][:2]
+        dpos   = thing["atlaspos"][2:]
+        if size[0] < margin:
+            size[0] = margin*2
+        if size[1] < margin:
+            size[1] = margin*2
+        ppos = pos[:]
+        pos  = engine.interface.get_anchor(
+            ppos,
+            blit_in,
+            anchor,
+            size[0],
+            size[1]+margin,
+            True,
+            rot,
+            True
+        )
+        
     def draw_marginable_thing(self, name, pos, size, blit_in, anchor, layer, rot=0,batch=None):
         thing  = self.get_thing(name)
         margin = thing["margin"]

@@ -117,7 +117,7 @@ def reload_engine(dir=None):
 
     ## Scene data
     printf(f" ~ Initializing loading scene")
-    scene_file = cvars.get("loading-scene")
+    scene_file = cvars.get("loading_scene")
     scene      = Scene.Scene(scene_file)
     scene.load()
     
