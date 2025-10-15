@@ -36,6 +36,7 @@ class ConHost:
         self.eng_gl       = {}
         self.is_upper     = False
         self.hold_timer   = 0
+        self.hold_timer_t = 0
         self.cmd_historyp = shared_console_history_pointer
         self.cmd_history  = shared_console_history
         self.klp          = None
@@ -87,14 +88,9 @@ class ConHost:
         """Hide the console."""
         self.hiding  = True
     
-    def update(self, keys_nheld, keys_pressed, eng_gl):
+    def update(self, keys_pressed, keys_held, eng_gl):
         self.eng_gl = eng_gl
         """Update the console."""
-        if self.y > 0:
-            self.y = 0
-        elif self.y < -self.h:
-            self.y = -self.h
-        
         if self.showing:
             if self.y < 0:
                 self.y += self.ui.delta * self.speed
@@ -106,6 +102,11 @@ class ConHost:
             else:
                 self.hiding = False
                 self.con_panel.visible = False
+        
+        if self.y > 0:
+            self.y = 0
+        elif self.y < -self.h:
+            self.y = -self.h
         
         if self.y > -self.h:
             self.con_panel.y = self.ui.screen.get_size()[1] - self.h - self.y
@@ -133,19 +134,24 @@ class ConHost:
                 blk_g = "_"
             if self.blink_timer > 2:
                 self.blink_timer = 0
-            self.blink_timer += self.ui.delta * self.bl_rate
+            self.blink_timer += engine.delta * self.bl_rate
 
-            if self.hold_timer > 0.6 and self.klp and self.klp in keys_pressed:
-                self._prockey(self.klp)
-
-            if len(keys_nheld) > 0:
-                char = keys_nheld[0]
+            if self.hold_timer > 0.5 and self.klp and self.klp in keys_held:
+                self.hold_timer_t += engine.delta
+                if self.hold_timer_t > engine.delta * 2:
+                    self._prockey(self.klp)
+            
+            if len(keys_pressed) > 0:
+                char = keys_pressed[0]
                 if char == pg.window.key.RETURN:    # Enter
                     self.input(self.input_text)
                 self._prockey(char)
                 self.hold_timer = 0
             
-            self.hold_timer += self.ui.delta
+            if len(keys_held) == 0:
+                self.hold_timer = 0
+            
+            self.hold_timer += engine.delta
 
             self.ui.render(f"] {self.input_text}{blk_g}", [10,self.y+self.h-35], "main", self.ll, batchxt=self.contxtbatch)
     
@@ -202,7 +208,7 @@ class ConHost:
         try: args    = data[1:]
         except: args = [None]
         if opc.startswith("sv_"):
-            cvar = opc.lstrip("sv_")
+            cvar = opc.removeprefix("sv_")
             if cvar == "list":
                 for cvar_name in self.cvars.cvars:
                     self.list_cvar(cvar_name)

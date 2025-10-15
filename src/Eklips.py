@@ -35,9 +35,9 @@ while (engine.im_running):
             engine.display.dispatch_events()
             engine.events                   = engine.event.get_and_handle()
             engine.mpos, engine.mpressed    = engine.event.get_mouse()
-            engine.keys_nheld               = engine.event.key_once_map
-            engine.keys_pressed_dict        = engine.event.key_map
-            engine.keys_pressed             = []
+            engine.keys_pressed               = engine.event.key_once_map
+            engine.keys_held_dict        = engine.event.key_map
+            engine.keys_held             = []
         except Exception as error:
             ErrorHandler.error  = error
             ErrorHandler.reason = "Reading User input"
@@ -45,9 +45,9 @@ while (engine.im_running):
 
         # add key presses from dictionary to a list that only shows currently pressed keys
         try:
-            for i in engine.keys_pressed_dict:
-                if engine.keys_pressed_dict[i]:
-                    engine.keys_pressed.append(i)
+            for i in engine.keys_held_dict:
+                if engine.keys_held_dict[i]:
+                    engine.keys_held.append(i)
         except Exception as error:
             ErrorHandler.error  = error
             ErrorHandler.reason = "Key parsing"
@@ -75,7 +75,7 @@ while (engine.im_running):
         try:
             if engine.savefile.get("display/showfps", True) or engine.cvars.get("showfps", False):
                 engine.fps_display.draw()
-            engine.console.update(engine.keys_nheld, engine.keys_pressed, globals())
+            engine.console.update(engine.keys_pressed, engine.keys_held, globals())
             engine.interface.flip()
         except Exception as error:
             ErrorHandler.error  = error
@@ -90,8 +90,8 @@ while (engine.im_running):
     
     # handle crashes
     if PREMATURE_DEATH in engine.events:
-        engine.suicide()
         ErrorHandler.raise_error(ErrorHandler.error, ErrorHandler.reason, "bad coding skillz")
+        engine.suicide()
         break
 
 ## Temp folder removal

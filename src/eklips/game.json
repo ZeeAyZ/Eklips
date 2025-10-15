@@ -47,7 +47,7 @@
 
     "cvars": {
         "permissions": {
-            "type": "bool",
+            "type": "str",
             "default": "rw",
             "description": "Read/Write permissions (Do not change)"
         },
@@ -65,6 +65,11 @@
             "type": "bool",
             "default": true,
             "description": "Allow the game to empty the screen. (Do not change)"
+        },
+        "screen_scalable": {
+            "type": "bool",
+            "default": false,
+            "description": "Determine if you can change the size of the screen."
         },
         "glbl_scripts": {
             "type": "list",
@@ -137,15 +142,16 @@
         "help":        "@pointer=root://internal/scr/cmd/help.ekl\n# This dialog box",
         
         "con_clear":   "engine.console.console_text.clear()\n# Clear the console",
+        "clear":       "engine.console.console_text.clear()\n# Alias for con_clear",
+        "cls":         "engine.console.console_text.clear()\n# Alias for con_clear",
         "sv_list":     "\n# List all CVars",
         "eng_chproj":  "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file.\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
         "eng_reload":  "engine.reload_engine()\n# Reload the engine",
         "eng_skip":    "@pointer=root://internal/scr/cmd/dswrld.ekl\n# This command basi and thats it.",
         "eng_memcl":   "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets.",
         
-        "memcl":       "@pointer=root://internal/scr/cmd/memcl.ekl\n# Reload all assets. (Shift friendly)",
-        "chproj":      "engine.Data.project_file = f'{args[0]}/game.json'\n# Change the project by passing the folder location of the game.json file. (Shift friendly)\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
-        "reload":      "engine.reload_engine()\n# Reload the engine (Shift friendly)",
-        "skip":        "@pointer=root://internal/scr/cmd/dswrld.ekl\n# This command basi and thats it. (Shift friendly)"
+        "chproj":      "engine.Data.project_file = f'{args[0]}/game.json'\n# Alias for eng_chproj\nengine.Data.directory = f'{args[0]}'\nengine.reload_engine(args[0])",
+        "reload":      "engine.reload_engine()\n# Alias for eng_reload",
+        "skip":        "@pointer=root://internal/scr/cmd/dswrld.ekl\n# Alias for eng_skip"
     }
 }

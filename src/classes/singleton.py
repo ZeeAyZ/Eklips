@@ -30,7 +30,7 @@ old_pacing      : int                   = pacing        # Run it back
 obj_ids         : int                   = 10            
 delta           : int                   = 0             
 truedelta       : int                   = 0             
-keys_pressed, keys_nheld                = [None],[None] 
+keys_held, keys_pressed                 = [None],[None] 
 savefile        : Save.Savefile         = 0             
 resource_loader : Resources.Loader      = 0             
 display         : Any                   = 0             
@@ -54,7 +54,7 @@ thm             : Resources.Theme       = 0
 
 ## Global functions
 def reload_engine(dir=None):
-    global savefile,resource_loader,cvars,console,thm,keys_pressed,keys_nheld,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
+    global savefile,resource_loader,cvars,console,thm,keys_held,keys_pressed,display,batch,icon,initialized,interface,event,im_running,ticks,clock,scene, global_stream, fps_display
     """Reload/Load the engine variables."""
     
     ## Save if possible
@@ -79,13 +79,13 @@ def reload_engine(dir=None):
     ## .. and then display
     if not initialized:
         printf(" ~ Initializing display")
-        display   = pg.window.Window(
+        display        = pg.window.Window(
             savefile.get("display/resolution")[0], savefile.get("display/resolution")[1],
             caption    = Data.game_name,
             fullscreen = savefile.get("display/fullscreen"),
             vsync      = savefile.get("display/vsync"),
             file_drops = cvars.get("file_drops"),
-            resizable  = True
+            resizable  = cvars.get("screen_scalable", False)
         )
         batch       = pg.graphics.Batch()
         interface   = UI.Interface()
@@ -159,15 +159,15 @@ def suicide():
 
 def is_key_pressed(key_name):
     """Get if a key is pressed from its name entry. (Name; eg. 'moveup', 'movedown', etc...)"""
-    global keys_pressed, keys_nheld
+    global keys_held, keys_pressed
     for i in Data.game_bdata["keys"]:
         if i == key_name:
             key_data = Data.game_bdata["keys"][i]
             for key in key_data["keys"]:
                 keyd = key_entries[key.upper()]
-                if keyd in keys_pressed and key_data["holdable"]:
+                if keyd in keys_held and key_data["holdable"]:
                     return True
-                if keyd in keys_nheld and not key_data["holdable"]:
+                if keyd in keys_pressed and not key_data["holdable"]:
                     return True
     return False
 

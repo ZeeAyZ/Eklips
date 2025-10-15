@@ -9,7 +9,7 @@ Error: string index out of range
 
 FrameSummary #1:
   | Filename: D:\Code\Eklips\git\repo\Eklips\src\Eklips.py
-  | Line: engine.console.update(engine.keys_nheld, engine.keys_pressed, globals())
+  | Line: engine.console.update(engine.keys_pressed, engine.keys_held, globals())
   | Line #: 62
 
 FrameSummary #2:
