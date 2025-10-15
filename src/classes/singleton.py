@@ -10,6 +10,10 @@ from tkinter.messagebox  import *
 import ErrorHandler
 from typing import Any
 
+# Hook subprocess
+import subprocess
+from classes import commons_subprchook
+
 ## Print engine info
 try:
     printf(f"{ENGINE_NAME} v{VER} ({BUILD_DATE})")

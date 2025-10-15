@@ -43,7 +43,7 @@
         }
     },
                                                      
-    "viewport_resolution": [1280, 720],
+    "viewport_resolution": [1146, 640],
 
     "cvars": {
         "permissions": {
@@ -78,7 +78,7 @@
         },
         "loading_scene": {
             "type": "string",
-            "default": "root://internal/scn/loading.scn",
+            "default": "root://internal/scn/fun.scn",
             "description": "Scene to be used for the loading animation."
         },
         "master_scene": {

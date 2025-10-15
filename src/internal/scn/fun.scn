@@ -13,7 +13,7 @@
                 "autostart":   true,
 
                 "transform":  {
-                    "scale":  [0.7,0.7],
+                    "scale":  [0.596875,0.596875],
                     "pos":    [0,0],
                     "anchor": "top left",
                     "layer":  0,
